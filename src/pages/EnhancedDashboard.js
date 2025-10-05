@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import LiveHeatMap from '../components/LiveHeatMap';
+import { alertAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import { 
   LineChart, 
   Line, 
@@ -476,6 +479,51 @@ const ActionCard = styled(motion.div)`
 `;
 
 const EnhancedDashboard = () => {
+  const { user, isAuthenticated } = useAuth();
+  const [recentAlerts, setRecentAlerts] = useState([]);
+  const [alertsLoading, setAlertsLoading] = useState(true);
+  const [alertStats, setAlertStats] = useState({
+    total: 0,
+    active: 0,
+    resolved: 0,
+    userAlerts: 0
+  });
+  
+  // Fetch recent alerts from API
+  useEffect(() => {
+    fetchRecentAlerts();
+  }, []);
+  
+  const fetchRecentAlerts = async () => {
+    setAlertsLoading(true);
+    try {
+      // Fetch recent alerts (last 20 alerts, sorted by creation date)
+      const response = await alertAPI.getAllAlerts({
+        page: 1,
+        limit: 20,
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
+      });
+      
+      const alerts = response.data || [];
+      setRecentAlerts(alerts.slice(0, 4)); // Show only 4 most recent for dashboard
+      
+      // Calculate stats
+      const stats = {
+        total: alerts.length,
+        active: alerts.filter(alert => alert.status === 'active').length,
+        resolved: alerts.filter(alert => alert.status === 'resolved').length,
+        userAlerts: user ? alerts.filter(alert => alert.reportedBy && alert.reportedBy._id === user._id).length : 0
+      };
+      setAlertStats(stats);
+      
+    } catch (error) {
+      console.error('Failed to fetch recent alerts:', error);
+      toast.error('Failed to load recent alerts');
+    } finally {
+      setAlertsLoading(false);
+    }
+  };
   
   // Mock data for regional alert heatmap
   const regionData = [
@@ -520,61 +568,58 @@ const EnhancedDashboard = () => {
     { day: 'Sun', temperature: 26, humidity: 67, airQuality: 89 }
   ];
 
-  const recentAlerts = [
-    {
-      id: 1,
-      title: 'Disease Outbreak Alert',
-      description: 'African Swine Fever detected in Visakhapatnam district',
-      priority: 'high',
-      location: 'Visakhapatnam, AP',
-      time: '2 hours ago'
-    },
-    {
-      id: 2,
-      title: 'Compliance Reminder',
-      description: 'FSSAI license renewal due in 15 days',
-      priority: 'medium',
-      location: 'Your Farm',
-      time: '5 hours ago'
-    },
-    {
-      id: 3,
-      title: 'Weather Warning',
-      description: 'Heavy rainfall expected in next 48 hours',
-      priority: 'medium',
-      location: 'Kerala State',
-      time: '8 hours ago'
-    },
-    {
-      id: 4,
-      title: 'System Update',
-      description: 'New biosecurity guidelines published',
-      priority: 'low',
-      location: 'All Regions',
-      time: '1 day ago'
+  // Helper function to format alert time
+  const formatAlertTime = (createdAt) => {
+    const now = new Date();
+    const alertTime = new Date(createdAt);
+    const diffInHours = Math.floor((now - alertTime) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) {
+      const diffInMinutes = Math.floor((now - alertTime) / (1000 * 60));
+      return `${diffInMinutes} minutes ago`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    } else {
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
     }
-  ];
+  };
+  
+  // Helper function to get priority level
+  const getAlertPriority = (severity) => {
+    switch (severity) {
+      case 'critical': return 'high';
+      case 'high': return 'high';
+      case 'medium': return 'medium';
+      case 'low': return 'low';
+      default: return 'medium';
+    }
+  };
 
   const quickActions = [
     {
       icon: <FiAlertTriangle />,
       title: 'Raise Alert',
-      description: 'Report urgent farm issues'
+      description: 'Report urgent farm issues',
+      href: '/raise-alert'
     },
     {
       icon: <FiShield />,
       title: 'Compliance Check',
-      description: 'Run biosecurity assessment'
+      description: 'Run biosecurity assessment',
+      href: '/compliance'
     },
     {
       icon: <FiUsers />,
       title: 'Expert Consultation',
-      description: 'Connect with veterinarians'
+      description: 'Connect with veterinarians',
+      href: '/experts'
     },
     {
       icon: <FiBarChart2 />,
       title: 'Generate Report',
-      description: 'Download farm analytics'
+      description: 'Download farm analytics',
+      href: '/analytics'
     }
   ];
 
@@ -630,9 +675,13 @@ const EnhancedDashboard = () => {
               -8%
             </div>
           </div>
-          <div className="stat-value">3</div>
+          <div className="stat-value">{alertsLoading ? '...' : alertStats.active}</div>
           <div className="stat-label">Active Alerts</div>
-          <div className="stat-sublabel">2 high priority</div>
+          <div className="stat-sublabel">
+            {alertsLoading ? 'Loading...' : 
+              isAuthenticated ? `${alertStats.userAlerts} your alerts` : `${alertStats.total} total alerts`
+            }
+          </div>
         </StatCard>
 
         <StatCard 
@@ -824,29 +873,57 @@ const EnhancedDashboard = () => {
               <FiBell />
               Recent Alerts
             </div>
-            <a href="/notifications" className="view-all">View All</a>
+            <a href="/profile?tab=my-alerts" className="view-all">View All</a>
           </div>
           
-          {recentAlerts.map((alert, index) => (
-            <AlertItem
-              key={alert.id}
-              priority={alert.priority}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-            >
-              <FiAlertTriangle className="alert-icon" />
-              <div className="alert-content">
-                <div className="alert-title">{alert.title}</div>
-                <div className="alert-description">{alert.description}</div>
-                <div className="alert-meta">
-                  <span><FiMapPin /> {alert.location}</span>
-                  <span><FiClock /> {alert.time}</span>
+          {alertsLoading ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              Loading recent alerts...
+            </div>
+          ) : recentAlerts.length > 0 ? (
+            recentAlerts.map((alert, index) => (
+              <AlertItem
+                key={alert._id}
+                priority={getAlertPriority(alert.severity)}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+              >
+                <FiAlertTriangle className="alert-icon" />
+                <div className="alert-content">
+                  <div className="alert-title">{alert.title}</div>
+                  <div className="alert-description">
+                    {alert.description.length > 80 
+                      ? `${alert.description.substring(0, 80)}...` 
+                      : alert.description
+                    }
+                  </div>
+                  <div className="alert-meta">
+                    <span>
+                      <FiMapPin /> 
+                      {alert.location?.district || alert.location?.state || 'Location not specified'}
+                    </span>
+                    <span>
+                      <FiClock /> 
+                      {formatAlertTime(alert.createdAt)}
+                    </span>
+                    {alert.reportedBy && alert.reportedBy.name && (
+                      <span>By: {alert.reportedBy.name}</span>
+                    )}
+                  </div>
                 </div>
+                <div className="alert-priority">{getAlertPriority(alert.severity)}</div>
+              </AlertItem>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              <FiAlertTriangle style={{ fontSize: '48px', marginBottom: '16px', color: '#ccc' }} />
+              <div>No recent alerts found</div>
+              <div style={{ fontSize: '14px', marginTop: '8px' }}>
+                New alerts will appear here when submitted
               </div>
-              <div className="alert-priority">{alert.priority}</div>
-            </AlertItem>
-          ))}
+            </div>
+          )}
         </AlertsList>
       </AlertsSection>
 
@@ -854,10 +931,13 @@ const EnhancedDashboard = () => {
         {quickActions.map((action, index) => (
           <ActionCard
             key={index}
+            as="a"
+            href={action.href}
             whileHover={{ y: -3 }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
+            style={{ textDecoration: 'none', color: 'inherit' }}
           >
             <div className="action-icon">{action.icon}</div>
             <div className="action-title">{action.title}</div>

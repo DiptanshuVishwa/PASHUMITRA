@@ -606,10 +606,160 @@ const formatBytes = (bytes, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
+// @desc    Upload user avatar
+// @route   POST /api/upload/avatar
+// @access  Private
+const uploadAvatar = asyncHandler(async (req, res) => {
+  try {
+    console.log('Processing avatar upload...');
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No avatar file provided'
+      });
+    }
+
+    const file = req.file;
+    const User = require('../models/User');
+
+    // Validate file is an image
+    if (!file.mimetype.startsWith('image/')) {
+      // Clean up uploaded file
+      try {
+        await deleteFromS3(file.key);
+      } catch (cleanupError) {
+        console.error('Error cleaning up invalid file:', cleanupError);
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'Avatar must be an image file'
+      });
+    }
+
+    // Check file size (5MB limit for avatars)
+    if (file.size > 5 * 1024 * 1024) {
+      try {
+        await deleteFromS3(file.key);
+      } catch (cleanupError) {
+        console.error('Error cleaning up oversized file:', cleanupError);
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'Avatar file size must be less than 5MB'
+      });
+    }
+
+    console.log('Avatar S3 details:', {
+      key: file.key,
+      bucket: file.bucket,
+      location: file.location,
+      size: file.size
+    });
+
+    // Generate file hash
+    const fileHash = file.etag ? file.etag.replace(/"/g, '') : crypto.randomBytes(16).toString('hex');
+
+    // Create thumbnail for avatar (smaller size)
+    const thumbnailS3Key = file.key.replace(/([^/]+)$/, 'thumbnails/thumb_$1');
+    
+    // Save file metadata to database with avatar category
+    const fileRecord = await File.create({
+      originalName: file.originalname,
+      filename: path.basename(file.key),
+      path: file.location,
+      s3Key: file.key,
+      s3Bucket: file.bucket,
+      cloudUrl: file.location,
+      thumbnailS3Key,
+      mimetype: file.mimetype,
+      size: file.size,
+      category: 'avatar',
+      description: 'User avatar image',
+      tags: ['avatar', 'profile'],
+      hash: fileHash,
+      uploadedBy: req.user.id,
+      uploadDate: new Date()
+    });
+
+    // Update user's avatar URL
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatar: file.location },
+      { new: true, select: '-password' }
+    );
+
+    if (!user) {
+      // Clean up if user update fails
+      try {
+        await deleteFromS3(file.key);
+        await File.findByIdAndDelete(fileRecord._id);
+      } catch (cleanupError) {
+        console.error('Error cleaning up after user update failure:', cleanupError);
+      }
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    console.log('Avatar uploaded and user profile updated successfully');
+
+    // Generate signed URLs for secure access
+    const signedUrl = await generateSignedUrl(file.key, 3600); // 1 hour expiry
+    const thumbnailSignedUrl = await generateSignedUrl(thumbnailS3Key, 3600);
+
+    res.status(201).json({
+      success: true,
+      message: 'Avatar uploaded successfully',
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar
+        },
+        file: {
+          id: fileRecord._id,
+          originalName: fileRecord.originalName,
+          filename: fileRecord.filename,
+          s3Key: fileRecord.s3Key,
+          avatarUrl: file.location,
+          signedUrl: signedUrl,
+          thumbnailUrl: `/api/upload/thumbnail/${fileRecord._id}`,
+          thumbnailSignedUrl: thumbnailSignedUrl,
+          size: fileRecord.size,
+          mimetype: fileRecord.mimetype,
+          uploadDate: fileRecord.uploadDate
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error uploading avatar:', error);
+    
+    // Clean up S3 file if it was uploaded but process failed
+    if (req.file && req.file.key) {
+      try {
+        await deleteFromS3(req.file.key);
+        console.log('Cleaned up S3 file after error');
+      } catch (s3Error) {
+        console.error('Error cleaning up S3 file:', s3Error);
+      }
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Avatar upload failed',
+      error: process.env.NODE_ENV === 'production' ? {} : error.message
+    });
+  }
+});
+
 module.exports = {
   upload,
   uploadSingleFile,
   uploadMultipleFiles,
+  uploadAvatar,
   getFiles,
   downloadFile,
   getFileThumbnail,

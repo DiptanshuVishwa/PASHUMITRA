@@ -9,19 +9,58 @@ const handleValidationErrors = (req, res, next) => {
     const errorMessages = errors.array().map(error => ({
       field: error.path || error.param,
       message: error.msg,
-      value: error.value
+      value: error.value,
+      location: error.location
     }));
 
-    logger.warn('Validation failed:', {
+    // Enhanced logging for alert validation failures
+    const logData = {
       ip: req.ip,
       endpoint: `${req.method} ${req.path}`,
-      errors: errorMessages
-    });
+      errors: errorMessages,
+      userId: req.user?._id,
+      userAgent: req.headers['user-agent']
+    };
+
+    // For alert creation failures, include full request body (sanitized)
+    if (req.path.includes('/alerts') && req.method === 'POST') {
+      logData.requestBody = {
+        ...req.body,
+        // Don't log sensitive data
+        password: req.body.password ? '[REDACTED]' : undefined
+      };
+      logData.validationContext = 'ALERT_CREATION';
+    }
+
+    // Enhanced logging with full details
+    logger.warn('========== VALIDATION FAILED ==========');
+    logger.warn('Endpoint:', `${req.method} ${req.path}`);
+    logger.warn('User ID:', req.user?._id);
+    logger.warn('Validation Errors:', JSON.stringify(errorMessages, null, 2));
+    if (req.path.includes('/alerts') && req.method === 'POST') {
+      logger.warn('Request Body:', JSON.stringify(req.body, null, 2));
+    }
+    logger.warn('=========================================');
+    
+    // Also log using the original format
+    logger.warn('Validation failed:', logData);
+    
+    // Backup console logging for immediate visibility
+    console.log('\n========== VALIDATION ERROR DEBUG ==========');
+    console.log('Errors:', errorMessages);
+    console.log('Request Body:', req.body);
+    console.log('==========================================\n');
 
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
-      errors: errorMessages
+      errors: errorMessages,
+      ...(process.env.NODE_ENV === 'development' && {
+        debug: {
+          receivedData: req.body,
+          validationErrors: errors.array()
+        }
+      })
     });
   }
   
@@ -377,10 +416,12 @@ const validateCreateAlert = [
     .withMessage('Longitude must be between -180 and 180'),
 
   body('affectedAnimals.species')
+    .optional()
     .isIn(['cattle', 'buffalo', 'goat', 'sheep', 'pig', 'poultry', 'other'])
     .withMessage('Species must be one of: cattle, buffalo, goat, sheep, pig, poultry, other'),
 
   body('affectedAnimals.count')
+    .optional()
     .isInt({ min: 1, max: 10000 })
     .withMessage('Animal count must be between 1 and 10,000'),
 

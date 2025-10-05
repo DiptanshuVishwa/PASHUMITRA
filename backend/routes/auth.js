@@ -1,4 +1,5 @@
 const express = require('express');
+const logger = require('../utils/logger');
 const {
   register,
   login,
@@ -449,7 +450,109 @@ router.post('/logout',
   logout
 );
 
-// @route   GET /api/auth/test
+// Google OAuth routes
+const passport = require('../config/passport');
+
+// Helper function to check if Google OAuth is configured
+const isGoogleOAuthConfigured = () => {
+  return process.env.GOOGLE_CLIENT_ID && 
+         process.env.GOOGLE_CLIENT_SECRET && 
+         process.env.GOOGLE_CLIENT_ID !== 'placeholder_google_client_id';
+};
+
+/**
+ * @swagger
+ * /api/auth/google:
+ *   get:
+ *     summary: Initiate Google OAuth login
+ *     tags: [Authentication]
+ *     responses:
+ *       302:
+ *         description: Redirect to Google authorization
+ *       503:
+ *         description: Google OAuth not configured
+ */
+router.get('/google', (req, res, next) => {
+  if (!isGoogleOAuthConfigured()) {
+    return res.status(503).json({
+      success: false,
+      message: 'Google OAuth is not configured on this server. Please contact the administrator.'
+    });
+  }
+  passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+});
+
+/**
+ * @swagger
+ * /api/auth/google/callback:
+ *   get:
+ *     summary: Google OAuth callback
+ *     tags: [Authentication]
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Authorization code from Google
+ *     responses:
+ *       302:
+ *         description: Redirect to frontend with auth status
+ */
+router.get('/google/callback', (req, res, next) => {
+  if (!isGoogleOAuthConfigured()) {
+    return res.status(503).json({
+      success: false,
+      message: 'Google OAuth is not configured on this server. Please contact the administrator.'
+    });
+  }
+  
+  passport.authenticate('google', { failureRedirect: '/api/auth/google/failure' })(req, res, (error) => {
+    if (error) {
+      logger.error('Google auth middleware error:', error);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(`${frontendUrl}/auth/google/failure`);
+    }
+    
+    // Continue with success handling
+    (async () => {
+      try {
+        // Generate JWT token for the user
+        const token = req.user.getSignedJwtToken();
+        
+        // Update last login
+        await req.user.updateLastLogin();
+        
+        // Redirect to frontend with token
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendUrl}/auth/google/success?token=${token}`);
+      } catch (error) {
+        logger.error('Google callback error:', error);
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendUrl}/auth/google/failure`);
+      }
+    })();
+  });
+});
+
+/**
+ * @swagger
+ * /api/auth/google/failure:
+ *   get:
+ *     summary: Google OAuth failure endpoint
+ *     tags: [Authentication]
+ *     responses:
+ *       401:
+ *         description: Google authentication failed
+ */
+router.get('/google/failure', (req, res) => {
+  res.status(401).json({
+    success: false,
+    message: 'Google authentication failed'
+  });
+});
+
+module.exports = router;
 // @desc    Test auth routes (development only)
 // @access  Public
 if (process.env.NODE_ENV === 'development') {

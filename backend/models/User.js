@@ -105,9 +105,25 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: function() {
+      return !this.googleId; // Password not required for Google OAuth users
+    },
     minlength: [6, 'Password must be at least 6 characters'],
     select: false // Don't include password in queries by default
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Allows null values and doesn't enforce uniqueness for them
+  },
+  provider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local'
+  },
+  farmLocation: {
+    type: String,
+    trim: true
   },
   role: {
     type: String,
@@ -185,6 +201,10 @@ const userSchema = new mongoose.Schema({
     default: true
   },
   emailVerified: {
+    type: Boolean,
+    default: false
+  },
+  isVerified: {
     type: Boolean,
     default: false
   },

@@ -6,6 +6,7 @@ import { alertAPI, fileAPI } from '../services/api';
 import { uploadSingleFile } from '../services/fileUpload';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import AlertSubmissionModal from '../components/AlertSubmissionModal';
 import {
   FiAlertTriangle,
   FiMapPin,
@@ -545,6 +546,18 @@ const RaiseAlertPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
   
+  // Modal state
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    type: 'success', // 'success', 'error', 'warning', 'info'
+    title: '',
+    message: '',
+    errors: [],
+    showRetry: false,
+    showViewAlert: false,
+    alertId: null
+  });
+  
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const timerRef = useRef(null);
@@ -953,7 +966,20 @@ const RaiseAlertPage = () => {
 
       const alertResponse = await alertAPI.create(alertData);
 
-      toast.success('Alert submitted successfully! Our team will respond shortly.', { id: uploadToast });
+      // Dismiss loading toast
+      toast.dismiss(uploadToast);
+      
+      // Show success modal
+      setModalState({
+        isOpen: true,
+        type: 'success',
+        title: 'Alert Submitted Successfully!',
+        message: `Your alert has been submitted successfully with ID: ${alertResponse.data._id}. Our expert team will respond shortly and you will receive updates via SMS and email.`,
+        errors: [],
+        showRetry: false,
+        showViewAlert: true,
+        alertId: alertResponse.data._id
+      });
       
       // Reset form after successful submission
       setFormData({
@@ -979,18 +1005,33 @@ const RaiseAlertPage = () => {
     } catch (error) {
       console.error('Alert submission failed:', error);
       
+      // Dismiss loading toast
+      toast.dismiss(uploadToast);
+      
       // Check if it's an authentication error
       if (error.response?.status === 401) {
-        toast.error('Authentication expired. Please login again.', { id: uploadToast });
+        toast.error('Authentication expired. Please login again.');
         navigate('/auth?redirect=/raise-alert');
         return;
       }
       
+      // Prepare error details for modal
       const errorMessage = error.response?.data?.message || 
                           error.response?.data?.error ||
                           error.message || 
                           'Failed to submit alert. Please try again.';
-      toast.error(errorMessage, { id: uploadToast });
+      
+      const validationErrors = error.response?.data?.errors || [];
+      
+      // Show error modal
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        title: 'Alert Submission Failed',
+        message: errorMessage,
+        errors: validationErrors,
+        showRetry: true
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -1019,6 +1060,22 @@ const RaiseAlertPage = () => {
       'high': 'critical'
     };
     return severityMap[urgency] || 'medium';
+  };
+
+  // Modal handlers
+  const closeModal = () => {
+    setModalState(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const retrySubmission = () => {
+    closeModal();
+    handleSubmit();
+  };
+
+  const viewAlert = () => {
+    closeModal();
+    // Navigate to My Alerts tab in profile page
+    navigate('/profile?tab=my-alerts');
   };
 
   return (
@@ -1417,6 +1474,20 @@ const RaiseAlertPage = () => {
           </SubmitButton>
         </SubmitSection>
       </AlertForm>
+      
+      {/* Alert Submission Modal */}
+      <AlertSubmissionModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        type={modalState.type}
+        title={modalState.title}
+        message={modalState.message}
+        errors={modalState.errors}
+        onRetry={retrySubmission}
+        showRetry={modalState.showRetry}
+        onViewAlert={viewAlert}
+        showViewAlert={modalState.showViewAlert}
+      />
     </AlertContainer>
   );
 };

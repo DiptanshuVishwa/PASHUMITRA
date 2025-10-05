@@ -17,6 +17,8 @@ import ProfilePage from './pages/ProfilePage';
 import FAQPage from './pages/FAQPage';
 import FarmManagementPage from './pages/FarmManagementPage';
 import WeatherDashboard from './pages/WeatherDashboard';
+import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
+import GoogleAuthFailure from './pages/GoogleAuthFailure';
 import {
   Learning,
   Privacy,
@@ -39,6 +41,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
+                <Route path="/auth/google/failure" element={<GoogleAuthFailure />} />
                 <Route path="/questionnaire" element={<Questionnaire />} />
                 <Route path="/warning" element={<WarningPage />} />
                 <Route path="/dashboard" element={<Dashboard />} />

@@ -51,8 +51,8 @@ const TabContainer = styled.div`
 const Tab = styled.button`
   flex: 1;
   padding: 12px;
-  background: ${props => props.active ? 'var(--primary-coral)' : 'transparent'};
-  color: ${props => props.active ? 'white' : 'var(--dark-gray)'};
+  background: ${props => props.$active ? 'var(--primary-coral)' : 'transparent'};
+  color: ${props => props.$active ? 'white' : 'var(--dark-gray)'};
   border: none;
   border-radius: 6px;
   font-weight: 600;
@@ -241,12 +241,15 @@ const Auth = () => {
     setError('');
     
     try {
-      // This is a placeholder - integrate with Google OAuth API
-      // For now, show a message that this feature is coming soon
-      setError('Google authentication is coming soon. Please use email/password for now.');
+      // Get the API URL from environment
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      
+      // Redirect to backend Google OAuth endpoint
+      window.location.href = `${API_URL}/auth/google`;
+      
     } catch (error) {
-      setError('Failed to authenticate with Google. Please try again.');
-    } finally {
+      console.error('Google auth error:', error);
+      setError('Failed to initiate Google authentication. Please try again.');
       setLoading(false);
     }
   };
@@ -362,13 +365,13 @@ const Auth = () => {
 
         <TabContainer>
           <Tab
-            active={isLogin}
+            $active={isLogin}
             onClick={() => setIsLogin(true)}
           >
             Login
           </Tab>
           <Tab
-            active={!isLogin}
+            $active={!isLogin}
             onClick={() => setIsLogin(false)}
           >
             Sign Up

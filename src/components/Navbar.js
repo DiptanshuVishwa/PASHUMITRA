@@ -647,18 +647,42 @@ const Navbar = () => {
   const [notificationCount] = useState(3); // This would come from context/API
   const othersDropdownRef = useRef(null);
   const othersButtonRef = useRef(null);
+  const userDropdownRef = useRef(null);
+  const languageDropdownRef = useRef(null);
 
-  // Close Others dropdown when clicking outside
+  // Close all dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (othersDropdownRef.current && !othersDropdownRef.current.contains(event.target)) {
+      // Close Others dropdown
+      if (othersDropdownRef.current && !othersDropdownRef.current.contains(event.target) && 
+          othersButtonRef.current && !othersButtonRef.current.contains(event.target)) {
         setShowOthersDropdown(false);
+      }
+      
+      // Close User dropdown
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setShowUserDropdown(false);
+      }
+      
+      // Close Language dropdown
+      if (languageDropdownRef.current && !languageDropdownRef.current.contains(event.target)) {
+        setShowLanguageDropdown(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowOthersDropdown(false);
+        setShowUserDropdown(false);
+        setShowLanguageDropdown(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -675,6 +699,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
+    setShowUserDropdown(false);
     logout();
     navigate('/');
   };
@@ -754,7 +779,7 @@ const Navbar = () => {
 
         <UserMenu>
           {/* Language Selector */}
-          <LanguageSelector>
+          <LanguageSelector ref={languageDropdownRef}>
             <DropdownButton 
               onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
             >
@@ -804,7 +829,7 @@ const Navbar = () => {
               </NotificationButton>
 
               {/* User Dropdown */}
-              <DropdownContainer>
+              <DropdownContainer ref={userDropdownRef}>
                 <DropdownButton 
                   onClick={() => setShowUserDropdown(!showUserDropdown)}
                 >
@@ -818,11 +843,11 @@ const Navbar = () => {
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <DropdownItem to="/profile">
+                      <DropdownItem to="/profile" onClick={() => setShowUserDropdown(false)}>
                         <FiUser style={{ marginRight: '8px' }} />
                         {t('nav.profile')}
                       </DropdownItem>
-                      <DropdownItem to="/settings">
+                      <DropdownItem to="/settings" onClick={() => setShowUserDropdown(false)}>
                         <FiSettings style={{ marginRight: '8px' }} />
                         {t('nav.settings')}
                       </DropdownItem>
@@ -913,9 +938,6 @@ const Navbar = () => {
                 <MobileNavLink to="/privacy" onClick={() => setShowMobileMenu(false)}>
                   {t('nav.privacy')}
                 </MobileNavLink>
-                <MobileNavLink to="/settings" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.settings')}
-                </MobileNavLink>
                 <MobileNavLink to="/feedback" onClick={() => setShowMobileMenu(false)}>
                   {t('nav.feedback')}
                 </MobileNavLink>
@@ -985,24 +1007,25 @@ const Navbar = () => {
       {showOthersDropdown && (() => {
         const position = getOthersButtonPosition();
         return (
-          <div style={{
-            position: 'fixed',
-            top: `${position.top}px`,
-            left: `${position.left}px`,
-            backgroundColor: 'white',
-            border: '1px solid #e0e0e0',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            minWidth: '200px',
-            padding: '8px 0',
-            zIndex: 1001
-          }}>
+          <div 
+            ref={othersDropdownRef}
+            style={{
+              position: 'fixed',
+              top: `${position.top}px`,
+              left: `${position.left}px`,
+              backgroundColor: 'white',
+              border: '1px solid #e0e0e0',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              minWidth: '200px',
+              padding: '8px 0',
+              zIndex: 1001
+            }}>
           <Link to="/learning" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Learning</Link>
           <Link to="/farm-management" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Farm Management</Link>
           <Link to="/weather" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Weather Dashboard</Link>
           <Link to="/faq" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>FAQ</Link>
           <Link to="/privacy" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Privacy</Link>
-          <Link to="/settings" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Settings</Link>
           <Link to="/feedback" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Feedback</Link>
           <Link to="/contact-vet" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Contact Vet</Link>
           <Link to="/contact-us" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Contact Us</Link>

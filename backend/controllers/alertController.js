@@ -21,7 +21,8 @@ const getAlerts = async (req, res) => {
       sortOrder = 'desc',
       lat,
       lng,
-      radius = 50000 // 50km default radius
+      radius = 50000, // 50km default radius
+      reportedBy // Filter by user who reported the alert
     } = req.query;
 
     // Build filter object
@@ -32,6 +33,7 @@ const getAlerts = async (req, res) => {
     if (severity) filters.severity = severity;
     if (state) filters['location.state'] = new RegExp(state, 'i');
     if (district) filters['location.district'] = new RegExp(district, 'i');
+    if (reportedBy) filters.reportedBy = reportedBy;
 
     // Text search
     if (search) {
@@ -155,6 +157,21 @@ const getAlert = async (req, res) => {
 // @access  Private
 const createAlert = async (req, res) => {
   try {
+    // Log incoming request data for debugging
+    logger.info('Alert creation attempt:', {
+      userId: req.user._id,
+      userEmail: req.user.email,
+      requestBody: {
+        title: req.body.title,
+        description: req.body.description?.substring(0, 100) + '...',
+        category: req.body.category,
+        severity: req.body.severity,
+        location: req.body.location,
+        affectedAnimals: req.body.affectedAnimals,
+        hasAttachments: !!(req.files && req.files.length > 0)
+      }
+    });
+
     // Add the user who created the alert
     req.body.reportedBy = req.user._id;
 
@@ -179,16 +196,34 @@ const createAlert = async (req, res) => {
       data: alert
     });
   } catch (error) {
+    // Enhanced error logging
     logger.error('Create alert failed:', {
       error: error.message,
+      errorStack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      errorName: error.name,
       userId: req.user._id,
-      alertData: req.body
+      userEmail: req.user.email,
+      alertData: {
+        title: req.body.title,
+        category: req.body.category,
+        severity: req.body.severity,
+        location: req.body.location,
+        affectedAnimals: req.body.affectedAnimals
+      },
+      validationErrors: error.name === 'ValidationError' ? error.errors : undefined,
+      mongoErrors: error.code ? { code: error.code, keyPattern: error.keyPattern } : undefined
     });
 
-    res.status(500).json({
+    // Return appropriate error response
+    const statusCode = error.name === 'ValidationError' ? 400 : 500;
+    
+    res.status(statusCode).json({
       success: false,
-      message: 'Failed to create alert',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: statusCode === 400 ? 'Invalid alert data' : 'Failed to create alert',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      ...(process.env.NODE_ENV === 'development' && statusCode === 400 && {
+        validationDetails: error.errors
+      })
     });
   }
 };

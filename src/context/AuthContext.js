@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState(false);
+  const [isSettingAuthData, setIsSettingAuthData] = useState(false); // Prevent concurrent calls
 
   useEffect(() => {
     // Check for existing session and validate with backend
@@ -27,16 +28,20 @@ export const AuthProvider = ({ children }) => {
         try {
           // Validate token with backend
           const userData = await authAPI.getProfile();
-          setUser(userData.user);
-          setIsAuthenticated(true);
-          
-          // Check if user has completed questionnaire
-          const userId = userData.user.id || userData.user._id;
-          const questionnaire = localStorage.getItem(`pashumitra_questionnaire_${userId}`);
-          setHasCompletedQuestionnaire(!!questionnaire);
-          
-          // Update stored user data with fresh data
-          localStorage.setItem('pashumitra_user', JSON.stringify(userData.user));
+          if (userData.success && userData.data && userData.data.user) {
+            setUser(userData.data.user);
+            setIsAuthenticated(true);
+            
+            // Check if user has completed questionnaire
+            const userId = userData.data.user.id || userData.data.user._id;
+            const questionnaire = localStorage.getItem(`pashumitra_questionnaire_${userId}`);
+            setHasCompletedQuestionnaire(!!questionnaire);
+            
+            // Update stored user data with fresh data
+            localStorage.setItem('pashumitra_user', JSON.stringify(userData.data.user));
+          } else {
+            throw new Error('Invalid user data response');
+          }
         } catch (error) {
           console.error('Token validation failed:', error);
           // Clear invalid session
@@ -150,10 +155,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       const response = await authAPI.updateProfile(profileData);
       
-      if (response.success && response.user) {
-        setUser(response.user);
-        localStorage.setItem('pashumitra_user', JSON.stringify(response.user));
-        return { success: true, user: response.user };
+      if (response.success && response.data && response.data.user) {
+        setUser(response.data.user);
+        localStorage.setItem('pashumitra_user', JSON.stringify(response.data.user));
+        return { success: true, user: response.data.user };
       } else {
         throw new Error(response.message || 'Profile update failed');
       }
@@ -172,6 +177,58 @@ export const AuthProvider = ({ children }) => {
     setHasCompletedQuestionnaire(true);
   };
 
+  const setAuthData = async ({ token }) => {
+    // Prevent concurrent calls
+    if (isSettingAuthData) {
+      console.log('AuthContext - setAuthData already in progress, skipping...');
+      return { success: false, error: 'Authentication already in progress' };
+    }
+    
+    try {
+      console.log('AuthContext - setAuthData called with token:', token ? 'Present' : 'Missing');
+      setIsSettingAuthData(true);
+      setLoading(true);
+      
+      // Store token in localStorage with the expected key
+      localStorage.setItem('pashumitra_token', token);
+      console.log('AuthContext - Token stored in localStorage');
+      
+      // Fetch user data using the token
+      console.log('AuthContext - Fetching user profile...');
+      const userData = await authAPI.getProfile();
+      console.log('AuthContext - Profile API response:', userData);
+      
+      if (userData.success && userData.data && userData.data.user) {
+        const user = userData.data.user;
+        console.log('AuthContext - Setting user data:', user.name, user.email);
+        setUser(user);
+        setIsAuthenticated(true);
+        localStorage.setItem('pashumitra_user', JSON.stringify(user));
+        
+        // Check if user has completed questionnaire
+        const userId = user.id || user._id;
+        const questionnaire = localStorage.getItem(`pashumitra_questionnaire_${userId}`);
+        setHasCompletedQuestionnaire(!!questionnaire);
+        
+        console.log('AuthContext - Authentication state updated successfully');
+        return { success: true, user: user };
+      } else {
+        console.error('AuthContext - Invalid API response:', userData);
+        throw new Error('Failed to fetch user data');
+      }
+    } catch (error) {
+      console.error('AuthContext - setAuthData error:', error);
+      console.error('AuthContext - Error details:', error.response?.data);
+      // Clear invalid data
+      localStorage.removeItem('pashumitra_token');
+      localStorage.removeItem('pashumitra_user');
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+      setIsSettingAuthData(false);
+    }
+  };
+
   const value = {
     user,
     isAuthenticated,
@@ -184,7 +241,8 @@ export const AuthProvider = ({ children }) => {
     resetPassword,
     changePassword,
     updateProfile,
-    completeQuestionnaire
+    completeQuestionnaire,
+    setAuthData
   };
 
   return (

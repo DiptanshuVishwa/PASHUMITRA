@@ -323,19 +323,11 @@ const DangerZone = styled.div`
 `;
 
 const SettingsPage = () => {
-  const [activeSection, setActiveSection] = useState('profile');
+  const [activeSection, setActiveSection] = useState('notifications');
   const { currentLanguage, supportedLanguages, changeLanguage } = useLanguage();
   
   // Settings state
   const [settings, setSettings] = useState({
-    // Profile settings
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@farm.com',
-    phone: '+91 98765 43210',
-    farmName: 'Sunshine Poultry Farm',
-    location: 'Srikakulam, Andhra Pradesh',
-    
     // Notification settings
     emailAlerts: true,
     smsAlerts: true,
@@ -374,101 +366,12 @@ const SettingsPage = () => {
   };
 
   const sections = [
-    { id: 'profile', label: 'Profile', icon: FiUser },
     { id: 'notifications', label: 'Notifications', icon: FiBell },
     { id: 'privacy', label: 'Privacy', icon: FiShield },
     { id: 'appearance', label: 'Appearance', icon: FiSun },
     { id: 'system', label: 'System', icon: FiSettings }
   ];
 
-  const renderProfileSettings = () => (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <SectionHeader>
-        <FiUser className="section-icon" />
-        <h2>Profile Settings</h2>
-      </SectionHeader>
-
-      <SettingGroup>
-        <GroupTitle>Personal Information</GroupTitle>
-        
-        <SettingItem>
-          <div className="setting-info">
-            <div className="setting-label">First Name</div>
-            <div className="setting-desc">Your first name as it appears on documents</div>
-          </div>
-          <Input 
-            value={settings.firstName}
-            onChange={(e) => updateSetting('firstName', e.target.value)}
-          />
-        </SettingItem>
-
-        <SettingItem>
-          <div className="setting-info">
-            <div className="setting-label">Last Name</div>
-            <div className="setting-desc">Your last name as it appears on documents</div>
-          </div>
-          <Input 
-            value={settings.lastName}
-            onChange={(e) => updateSetting('lastName', e.target.value)}
-          />
-        </SettingItem>
-
-        <SettingItem>
-          <div className="setting-info">
-            <div className="setting-label">Email Address</div>
-            <div className="setting-desc">Primary email for account and notifications</div>
-          </div>
-          <Input 
-            type="email"
-            value={settings.email}
-            onChange={(e) => updateSetting('email', e.target.value)}
-          />
-        </SettingItem>
-
-        <SettingItem>
-          <div className="setting-info">
-            <div className="setting-label">Phone Number</div>
-            <div className="setting-desc">For SMS alerts and emergency contact</div>
-          </div>
-          <Input 
-            type="tel"
-            value={settings.phone}
-            onChange={(e) => updateSetting('phone', e.target.value)}
-          />
-        </SettingItem>
-      </SettingGroup>
-
-      <SettingGroup>
-        <GroupTitle>Farm Information</GroupTitle>
-        
-        <SettingItem>
-          <div className="setting-info">
-            <div className="setting-label">Farm Name</div>
-            <div className="setting-desc">Official name of your farming operation</div>
-          </div>
-          <Input 
-            value={settings.farmName}
-            onChange={(e) => updateSetting('farmName', e.target.value)}
-          />
-        </SettingItem>
-
-        <SettingItem>
-          <div className="setting-info">
-            <div className="setting-label">Location</div>
-            <div className="setting-desc">Farm address for alerts and compliance</div>
-          </div>
-          <Input 
-            value={settings.location}
-            onChange={(e) => updateSetting('location', e.target.value)}
-          />
-        </SettingItem>
-      </SettingGroup>
-    </motion.div>
-  );
 
   const renderNotificationSettings = () => (
     <motion.div
@@ -777,12 +680,11 @@ const SettingsPage = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'profile': return renderProfileSettings();
       case 'notifications': return renderNotificationSettings();
       case 'privacy': return renderPrivacySettings();
       case 'appearance': return renderAppearanceSettings();
       case 'system': return renderSystemSettings();
-      default: return renderProfileSettings();
+      default: return renderNotificationSettings();
     }
   };
 

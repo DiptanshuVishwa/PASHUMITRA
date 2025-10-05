@@ -6,6 +6,7 @@ const {
   upload,
   uploadSingleFile,
   uploadMultipleFiles,
+  uploadAvatar,
   getFiles,
   downloadFile,
   getFileThumbnail,
@@ -166,6 +167,70 @@ router.post('/single',
   validateFileUpload,
   logActivity('upload_single_file'),
   uploadSingleFile
+);
+
+/**
+ * @swagger
+ * /api/upload/avatar:
+ *   post:
+ *     summary: Upload user avatar image
+ *     tags: [File Upload]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - avatar
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *                 description: Avatar image file (JPEG, PNG, GIF only)
+ *     responses:
+ *       201:
+ *         description: Avatar uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     avatarUrl:
+ *                       type: string
+ *                       description: URL to access the avatar
+ *                     thumbnailUrl:
+ *                       type: string
+ *                       description: URL to access the thumbnail
+ *                     fileId:
+ *                       type: string
+ *                       description: File ID for future reference
+ *       400:
+ *         description: Invalid file or no file provided
+ *       401:
+ *         description: Authentication required
+ *       413:
+ *         description: File too large (max 5MB)
+ *       415:
+ *         description: Unsupported file type (images only)
+ */
+router.post('/avatar',
+  rateLimiter,
+  protect,
+  upload.single('avatar'),
+  validateFileType(['.jpg', '.jpeg', '.png', '.gif', '.webp']),
+  validateFileContent,
+  logActivity('upload_avatar'),
+  uploadAvatar
 );
 
 /**

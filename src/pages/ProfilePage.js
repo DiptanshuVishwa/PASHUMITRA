@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import {
@@ -13,8 +14,16 @@ import {
   FiCalendar,
   FiSettings,
   FiCamera,
-  FiX
+  FiX,
+  FiLoader,
+  FiAlertTriangle,
+  FiEye,
+  FiClock,
+  FiCheckCircle
 } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
+import { alertAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 const ProfileContainer = styled.div`
   max-width: 1200px;
@@ -119,6 +128,17 @@ const AvatarSection = styled.div`
     font-weight: 700;
     border: 4px solid white;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .rotating {
+    animation: rotate 1s linear infinite;
+  }
+  
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
   
   .avatar-upload {
@@ -398,30 +418,215 @@ const SettingsSection = styled.div`
   }
 `;
 
+const AlertsSection = styled.div`
+  .alerts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .filter-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .filter-btn {
+    padding: 6px 12px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &.active {
+      background: var(--primary-coral);
+      color: white;
+      border-color: var(--primary-coral);
+    }
+    
+    &:hover:not(.active) {
+      border-color: var(--primary-coral);
+      color: var(--primary-coral);
+    }
+  }
+  
+  .alert-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+    
+    &.active {
+      border-left-color: #28a745;
+    }
+    
+    &.investigating {
+      border-left-color: #ffc107;
+    }
+    
+    &.resolved {
+      border-left-color: #17a2b8;
+    }
+    
+    &.closed {
+      border-left-color: #6c757d;
+    }
+    
+    &:hover {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transform: translateY(-1px);
+    }
+  }
+  
+  .alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  
+  .alert-title {
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 4px;
+    flex: 1;
+  }
+  
+  .alert-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    
+    &.active {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+    }
+    
+    &.investigating {
+      background: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+    
+    &.resolved {
+      background: rgba(23, 162, 184, 0.1);
+      color: #17a2b8;
+    }
+    
+    &.closed {
+      background: rgba(108, 117, 125, 0.1);
+      color: #6c757d;
+    }
+  }
+  
+  .alert-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  
+  .alert-description {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+  
+  .alert-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .alert-action-btn {
+    padding: 6px 12px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: var(--primary-coral);
+      color: var(--primary-coral);
+    }
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    
+    .empty-icon {
+      font-size: 48px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+    
+    .empty-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .empty-description {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  }
+`;
+
 const ProfilePage = () => {
+  const { user, updateProfile, loading } = useAuth();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('personal');
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // My Alerts state
+  const [alerts, setAlerts] = useState([]);
+  const [alertsLoading, setAlertsLoading] = useState(false);
+  const [alertFilter, setAlertFilter] = useState('all'); // 'all', 'active', 'investigating', 'resolved', 'closed'
+  
+  // Generate farmer ID if user doesn't have one
+  const getFarmerId = (user) => {
+    if (user?.farmerId) return user.farmerId;
+    if (user?.id) return `FM-${new Date().getFullYear()}-${user.id.slice(-3).toUpperCase()}`;
+    return `FM-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 3).toUpperCase()}`;
+  };
   const [profileData, setProfileData] = useState({
     // Personal Information
-    firstName: 'Rajesh',
-    lastName: 'Kumar',
-    email: 'rajesh.kumar@email.com',
-    phone: '+91 9876543210',
-    dateOfBirth: '1985-05-15',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    dateOfBirth: '',
     
     // Farm Details
-    farmName: 'Kumar Poultry Farm',
+    farmName: '',
     farmType: 'poultry',
-    farmSize: '5',
-    farmAddress: '123 Farm Road, Village Kothapeta',
-    city: 'Visakhapatnam',
-    state: 'Andhra Pradesh',
-    pincode: '530001',
-    established: '2010',
+    farmSize: '',
+    farmAddress: '',
+    city: '',
+    state: '',
+    pincode: '',
+    established: '',
     
     // Livestock Details
-    totalAnimals: '500',
-    animalTypes: 'Broiler Chickens, Layer Hens',
+    totalAnimals: '',
+    animalTypes: '',
     
     // Settings
     emailNotifications: true,
@@ -430,6 +635,42 @@ const ProfilePage = () => {
     marketingEmails: false
   });
 
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['personal', 'farm', 'my-alerts', 'settings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  // Load user data when component mounts or user changes
+  useEffect(() => {
+    if (user) {
+      const nameParts = user.name ? user.name.split(' ') : ['', ''];
+      setProfileData(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        farmName: user.farmLocation || '',
+        // Use preferences if available
+        emailNotifications: user.preferences?.notifications?.email ?? true,
+        smsNotifications: user.preferences?.notifications?.sms ?? false,
+        alertNotifications: user.preferences?.notifications?.push ?? true,
+        // Set other fields from user data if available
+        ...user.profile // This would contain additional profile fields if stored
+      }));
+    }
+  }, [user]);
+
+  // Fetch user's alerts when my-alerts tab is active
+  useEffect(() => {
+    if (activeTab === 'my-alerts' && user) {
+      fetchUserAlerts();
+    }
+  }, [activeTab, user]);
+
   const handleInputChange = (field, value) => {
     setProfileData(prev => ({
       ...prev,
@@ -437,15 +678,168 @@ const ProfilePage = () => {
     }));
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // Here you would typically save to backend
-    alert('Profile updated successfully!');
+  // Fetch user's alerts
+  const fetchUserAlerts = async () => {
+    setAlertsLoading(true);
+    try {
+      // Fetch alerts created by the current user
+      const response = await alertAPI.getMyAlerts({ 
+        reportedBy: user._id,
+        page: 1,
+        limit: 50,
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
+      });
+      console.log('Fetched alerts:', response); // Debug log
+      setAlerts(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch user alerts:', error);
+      toast.error('Failed to load your alerts');
+    } finally {
+      setAlertsLoading(false);
+    }
+  };
+
+  // Filter alerts based on selected filter
+  const filteredAlerts = alertFilter === 'all' 
+    ? alerts 
+    : alerts.filter(alert => alert.status === alertFilter);
+
+  const handleSave = async () => {
+    // Prevent multiple simultaneous save operations
+    if (isLoading) {
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const updateData = {
+        name: `${profileData.firstName} ${profileData.lastName}`.trim(),
+        phone: profileData.phone,
+        farmLocation: profileData.farmName,
+        preferences: {
+          notifications: {
+            email: profileData.emailNotifications,
+            sms: profileData.smsNotifications,
+            push: profileData.alertNotifications
+          }
+        },
+        profile: {
+          dateOfBirth: profileData.dateOfBirth,
+          farmType: profileData.farmType,
+          farmSize: profileData.farmSize,
+          farmAddress: profileData.farmAddress,
+          city: profileData.city,
+          state: profileData.state,
+          pincode: profileData.pincode,
+          established: profileData.established,
+          totalAnimals: profileData.totalAnimals,
+          animalTypes: profileData.animalTypes
+        }
+      };
+
+      const result = await updateProfile(updateData);
+      if (result.success) {
+        toast.success('Profile updated successfully!');
+        setIsEditing(false);
+      } else {
+        toast.error(result.error || 'Failed to update profile');
+      }
+    } catch (error) {
+      toast.error('Error updating profile. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset to original values
+    // Reset to user data
+    if (user) {
+      const nameParts = user.name ? user.name.split(' ') : ['', ''];
+      setProfileData(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        farmName: user.farmLocation || '',
+        emailNotifications: user.preferences?.notifications?.email ?? true,
+        smsNotifications: user.preferences?.notifications?.sms ?? false,
+        alertNotifications: user.preferences?.notifications?.push ?? true
+      }));
+    }
+  };
+  
+  const handleAvatarUpload = () => {
+    // Create a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    
+    input.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB');
+        return;
+      }
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+      
+      setIsLoading(true);
+      
+      try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        const token = localStorage.getItem('pashumitra_token');
+        
+        if (!token) {
+          throw new Error('Authentication token not found');
+        }
+        
+        const response = await fetch(`${API_URL}/upload/avatar`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          toast.success('Avatar updated successfully!');
+          
+          // The backend already updates the user profile, so just refresh to show changes
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          throw new Error(result.message || 'Failed to upload avatar');
+        }
+        
+      } catch (error) {
+        console.error('Avatar upload error:', error);
+        toast.error(error.message || 'Failed to upload avatar. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    // Trigger file selection
+    document.body.appendChild(input);
+    input.click();
+    document.body.removeChild(input);
   };
 
   const renderPersonalTab = () => (
@@ -750,10 +1144,120 @@ const ProfilePage = () => {
       </SettingsSection>
       
       <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #f0f0f0' }}>
-        <ActionButton className="primary" onClick={handleSave}>
-          <FiSave /> Save Settings
+        <ActionButton className="primary" onClick={handleSave} disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <FiLoader className="rotating" /> Saving...
+            </>
+          ) : (
+            <>
+              <FiSave /> Save Settings
+            </>
+          )}
         </ActionButton>
       </div>
+    </ProfileCard>
+  );
+
+  const renderMyAlertsTab = () => (
+    <ProfileCard
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="card-header">
+        <div className="card-title">
+          <FiAlertTriangle className="card-icon" />
+          My Alerts
+        </div>
+      </div>
+
+      <AlertsSection>
+        <div className="alerts-header">
+          <div className="filter-buttons">
+            {['all', 'active', 'investigating', 'resolved', 'closed'].map(filter => (
+              <button
+                key={filter}
+                className={`filter-btn ${alertFilter === filter ? 'active' : ''}`}
+                onClick={() => setAlertFilter(filter)}
+              >
+                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                {filter === 'all' ? ` (${alerts.length})` : ` (${alerts.filter(a => a.status === filter).length})`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {alertsLoading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <FiLoader className="rotating" style={{ fontSize: '24px', marginBottom: '16px' }} />
+            <div>Loading your alerts...</div>
+          </div>
+        ) : filteredAlerts.length > 0 ? (
+          filteredAlerts.map(alert => (
+            <div key={alert._id} className={`alert-card ${alert.status}`}>
+              <div className="alert-header">
+                <div className="alert-title">{alert.title}</div>
+                <div className={`alert-status ${alert.status}`}>{alert.status}</div>
+              </div>
+              
+              <div className="alert-meta">
+                <span>
+                  <FiClock style={{ marginRight: '4px' }} />
+                  {new Date(alert.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+                <span>
+                  <FiMapPin style={{ marginRight: '4px' }} />
+                  {alert.location?.district || alert.location?.state || 'Location not specified'}
+                </span>
+                {alert.severity && (
+                  <span style={{ 
+                    color: alert.severity === 'critical' ? '#dc3545' : 
+                           alert.severity === 'high' ? '#fd7e14' : 
+                           alert.severity === 'medium' ? '#ffc107' : '#28a745'
+                  }}>
+                    {alert.severity.toUpperCase()} Priority
+                  </span>
+                )}
+              </div>
+              
+              <div className="alert-description">
+                {alert.description}
+              </div>
+              
+              <div className="alert-actions">
+                <button className="alert-action-btn">
+                  <FiEye /> View Details
+                </button>
+                {alert.status === 'active' && (
+                  <button className="alert-action-btn">
+                    <FiEdit3 /> Update Status
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="empty-state">
+            <FiAlertTriangle className="empty-icon" />
+            <div className="empty-title">
+              {alertFilter === 'all' ? 'No alerts found' : `No ${alertFilter} alerts found`}
+            </div>
+            <div className="empty-description">
+              {alertFilter === 'all' 
+                ? 'You haven\'t submitted any alerts yet. When you raise an alert, it will appear here.'
+                : `You don't have any ${alertFilter} alerts at the moment.`
+              }
+            </div>
+          </div>
+        )}
+      </AlertsSection>
     </ProfileCard>
   );
 
@@ -779,17 +1283,62 @@ const ProfilePage = () => {
           <AvatarSection>
             <div className="avatar-container">
               <div className="avatar">
-                {profileData.firstName[0]}{profileData.lastName[0]}
+                {user?.avatar ? (
+                  <img 
+                    src={user.avatar} 
+                    alt="User Avatar" 
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '50%'
+                    }}
+                    onError={(e) => {
+                      // Fallback to initials if image fails to load
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '48px',
+                    color: 'white',
+                    fontWeight: '700'
+                  }}>
+                    {(profileData.firstName?.[0] || '').toUpperCase()}{(profileData.lastName?.[0] || '').toUpperCase() || (profileData.firstName?.[1] || 'U')}
+                  </div>
+                )}
+                {/* Hidden fallback for initials when image fails */}
+                <div style={{
+                  display: user?.avatar ? 'none' : 'flex',
+                  width: '100%',
+                  height: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '48px',
+                  color: 'white',
+                  fontWeight: '700',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0
+                }}>
+                  {(profileData.firstName?.[0] || '').toUpperCase()}{(profileData.lastName?.[0] || '').toUpperCase() || (profileData.firstName?.[1] || 'U')}
+                </div>
               </div>
-              <div className="avatar-upload">
-                <FiCamera />
+              <div className="avatar-upload" onClick={handleAvatarUpload}>
+                {isLoading ? <FiLoader className="rotating" /> : <FiCamera />}
               </div>
             </div>
             <div className="farmer-name">
-              {profileData.firstName} {profileData.lastName}
+              {[profileData.firstName, profileData.lastName].filter(Boolean).join(' ') || 'No name set'}
             </div>
             <div className="farmer-id">
-              Farmer ID: FM-2024-001
+              Farmer ID: {getFarmerId(user)}
             </div>
           </AvatarSection>
 
@@ -806,7 +1355,7 @@ const ProfilePage = () => {
               <FiPhone className="info-icon" />
               <div className="info-content">
                 <div className="info-label">Phone</div>
-                <div className="info-value">{profileData.phone}</div>
+                <div className="info-value">{profileData.phone || 'Not provided'}</div>
               </div>
             </div>
             
@@ -814,7 +1363,7 @@ const ProfilePage = () => {
               <FiHome className="info-icon" />
               <div className="info-content">
                 <div className="info-label">Farm</div>
-                <div className="info-value">{profileData.farmName}</div>
+                <div className="info-value">{profileData.farmName || 'Not specified'}</div>
               </div>
             </div>
             
@@ -822,7 +1371,9 @@ const ProfilePage = () => {
               <FiMapPin className="info-icon" />
               <div className="info-content">
                 <div className="info-label">Location</div>
-                <div className="info-value">{profileData.city}, {profileData.state}</div>
+                <div className="info-value">
+                  {[profileData.city, profileData.state].filter(Boolean).join(', ') || 'Not specified'}
+                </div>
               </div>
             </div>
             
@@ -830,7 +1381,10 @@ const ProfilePage = () => {
               <FiUsers className="info-icon" />
               <div className="info-content">
                 <div className="info-label">Animals</div>
-                <div className="info-value">{profileData.totalAnimals} {profileData.farmType}</div>
+                <div className="info-value">
+                  {profileData.totalAnimals ? `${profileData.totalAnimals} ` : ''}
+                  {profileData.animalTypes || profileData.farmType || 'Not specified'}
+                </div>
               </div>
             </div>
             
@@ -838,7 +1392,15 @@ const ProfilePage = () => {
               <FiCalendar className="info-icon" />
               <div className="info-content">
                 <div className="info-label">Member Since</div>
-                <div className="info-value">January 2024</div>
+                <div className="info-value">
+                  {user?.createdAt 
+                    ? new Date(user.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long' 
+                      })
+                    : 'Not available'
+                  }
+                </div>
               </div>
             </div>
           </InfoSection>
@@ -860,6 +1422,12 @@ const ProfilePage = () => {
               Farm Details
             </Tab>
             <Tab
+              active={activeTab === 'my-alerts'}
+              onClick={() => setActiveTab('my-alerts')}
+            >
+              My Alerts
+            </Tab>
+            <Tab
               active={activeTab === 'settings'}
               onClick={() => setActiveTab('settings')}
             >
@@ -869,6 +1437,7 @@ const ProfilePage = () => {
 
           {activeTab === 'personal' && renderPersonalTab()}
           {activeTab === 'farm' && renderFarmTab()}
+          {activeTab === 'my-alerts' && renderMyAlertsTab()}
           {activeTab === 'settings' && renderSettingsTab()}
         </div>
       </ProfileGrid>

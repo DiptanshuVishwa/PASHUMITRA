@@ -7,6 +7,8 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const session = require('express-session');
+const passport = require('./config/passport');
 require('dotenv').config();
 
 const connectDB = require('./config/database');
@@ -75,6 +77,21 @@ if (process.env.NODE_ENV === 'development') {
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Session configuration for Passport
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'pashumitra-session-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // API request tracking middleware
 app.use('/api', trackAPIRequest);
