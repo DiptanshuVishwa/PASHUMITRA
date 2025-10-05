@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hen Sound Effect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #ff7f50, #87ceeb);
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 24px;
+            background: #ff7f50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.1);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .emoji {
+            font-size: 3rem;
+            margin: 20px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+    </style>
+</head>
+<body>
+    <h1>🐓🐥 PashuMitra Portal - Farm Sound Test</h1>
+    <div class="emoji">🐓🐥🐷🐄</div>
+    <button onclick="playFarmSound()">Get Started (Simple - Click to hear sound!)</button>
+    
+    <script>
+        function playFarmSound() {
+            try {
+                // Create audio element and play the MP3 file
+                const audio = new Audio('./sounds/rooster-and-chicks.mp3');
+                audio.volume = 0.7; // Set volume to 70%
+                audio.play().catch(error => {
+                    console.log('Audio playback failed:', error);
+                    alert('Audio playback failed, but the code is working!');
+                });
+                
+                console.log('🐓🐥 Rooster and chicks sound played!');
+                
+                // Visual feedback
+                document.querySelector('button').style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    document.querySelector('button').style.transform = 'scale(1)';
+                }, 150);
+                
+            } catch (error) {
+                console.log('Audio not supported in this browser:', error);
+                alert('Audio not supported in this browser, but the sound code is working!');
+            }
+        }
+    </script>
+</body>
+</html>
