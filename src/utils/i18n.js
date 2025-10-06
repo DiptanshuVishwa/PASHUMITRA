@@ -228,28 +228,16 @@ const createEmptyTranslations = () => ({
 const resources = {
   en: { translation: enTranslations },
   hi: { translation: hiTranslations },
-  // Add empty resources for other Indian languages
+  // Add empty resources for the 9 specified Indian languages
   // This allows i18n to switch languages even without translations
   bn: { translation: createEmptyTranslations() }, // Bengali
+  ta: { translation: createEmptyTranslations() }, // Tamil
   te: { translation: createEmptyTranslations() }, // Telugu
   mr: { translation: createEmptyTranslations() }, // Marathi
-  ta: { translation: createEmptyTranslations() }, // Tamil
-  ur: { translation: createEmptyTranslations() }, // Urdu
   gu: { translation: createEmptyTranslations() }, // Gujarati
   kn: { translation: createEmptyTranslations() }, // Kannada
   ml: { translation: createEmptyTranslations() }, // Malayalam
-  or: { translation: createEmptyTranslations() }, // Odia
-  pa: { translation: createEmptyTranslations() }, // Punjabi
-  as: { translation: createEmptyTranslations() }, // Assamese
-  mai: { translation: createEmptyTranslations() }, // Maithili
-  sa: { translation: createEmptyTranslations() }, // Sanskrit
-  ne: { translation: createEmptyTranslations() }, // Nepali
-  sd: { translation: createEmptyTranslations() }, // Sindhi
-  kok: { translation: createEmptyTranslations() }, // Konkani
-  mni: { translation: createEmptyTranslations() }, // Manipuri
-  bo: { translation: createEmptyTranslations() }, // Bodo
-  sat: { translation: createEmptyTranslations() }, // Santali
-  dgr: { translation: createEmptyTranslations() }  // Dogri
+  pa: { translation: createEmptyTranslations() }  // Punjabi
 };
 
 i18n

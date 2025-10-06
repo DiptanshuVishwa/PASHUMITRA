@@ -13,30 +13,18 @@ export const useLanguage = () => {
   return context;
 };
 
-// Indian languages supported
+// Supported languages - English + 9 Indian languages in specified order
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', name: 'English', nativeName: 'English' },
   { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
   { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
   { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
   { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
-  { code: 'ur', name: 'Urdu', nativeName: 'اردو' },
   { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
   { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
   { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
-  { code: 'or', name: 'Odia', nativeName: 'ଓଡ଼ିଆ' },
-  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
-  { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া' },
-  { code: 'mai', name: 'Maithili', nativeName: 'মৈথিলী' },
-  { code: 'sa', name: 'Sanskrit', nativeName: 'संस्कृतम्' },
-  { code: 'ne', name: 'Nepali', nativeName: 'नेपाली' },
-  { code: 'sd', name: 'Sindhi', nativeName: 'سنڌي' },
-  { code: 'kok', name: 'Konkani', nativeName: 'कोंकणी' },
-  { code: 'mni', name: 'Manipuri', nativeName: 'ꯃꯤꯇꯩ ꯂꯣꯟ' },
-  { code: 'brx', name: 'Bodo', nativeName: 'बर\'' },
-  { code: 'sat', name: 'Santali', nativeName: 'ᱥᱟᱱᱛᱟᱲᱤ' },
-  { code: 'doi', name: 'Dogri', nativeName: 'डोगरी' }
+  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' }
 ];
 
 export const LanguageProvider = ({ children }) => {

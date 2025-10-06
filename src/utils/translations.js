@@ -1,7 +1,7 @@
 // Central Translation Utility for PashuMitra Portal
 // Following the same successful pattern as getNavTranslation() in Navbar
 
-export const getTranslation = (text, currentLanguage) => {
+export const getTranslation = (text, currentLanguage, params = {}) => {
   const translations = {
     // Hindi (हिंदी)
     'hi': {
@@ -99,6 +99,64 @@ export const getTranslation = (text, currentLanguage) => {
       'Already have an account?': 'क्या आपका पहले से खाता है?',
       'Don\'t have an account?': 'क्या आपका खाता नहीं है?',
 
+      // Questionnaire Page
+      'Biosecurity Assessment Questionnaire': 'जैव सुरक्षा मूल्यांकन प्रश्नावली',
+      'Please answer the following questions to assess your farm\'s biosecurity level': 'कृपया अपने खेत की जैव सुरक्षा स्तर का आकलन करने के लिए निम्नलिखित प्रश्नों के उत्तर दें',
+      'Question': 'प्रश्न',
+      'of': 'का',
+      'completed': 'पूर्ण हो गया',
+      
+      // Questionnaire Questions
+      'What type of farm do you own?': 'आपके पास किस प्रकार का फार्म है?',
+      'Pig farm': 'सूअर फार्म',
+      'Poultry farm': 'पोल्ट्री फार्म',
+      'Both pig and poultry': 'दोनों सूअर और पोल्ट्री',
+      
+      'Do you have restricted entry for visitors and workers?': 'क्या आपके पास आगंतुकों और कर्मचारियों के लिए प्रतिबंधित प्रविष्टि है?',
+      'Yes, only authorized persons can enter': 'हां, केवल अधिकृत व्यक्ति ही प्रवेश कर सकते हैं',
+      'Partially, visitors can enter with some checks': 'आंशिक रूप से, आगंतुक कुछ जांच के साथ प्रवेश कर सकते हैं',
+      'No restrictions, anyone can enter': 'कोई प्रतिबंध नहीं, कोई भी प्रवेश कर सकता है',
+      
+      'Do you provide footbaths or disinfection facilities at entry points?': 'क्या आप प्रवेश बिंदुओं पर फुट बाथ या कीटाणुशोधन सुविधा प्रदान करते हैं?',
+      'Yes, always maintained and used': 'हां, हमेशा बनाए रखा और उपयोग किया जाता है',
+      'Yes, but not regularly maintained': 'हां, लेकिन नियमित रूप से बनाए नहीं रखा जाता',
+      'No, such facilities are not available': 'नहीं, ऐसी सुविधाएं उपलब्ध नहीं हैं',
+      
+      'When introducing new pigs or poultry, do you quarantine them before mixing with the existing stock?': 'नए सूअर या पोल्ट्री को लाते समय, क्या आप उन्हें मौजूदा स्टॉक के साथ मिलाने से पहले क्वारंटीन करते हैं?',
+      'Yes, always': 'हां, हमेशा',
+      'Sometimes': 'कभी कभी',
+      'Never': 'कभी नहीं',
+      
+      'How do you ensure feed and water are safe?': 'आप यह कैसे सुनिश्चित करते हैं कि चारा और पानी सुरक्षित है?',
+      'Sourced from verified suppliers & stored hygienically': 'सत्यापित आपूर्तिकर्ताओं से प्राप्त और स्वच्छ रूप से संग्रहीत',
+      'Stored properly but source not always verified': 'ठीक से संग्रहीत लेकिन स्रोत हमेशा सत्यापित नहीं',
+      'No specific checks are done': 'कोई विशिष्ट जांच नहीं की जाती',
+      
+      'Do you have measures to prevent contact with rodents, wild birds, or stray animals?': 'क्या आपके पास कृंतकों, जंगली पक्षियों या आवारा जानवरों के संपर्क को रोकने के उपाय हैं?',
+      'Yes, strict control measures in place': 'हां, सख्त नियंत्रण उपाय मौजूद हैं',
+      'Some control measures but not complete': 'कुछ नियंत्रण उपाय लेकिन पूर्ण नहीं',
+      'No such measures': 'कोई ऐसे उपाय नहीं',
+      
+      'How is manure and dead animal disposal handled?': 'खाद और मृत पशुओं के निपटान को कैसे संभाला जाता है?',
+      'Properly disposed through burial/incineration/approved methods': 'दफन/जलाने/अनुमोदित तरीकों के माध्यम से उचित रूप से निपटान',
+      'Sometimes managed properly, sometimes left in open': 'कभी ठीक से प्रबंधित, कभी खुले में छोड़ दिया जाता है',
+      'Always left in open areas': 'हमेशा खुले क्षेत्रों में छोड़ दिया जाता है',
+      
+      'Do workers change clothes, wear boots, and wash hands before entering animal sheds?': 'क्या कर्मचारी पशु शेड में प्रवेश से पहले कपड़े बदलते हैं, जूते पहनते हैं और हाथ धोते हैं?',
+      'Yes, strictly followed': 'हां, सख्ती से पालन किया जाता है',
+      'Sometimes followed': 'कभी कभी पालन किया जाता है',
+      'Not followed': 'पालन नहीं किया जाता',
+      
+      'Is your farm located away from other farms or live animal markets?': 'क्या आपका फार्म अन्य फार्मों या लाइव एनिमल मार्केट से दूर स्थित है?',
+      'Yes, more than 1 km away': 'हां, 1 किमी से अधिक दूर',
+      'Moderately close (within 500 m)': 'मध्यम रूप से करीब (500 मीटर के भीतर)',
+      'Very close or within a cluster': 'बहुत करीब या एक क्लस्टर के भीतर',
+      
+      'Do you regularly monitor animals for disease symptoms and report unusual mortality?': 'क्या आप नियमित रूप से पशुओं की बीमारी के लक्षणों की निगरानी करते हैं और असामान्य मृत्यु दर की रिपोर्ट करते हैं?',
+      'Yes, daily monitoring and immediate reporting': 'हां, दैनिक निगरानी और तत्काल रिपोर्टिंग',
+      'Sometimes monitor and report late': 'कभी कभी निगरानी करते हैं और देर से रिपोर्ट करते हैं',
+      'No regular monitoring or reporting': 'कोई नियमित निगरानी या रिपोर्टिंग नहीं',
+      
       // Common UI Elements
       'Loading...': 'लोड हो रहा है...',
       'Submit': 'जमा करें',
@@ -418,7 +476,69 @@ export const getTranslation = (text, currentLanguage) => {
       'Immediate attention needed: {{text}} - This is critical for biosecurity.': 'तत्काल ध्यान देने की आवश्यकता: {{text}} - यह जैव सुरक्षा के लिए महत्वपूर्ण है।',
       'Improvement needed: {{text}} - Consider upgrading your current practices.': 'सुधार की आवश्यकता: {{text}} - अपनी वर्तमान प्रथाओं को अपग्रेड करने पर विचार करें।',
       'Enhancement opportunity: {{text}} - Good foundation but room for improvement.': 'सुधार का अवसर: {{text}} - अच्छी नींव लेकिन सुधार की गुंजाइश है।',
-      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'उत्कृष्ट जैव सुरक्षा प्रथाएं! अपने वर्तमान मानकों की निगरानी और रखरखाव जारी रखें।'
+      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'उत्कृष्ट जैव सुरक्षा प्रथाएं! अपने वर्तमान मानकों की निगरानी और रखरखाव जारी रखें।',
+      
+      // Footer
+      'Your trusted partner in farm protection. Empowering farmers with comprehensive biosecurity solutions for pig and poultry farms.': 'खेत सुरक्षा में आपका विश्वसनीय साथी। सुअर और पोल्ट्री फार्म के लिए व्यापक जैव सुरक्षा समाधान के साथ किसानों को सशक्त बनाना।',
+      'Quick Links': 'त्वरित लिंक',
+      'Dashboard': 'डैशबोर्ड',
+      'Compliance': 'अनुपालन',
+      'Contact Us': 'हमसे संपर्क करें',
+      'Feedback': 'फीडबैक',
+      'Settings': 'सेटिंग्स',
+      'Support': 'सहायता',
+      'Contact Information': 'संपर्क जानकारी',
+      'Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': 'मत्स्य पालन, पशुपालन और डेयरी मंत्रालय, भारत सरकार',
+      'Facebook': 'फेसबुक',
+      'Twitter': 'ट्विटर',
+      'Instagram': 'इंस्टाग्राम',
+      'Privacy': 'गोपनीयता',
+      'Learning': 'शिक्षा',
+      '© {{year}} PashuMitra. All rights reserved. | Developed for the Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': '© {{year}} पशुमित्र। सभी अधिकार सुरक्षित। | मत्स्य पालन, पशुपालन और डेयरी मंत्रालय, भारत सरकार के लिए विकसित',
+      
+      // Learning Page
+      'Learning Center': 'शिक्षा केंद्र',
+      'Master biosecurity practices with our comprehensive video tutorials and resources. Learn from experts and protect your farm.': 'हमारे व्यापक वीडियो ट्यूटोरियल और संसाधनों के साथ जैव सुरक्षा प्रथाओं में माहिर बनें। विशेषज्ञों से सीखें और अपने फार्म की रक्षा करें।',
+      'Search for topics, diseases, or practices...': 'विषयों, बीमारियों या प्रथाओं की खोज करें...',
+      'All Topics': 'सभी विषय',
+      'Biosecurity Basics': 'जैव सुरक्षा मूल बातें',
+      'Pig Farming': 'सुअर पालन',
+      'Poultry Farming': 'मुर्गी पालन',
+      'Disease Prevention': 'रोग रोकथाम',
+      'Farm Management': 'फार्म प्रबंधन',
+      'Watch Now': 'अभी देखें',
+      'Notes': 'नोट्स',
+      'Share': 'साझा करें',
+      'Additional Resources': 'अतिरिक्त संसाधन',
+      'Download': 'डाउनलोड',
+      
+      // Video Titles and Descriptions
+      'Modern Livestock Management Techniques': 'आधुनिक पशुधन प्रबंधन तकनीक',
+      'Comprehensive guide to modern livestock management practices including feeding, housing, and health monitoring for optimal farm productivity.': 'आदर्श फार्म उत्पादकता के लिए भोजन, आवास और स्वास्थ्य निगरानी सहित आधुनिक पशुधन प्रबंधन प्रथाओं का व्यापक गाइड।',
+      'Advanced Livestock Health Management': 'उन्नत पशुधन स्वास्थ्य प्रबंधन',
+      'Professional guide to livestock health management covering disease prevention, treatment protocols, and maintaining optimal animal welfare standards.': 'रोग रोकथाम, उपचार प्रोटोकॉल और पशु कल्याण के आदर्श मानकों को बनाए रखने सहित पशुधन स्वास्थ्य प्रबंधन का पेशेवर गाइड।',
+      'Pig Farming: Disease Prevention Strategies': 'सुअर पालन: रोग रोकथाम रणनीति',
+      'Learn effective disease prevention methods specifically designed for pig farms, including vaccination schedules and sanitation protocols.': 'टीकाकरण कार्यक्रम और सफाई प्रोटोकॉल सहित सुअर फार्म के लिए विशेष रूप से डिज़ाइन की गई प्रभावी रोग रोकथाम विधियां सीखें।',
+      'Poultry Health Management & Disease Control': 'मुर्गी पालन स्वास्थ्य प्रबंधन और रोग नियंत्रण',
+      'Complete guide to maintaining poultry health, recognizing common diseases, and implementing effective treatment and prevention measures.': 'मुर्गी पालन स्वास्थ्य बनाए रखने, सामान्य बीमारियों की पहचान और प्रभावी उपचार व रोकथाम उपायों को लागू करने का संपूर्ण गाइड।',
+      'Professional Cattle Management Systems': 'पेशेवर मवेशी प्रबंधन प्रणाली',
+      'Comprehensive guide to professional cattle management systems covering breeding programs, nutrition planning, and modern farming technologies for enhanced productivity.': 'उन्नत उत्पादकता के लिए प्रजनन कार्यक्रम, पोषण योजना और आधुनिक खेती प्रौद्योगिकियों को कवर करने वाले पेशेवर मवेशी प्रबंधन प्रणालियों का व्यापक गाइड।',
+      'Complete Livestock Farm Management Guide': 'संपूर्ण पशुधन फार्म प्रबंधन गाइड',
+      'Comprehensive livestock farm management guide covering animal care, feeding protocols, health monitoring, and maximizing farm productivity.': 'पशु देखभाल, भोजन प्रोटोकॉल, स्वास्थ्य निगरानी और फार्म की उत्पादकता बढ़ाने को कवर करने वाला व्यापक पशुधन फार्म प्रबंधन गाइड।',
+      
+      // Resource Titles and Descriptions  
+      'Livestock Biosecurity & Animal Health Policies': 'पशुधन जैव सुरक्षा और पशु स्वास्थ्य नीतियां',
+      'FAO Biosecurity Principles and Policy Frameworks (Comprehensive global perspective on biosecurity strategies and guidelines)': 'एफएओ जैव सुरक्षा सिद्धांत और नीति ढांचा (जैव सुरक्षा रणनीतियों और दिशानिर्देशों का व्यापक वैश्विक दृष्टिकोण)',
+      'FAO Biosecurity Toolkit PDF': 'एफएओ जैव सुरक्षा टूलकिट PDF',
+      'Biosecurity & Biosafety Manual for Bovines in India': 'भारत में मवेशियों के लिए जैव सुरक्षा और जैव संरक्षण मैनुअल',
+      'Practical guidelines and checklists tailored for Indian farms': 'भारतीय फार्मों के लिए विशेष रूप से तैयार व्यावहारिक दिशानिर्देश और चेकलिस्ट',
+      'Biosecurity & Biosafety Manual PDF': 'जैव सुरक्षा और जैव संरक्षण मैनुअल PDF',
+      'Livestock Emergency Response & Operational Guidelines': 'पशुधन आपातकालीन प्रतिक्रिया और परिचालन दिशानिर्देश',
+      'Operational Guidelines for Livestock Health & Disease Control in India': 'भारत में पशुधन स्वास्थ्य और रोग नियंत्रण के लिए परिचालन दिशानिर्देश',
+      'Operational Guidelines Livestock Health PDF': 'पशुधन स्वास्थ्य परिचालन दिशानिर्देश PDF',
+      'Livestock Emergency Response Plan Template': 'पशुधन आपातकालीन प्रतिक्रिया योजना टेम्पलेट',
+      'Stepwise plan for managing livestock emergencies': 'पशुधन आपातकाल का प्रबंधन करने के लिए चरणबद्ध योजना',
+      'Livestock Emergency Response Plan PDF': 'पशुधन आपातकालीन प्रतिक्रिया योजना PDF'
     },
 
     // Bengali (বাংলা)
@@ -479,6 +599,64 @@ export const getTranslation = (text, currentLanguage) => {
       'Contact Vet': 'পশুচিকিত্সকের সাথে যোগাযোগ করুন',
       'View Reports': 'রিপোর্ট দেখুন',
 
+      // Questionnaire Page
+      'Biosecurity Assessment Questionnaire': 'জৈব নিরাপত্তা মূল্যায়ন প্রশ্নপত্র',
+      'Please answer the following questions to assess your farm\'s biosecurity level': 'আপনার খামারের জৈব নিরাপত্তা স্তর মূল্যায়ন করতে নিম্নলিখিত প্রশ্নের উত্তর দিন',
+      'Question': 'প্রশ্ন',
+      'of': 'এর',
+      'completed': 'সম্পন্ন',
+      
+      // Questionnaire Questions
+      'What type of farm do you own?': 'আপনার কোন ধরনের খামার আছে?',
+      'Pig farm': 'শূকরের খামার',
+      'Poultry farm': 'পোল্ট্রি খামার',
+      'Both pig and poultry': 'শূকর ও পোল্ট্রি উভয়',
+      
+      'Do you have restricted entry for visitors and workers?': 'দর্শনার্থী এবং কর্মীদের জন্য আপনার সীমাবদ্ধ প্রবেশ আছে কি?',
+      'Yes, only authorized persons can enter': 'হ্যাঁ, শুধুমাত্র অনুমোদিত ব্যক্তিরা প্রবেশ করতে পারেন',
+      'Partially, visitors can enter with some checks': 'আংশিকভাবে, দর্শনার্থীরা কিছু পরীক্ষার সাথে প্রবেশ করতে পারেন',
+      'No restrictions, anyone can enter': 'কোন সীমাবদ্ধতা নেই, যে কেউ প্রবেশ করতে পারে',
+      
+      'Do you provide footbaths or disinfection facilities at entry points?': 'আপনি কি প্রবেশ পয়েন্টে ফুট বাথ বা জীবাণুমুক্তকরণ সুবিধা প্রদান করেন?',
+      'Yes, always maintained and used': 'হ্যাঁ, সবসময় রক্ষণাবেক্ষণ এবং ব্যবহার করা হয়',
+      'Yes, but not regularly maintained': 'হ্যাঁ, কিন্তু নিয়মিত রক্ষণাবেক্ষণ করা হয় না',
+      'No, such facilities are not available': 'না, এই ধরনের সুবিধা উপলব্ধ নেই',
+      
+      'When introducing new pigs or poultry, do you quarantine them before mixing with the existing stock?': 'নতুন শূকর বা পোল্ট্রি আনার সময়, আপনি কি বিদ্যমান স্টকের সাথে মিশানোর আগে তাদের কোয়ারেন্টাইন করেন?',
+      'Yes, always': 'হ্যাঁ, সবসময়',
+      'Sometimes': 'মাঝে মাঝে',
+      'Never': 'কখনও নয়',
+      
+      'How do you ensure feed and water are safe?': 'আপনি কীভাবে নিশ্চিত করেন যে খাদ্য এবং পানি নিরাপদ?',
+      'Sourced from verified suppliers & stored hygienically': 'যাচাইকৃত সরবরাহকারীদের থেকে সংগৃহীত এবং স্বাস্থ্যসম্মতভাবে সংরক্ষিত',
+      'Stored properly but source not always verified': 'সঠিকভাবে সংরক্ষিত কিন্তু উৎস সবসময় যাচাই করা হয় না',
+      'No specific checks are done': 'কোন নির্দিষ্ট পরীক্ষা করা হয় না',
+      
+      'Do you have measures to prevent contact with rodents, wild birds, or stray animals?': 'ইঁদুর, বন্য পাখি বা আওয়ারা প্রাণীদের সাথে যোগাযোগ রোধ করার জন্য আপনার কি ব্যবস্থা আছে?',
+      'Yes, strict control measures in place': 'হ্যাঁ, কঠোর নিয়ন্ত্রণ ব্যবস্থা রয়েছে',
+      'Some control measures but not complete': 'কিছু নিয়ন্ত্রণ ব্যবস্থা কিন্তু সম্পূর্ণ নয়',
+      'No such measures': 'এমন কোন ব্যবস্থা নেই',
+      
+      'How is manure and dead animal disposal handled?': 'সার এবং মৃত প্রাণী নিষ্পত্তি কীভাবে পরিচালনা করা হয়?',
+      'Properly disposed through burial/incineration/approved methods': 'দাফন/পোড়ানো/অনুমোদিত পদ্ধতির মাধ্যমে যথাযথভাবে নিষ্পত্তি',
+      'Sometimes managed properly, sometimes left in open': 'কখনও সঠিকভাবে পরিচালিত, কখনও খোলা জায়গায় ছেড়ে দেওয়া',
+      'Always left in open areas': 'সবসময় খোলা জায়গায় ছেড়ে দেওয়া',
+      
+      'Do workers change clothes, wear boots, and wash hands before entering animal sheds?': 'কর্মীরা কি পশুর শেডে প্রবেশের আগে কাপড় পরিবর্তন করে, বুট পরে এবং হাত ধোয়?',
+      'Yes, strictly followed': 'হ্যাঁ, কঠোরভাবে অনুসরণ করা হয়',
+      'Sometimes followed': 'মাঝে মাঝে অনুসরণ করা হয়',
+      'Not followed': 'অনুসরণ করা হয় না',
+      
+      'Is your farm located away from other farms or live animal markets?': 'আপনার খামার কি অন্য খামার বা জীবন্ত পশুর বাজার থেকে দূরে অবস্থিত?',
+      'Yes, more than 1 km away': 'হ্যাঁ, ১ কিমির বেশি দূরে',
+      'Moderately close (within 500 m)': 'মাঝারি কাছে (৫০০ মিটারের মধ্যে)',
+      'Very close or within a cluster': 'খুব কাছে বা একটি ক্লাস্টারের মধ্যে',
+      
+      'Do you regularly monitor animals for disease symptoms and report unusual mortality?': 'আপনি কি নিয়মিত রোগের লক্ষণের জন্য পশুদের পর্যবেক্ষণ করেন এবং অস্বাভাবিক মৃত্যুর রিপোর্ট করেন?',
+      'Yes, daily monitoring and immediate reporting': 'হ্যাঁ, দৈনিক পর্যবেক্ষণ এবং তাৎক্ষণিক রিপোর্টিং',
+      'Sometimes monitor and report late': 'মাঝে মাঝে পর্যবেক্ষণ করি এবং দেরিতে রিপোর্ট করি',
+      'No regular monitoring or reporting': 'কোন নিয়মিত পর্যবেক্ষণ বা রিপোর্টিং নেই',
+      
       // Profile Page
       'My Profile': 'আমার প্রোফাইল',
       'Personal Information': 'ব্যক্তিগত তথ্য',
@@ -789,7 +967,69 @@ export const getTranslation = (text, currentLanguage) => {
       'Immediate attention needed: {{text}} - This is critical for biosecurity.': 'তাৎক্ষণিক মনোযোগের প্রয়োজন: {{text}} - এটি জৈব নিরাপত্তার জন্য গুরুত্বপূর্ণ।',
       'Improvement needed: {{text}} - Consider upgrading your current practices.': 'উন্নতি প্রয়োজন: {{text}} - আপনার বর্তমান অভ্যাসগুলি আপগ্রেড করার বিবেচনা করুন।',
       'Enhancement opportunity: {{text}} - Good foundation but room for improvement.': 'উন্নতির সুযোগ: {{text}} - ভাল ভিত্তি কিন্তু উন্নতির অবকাশ আছে।',
-      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'উৎকৃষ্ট জৈব নিরাপত্তা অভ্যাস! আপনার বর্তমান মানগুলি নিরীক্ষণ এবং বায়রখাব চালিয়ে যান।'
+      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'উৎকৃষ্ট জৈব নিরাপত্তা অনুশীলন! আপনার বর্তমান মানদণ্ড নিরীক্ষণ ও বজায় রাখতে চালিয়ে যান।',
+      
+      // Footer
+      'Your trusted partner in farm protection. Empowering farmers with comprehensive biosecurity solutions for pig and poultry farms.': 'খামার সুরক্ষায় আপনার বিশ্বস্ত সাথী। শূকর ও পোল্ট্রি খামারের জন্য বিস্তৃত জৈব নিরাপত্তা সমাধানের মাধ্যমে কৃষকদের শক্তিশালী করা।',
+      'Quick Links': 'দ্রুত লিঙ্ক',
+      'Dashboard': 'ড্যাশবোর্ড',
+      'Compliance': 'সম্মতি',
+      'Contact Us': 'আমাদের সাথে যোগাযোগ করুন',
+      'Feedback': 'মতামত',
+      'Settings': 'সেটিংস',
+      'Support': 'সহায়তা',
+      'Contact Information': 'যোগাযোগের তথ্য',
+      'Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': 'মৎস্য চাষ, পশু পালন ও দুগ্ধজাত মন্ত্রণালয়, ভারত সরকার',
+      'Facebook': 'ফেসবুক',
+      'Twitter': 'টুইটার',
+      'Instagram': 'ইন্সটাগ্রাম',
+      'Privacy': 'গোপনীয়তা',
+      'Learning': 'শিক্ষা',
+      '© {{year}} PashuMitra. All rights reserved. | Developed for the Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': '© {{year}} পশুমিত্র। সব অধিকার সংরক্ষিত। | মৎস্য চাষ, পশু পালন ও দুগ্ধজাত মন্ত্রণালয়, ভারত সরকারের জন্য উন্নত',
+      
+      // Learning Page
+      'Learning Center': 'கற்றல் மையம்',
+      'Master biosecurity practices with our comprehensive video tutorials and resources. Learn from experts and protect your farm.': 'எமது விரிவான வீடியோ பயிற்சிகள் மற்றும் வளங்களுடன் உயிரிய பாதுகாப்பு நடைமுறைகளில் நிபுணத்துவம் பெறுங்கள். நிபுணர்களிடமிருந்து கற்றுக்கொண்டு உங்கள் பண்ணையை பாதுகாக்குங்கள்.',
+      'Search for topics, diseases, or practices...': 'தலைப்புகள், நோய்கள் அல்லது நடைமுறைகளுக்கு தேடுங்கள்...',
+      'All Topics': 'அனைத்து தலைப்புகள்',
+      'Biosecurity Basics': 'உயிரிய பாதுகாப்பு அடிப்படைகள்',
+      'Pig Farming': 'பன்றி வளர்ப்பு',
+      'Poultry Farming': 'கோழி வளர்ப்பு',
+      'Disease Prevention': 'நோய் தடுப்பு',
+      'Farm Management': 'பண்ணை மேலாண்மை',
+      'Watch Now': 'இப்போது பார்க்கவும்',
+      'Notes': 'குறிப்புகள்',
+      'Share': 'பகிர்ந்து கொள்ளுங்கள்',
+      'Additional Resources': 'கூடுதல் வளங்கள்',
+      'Download': 'பதிவிறக்கம்',
+      
+      // Video Titles and Descriptions
+      'Modern Livestock Management Techniques': 'நவீன கால்நடை மேலாண்மை நுட்பங்கள்',
+      'Comprehensive guide to modern livestock management practices including feeding, housing, and health monitoring for optimal farm productivity.': 'உகந்த பண்ணை உற்பத்தித்திறனுக்கான உணவு வழங்கல், வீட்டு வசதி மற்றும் உடல்நல கண்காணிப்பு உட்பட நவீன கால்நடை மேலாண்மை நடைமுறைகளுக்கான விரிவான வழிகாட்டி.',
+      'Advanced Livestock Health Management': 'மேம்பட்ட கால்நடை உடல்நல மேலாண்மை',
+      'Professional guide to livestock health management covering disease prevention, treatment protocols, and maintaining optimal animal welfare standards.': 'நோய் தடுப்பு, சிகிச்சை நெறிமுறைகள் மற்றும் உகந்த விலங்கு நல தரங்களை பராமரிப்பதை உள்ளடக்கிய கால்நடை உடல்நல மேலாண்மைக்கான தொழில்முறை வழிகாட்டி.',
+      'Pig Farming: Disease Prevention Strategies': 'பன்றி வளர்ப்பு: நோய் தடுப்பு உத்திகள்',
+      'Learn effective disease prevention methods specifically designed for pig farms, including vaccination schedules and sanitation protocols.': 'தடுப்பூசி அட்டவணைகள் மற்றும் சுகாதார நெறிமுறைகள் உட்பட பன்றி பண்ணைகளுக்கு குறிப்பாக வடிவமைக்கப்பட்ட பயனுள்ள நோய் தடுப்பு முறைகளை கற்றுக்கொள்ளுங்கள்.',
+      'Poultry Health Management & Disease Control': 'கோழி உடல்நல மேலாண்மை மற்றும் நோய் கட்டுப்பாடு',
+      'Complete guide to maintaining poultry health, recognizing common diseases, and implementing effective treatment and prevention measures.': 'கோழி உடல்நலத்தை பராமரிப்பது, பொதுவான நோய்களை அறிவது மற்றும் பயனுள்ள சிகிச்சை மற்றும் தடுப்பு நடவடிக்கைகளை செயல்படுத்துவதற்கான முழுமையான வழிகாட்டி.',
+      'Professional Cattle Management Systems': 'தொழில்முறை கால்நடை மேலாண்மை அமைப்புகள்',
+      'Comprehensive guide to professional cattle management systems covering breeding programs, nutrition planning, and modern farming technologies for enhanced productivity.': 'மேம்பட்ட உற்பத்தித்திறனுக்கான இனப்பெருக்க திட்டங்கள், ஊட்டச்சத்து திட்டமிடல் மற்றும் நவீன விவசாய தொழில்நுட்பங்களை உள்ளடக்கிய தொழில்முறை கால்நடை மேலாண்மை அமைப்புகளுக்கான விரிவான வழிகாட்டி.',
+      'Complete Livestock Farm Management Guide': 'முழுமையான கால்நடை பண்ணை மேலாண்மை வழிகாட்டி',
+      'Comprehensive livestock farm management guide covering animal care, feeding protocols, health monitoring, and maximizing farm productivity.': 'விலங்கு பராமரிப்பு, உணவு நெறிமுறைகள், உடல்நல கண்காணிப்பு மற்றும் பண்ணை உற்பத்தித்திறனை அதிகரிப்பது ஆகியவற்றை உள்ளடக்கிய விரிவான கால்நடை பண்ணை மேலாண்மை வழிகாட்டி.',
+      
+      // Resource Titles and Descriptions  
+      'Livestock Biosecurity & Animal Health Policies': 'கால்நடை உயிரிய பாதுகாப்பு மற்றும் விலங்கு உடல்நல கொள்கைகள்',
+      'FAO Biosecurity Principles and Policy Frameworks (Comprehensive global perspective on biosecurity strategies and guidelines)': 'FAO உயிரிய பாதுகாப்பு கொள்கைகள் மற்றும் கொள்கை கட்டமைப்புகள் (உயிரிய பாதுகாப்பு உத்திகள் மற்றும் வழிகாட்டுதல்களில் விரிவான உலகளாவிய பார்வை)',
+      'FAO Biosecurity Toolkit PDF': 'FAO உயிரிய பாதுகாப்பு கருவித்தொகுப்பு PDF',
+      'Biosecurity & Biosafety Manual for Bovines in India': 'இந்தியாவில் கால்நடைகளுக்கான உயிரிய பாதுகாப்பு மற்றும் உயிரிய பாதுகாப்பு கையேடு',
+      'Practical guidelines and checklists tailored for Indian farms': 'இந்திய பண்ணைகளுக்கு ஏற்ப வடிவமைக்கப்பட்ட நடைமுறை வழிகாட்டுதல்கள் மற்றும் சரிபார்ப்பு பட்டியல்கள்',
+      'Biosecurity & Biosafety Manual PDF': 'உயிரிய பாதுகாப்பு மற்றும் உயிரிய பாதுகாப்பு கையேடு PDF',
+      'Livestock Emergency Response & Operational Guidelines': 'கால்நடை அவசர மறுமொழி மற்றும் செயல்பாட்டு வழிகாட்டுதல்கள்',
+      'Operational Guidelines for Livestock Health & Disease Control in India': 'இந்தியாவில் கால்நடை உடல்நலம் மற்றும் நோய் கட்டுப்பாட்டுக்கான செயல்பாட்டு வழிகாட்டுதல்கள்',
+      'Operational Guidelines Livestock Health PDF': 'கால்நடை உடல்நலம் செயல்பாட்டு வழிகாட்டுதல்கள் PDF',
+      'Livestock Emergency Response Plan Template': 'கால்நடை அவசர மறுமொழி திட்ட டெம்ப்ளேட்',
+      'Stepwise plan for managing livestock emergencies': 'கால்நடை அவசரநிலைகளை நிர்வகிப்பதற்கான படிப்படியான திட்டம்',
+      'Livestock Emergency Response Plan PDF': 'கால்நடை அவசர மறுமொழி திட்டம் PDF'
     },
 
     // Telugu (తెలుగు) - Your existing working translations
@@ -823,6 +1063,71 @@ export const getTranslation = (text, currentLanguage) => {
       'Take photos of animals for health monitoring': 'ఆరోగ్య మానిటరింగ్ కోసం పశువుల ఫోటోలను తీసుకొనండి',
       'Voice recordings for veterinary consultations': 'పశు వైద్య పరామర్శల కోసం వాయిస్ రికార్డింగ్లు',
       'Select Language': 'భాషను ఎన్ని చేయండి',
+      // Questionnaire Page
+      'Biosecurity Assessment Questionnaire': 'జీవ భద్రత మూల్యాంకన ప్రశ్నాపత్రం',
+      "Please answer the following questions to assess your farm's biosecurity level": 'మీ వ్యవసాయ జీవ భద్రత స్థాయిని అంచనా వేయడానికి క్రింది ప్రశ్నలకు సమాధానం ఇవ్వండి',
+      'Question': 'ప్రశ్న',
+      'of': 'యొక్క',
+      'completed': 'పూర్తయింది',
+      
+      // Questionnaire Questions
+      'What type of farm do you own?': 'మీకు ఎలాంటి వ్యవసాయం ఉంది?',
+      'Pig farm': 'పంది వ్యవసాయం',
+      'Poultry farm': 'కోడిగుడ్లు వ్యవసాయం',
+      'Both pig and poultry': 'పంది మరియు కోడిగుడ్లు రెండూ',
+      
+      'Do you have restricted entry for visitors and workers?': 'మీకు సందర్శకులు మరియు కార్మికులకు పరిమిత ప్రవేశం ఉందా?',
+      'Yes, only authorized persons can enter': 'అవును, అధికృత వ్యక్తులు మాత్రమే ప్రవేశించగలరు',
+      'Partially, visitors can enter with some checks': 'పాక్షికంగా, సందర్శకులు కొన్ని తనిఖీలతో ప్రవేశించవచ్చు',
+      'No restrictions, anyone can enter': 'ఎలాంటి పరిమితులు లేవు, ఎవరైనా ప్రవేశించవచ్చు',
+      
+      'Do you provide footbaths or disinfection facilities at entry points?': 'మీరు ప్రవేశ స్థానాల్లో కాలు స్నానాలు లేదా నిర్వాణ సౌకర్యాలు అందిస్తున్నారా?',
+      'Yes, always maintained and used': 'అవును, ఎల్లప్పుడూ నిర్వహించబడుతుంది మరియు ఉపయోగించబడుతుంది',
+      'Yes, but not regularly maintained': 'అవును, కానీ క్రమం తప్పకుండా నిర్వహించబడదు',
+      'No, such facilities are not available': 'లేదు, అటువంటి సౌకర్యాలు అందుబాటులో లేవు',
+      
+      'When introducing new pigs or poultry, do you quarantine them before mixing with the existing stock?': 'కొత్త పందులు లేదా కోడిగుడ్లను తీసుకువచ్చినప్పుడు, ప్రస్తుత స్టాక్‌తో కలపడానికి ముందు వాటిని నిరోధించాలా?',
+      'Yes, always': 'అవును, ఎల్లప్పుడూ',
+      'Sometimes': 'కొన్నిసార్లు',
+      'Never': 'ఎప్పుడూ లేదు',
+      
+      'How do you ensure feed and water are safe?': 'మేత మరియు నీరు సురక్షితంగా ఉన్నాయని మీరు ఎలా నిర్ధారిస్తారు?',
+      'Sourced from verified suppliers & stored hygienically': 'తనిఖీ చేయబడిన సరఫరాదారుల నుండి మరియు పరిశుభ్రంగా నిల్వ చేయబడింది',
+      'Stored properly but source not always verified': 'సరిగ్గా నిల్వ చేయబడింది కానీ మూలం ఎల్లప్పుడూ తనిఖీ చేయబడదు',
+      'No specific checks are done': 'ఎలాంటి నిర్దిష్ట తనిఖీలు చేయబడవు',
+      
+      'Do you have measures to prevent contact with rodents, wild birds, or stray animals?': 'ఎలుకలు, అడవి పక్షులు లేదా విచ్చలవిడి జంతువులతో పరిచయాన్ని నిరోధించడానికి మీకు చర్యలు ఉన్నాయా?',
+      'Yes, strict control measures in place': 'అవును, కఠినమైన నియంత్రణ చర్యలు ఉన్నాయి',
+      'Some control measures but not complete': 'కొన్ని నియంత్రణ చర్యలు కానీ పూర్తికాదు',
+      'No such measures': 'అటువంటి చర్యలు లేవు',
+      
+      'How is manure and dead animal disposal handled?': 'ఎరువు మరియు చనిపోయిన జంతువుల నిర్మూలన ఎలా నిర్వహించబడుతుంది?',
+      'Properly disposed through burial/incineration/approved methods': 'సమాధి/దహనం/ఆమోదించబడిన పద్ధతుల ద్వారా సరిగ్గా వ్యవహరించబడుతుంది',
+      'Sometimes managed properly, sometimes left in open': 'కొన్నిసార్లు సరిగ్గా నిర్వహించబడుతుంది, కొన్నిసార్లు బహిరంగంగా వదిలివేయబడుతుంది',
+      'Always left in open areas': 'ఎల్లప్పుడూ బహిరంగ ప్రాంతాల్లో వదిలివేయబడుతుంది',
+      
+      'Do workers change clothes, wear boots, and wash hands before entering animal sheds?': 'కార్మికులు జంతువుల గుడిసెల్లోకి ప్రవేశించే ముందు దుస్తులు మార్చుకుని, బూట్లు ధరించి, చేతులు కడుక్కుంటారా?',
+      'Yes, strictly followed': 'అవును, కఠినంగా అనుసరించబడుతుంది',
+      'Sometimes followed': 'కొన్నిసార్లు అనుసరించబడుతుంది',
+      'Not followed': 'అనుసరించబడదు',
+      
+      'Is your farm located away from other farms or live animal markets?': 'మీ వ్యవసాయం ఇతర వ్యవసాయాలు లేదా సజీవ జంతువుల మార్కెట్లకు దూరంగా ఉందా?',
+      'Yes, more than 1 km away': 'అవును, 1 కిమీ కంటే ఎక్కువ దూరంలో',
+      'Moderately close (within 500 m)': 'మధ్యంతరంగా దగ్గరగా (500 మీ లోపల)',
+      'Very close or within a cluster': 'చాలా దగ్గరగా లేదా ఒక గుంపులో',
+      
+      'Do you regularly monitor animals for disease symptoms and report unusual mortality?': 'మీరు క్రమం తప్పకుండా వ్యాధి లక్షణాల కోసం జంతువులను పర్యవేక్షిస్తున్నారా మరియు అసాధారణ మరణాలను నివేదిస్తున్నారా?',
+      'Yes, daily monitoring and immediate reporting': 'అవును, రోజువారీ పర్యవేక్షణ మరియు తక్షణ నివేదిక',
+      'Sometimes monitor and report late': 'కొన్నిసార్లు పర్యవేక్షణ మరియు ఆలస్యంగా నివేదిస్తారు',
+      'No regular monitoring or reporting': 'క్రమం తప్పకుండా పర్యవేక్షణ లేదా నివేదిక లేదు',
+      
+      // Common UI Elements
+      'Submit': 'సమర్పించండి',
+      'Cancel': 'రద్దు చేయండి',
+      'Close': 'మూసివేయండి',
+      'Next': 'తదుపరి',
+      'Previous': 'మునుపటి',
+      'Loading...': 'లోడ్ అవుతోంది...',
       
       // Auth Page Additional
       'Welcome Back': 'తిరిగి రాగతం',
@@ -1076,7 +1381,69 @@ export const getTranslation = (text, currentLanguage) => {
       'Immediate attention needed: {{text}} - This is critical for biosecurity.': 'తాత్కాలిక దృష్టి అవసరం: {{text}} - ఇది జైవ సురక్షకు అత్యంత ముఖ్యం.',
       'Improvement needed: {{text}} - Consider upgrading your current practices.': 'మెరుగుదల అవసరం: {{text}} - మీ ప్రస్తుత వేళానికి మెరుగుదలను ప్రభావిత చేయలని భావించండి.',
       'Enhancement opportunity: {{text}} - Good foundation but room for improvement.': 'వృద్ధి అవకాశం: {{text}} - మంచి మూలవుర్ కానీ మెరుగుదలకు జాగా ఉంది.',
-      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'అత్యుత్తమమైన జైవ సురక్ష వేళానికి! మీ ప్రస్తుత మానదండాలను మానిటరింగ్ మరియు బళగౌ చేయమనను రేధళ ఆచ కొనళిసి ఉండండి.'
+      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'అత్యుత్తమమైన జైవ సురక్ష వేళానికి! మీ ప్రస్తుత మానదండాలను మానిటరింగ్ మరియు బళగౌ చేయమనను రేధళ ఆచ కొనళిసి ఉండండి.',
+      
+      // Footer
+      'Your trusted partner in farm protection. Empowering farmers with comprehensive biosecurity solutions for pig and poultry farms.': 'వేళాం రక్షణలో మీ విశ్వసనీయ భాగస్వామి. పంది మరియు కోళ్ళ వేళాలకు వ్యాపకమైన జైవ సురక్ష సమాధానాలతో వేళారిని సశక్తమై చేయడం.',
+      'Quick Links': 'త్వరిత లింకులు',
+      'Dashboard': 'డాష్‌బోర్డ్',
+      'Compliance': 'అనుపాలన',
+      'Contact Us': 'మమ్మల్ని సంపర్కించండి',
+      'Feedback': 'అభిప్రాయం',
+      'Settings': 'సెట్టింగులు',
+      'Support': 'సహాయం',
+      'Contact Information': 'సంపర్క వివరాలు',
+      'Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': 'మత్స్యశాస్త్రం, పశుపాలన మరియు డెయరీ మంత్రాలయం, భారత సర్కారు',
+      'Facebook': 'ఫేస్బుక్',
+      'Twitter': 'ట్విటర్',
+      'Instagram': 'ఇన్స్టాగ్రామ్',
+      'Privacy': 'గోప్యత',
+      'Learning': 'ఆధునికత',
+      '© {{year}} PashuMitra. All rights reserved. | Developed for the Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': '© {{year}} పశుమిత్ర। అన్ని అధికారాలు రక్షితాలు। | మత్స్యశాస్త్రం, పశుపాలన మరియు డేరీ మన్త్రాలయం, భారత సర్కారు కరితా అనువర్తితం',
+      
+      // Learning Page
+      'Learning Center': 'కలికా కేన్ద్రం',
+      'Master biosecurity practices with our comprehensive video tutorials and resources. Learn from experts and protect your farm.': 'మా విస్తృత వీడియో ట్యూటోరియల్స్ మరియు వసులతో జివ రక్షణ అనుశీలనలను ఆయత్త చేసుకోండి। విశేషజ్ఞుల నుండి మరియు మీ వేళాన్ని రక్షించుకోండి।',
+      'Search for topics, diseases, or practices...': 'విషయాలు, రోగాలు, లేదా అనుశీలనల కోసం అన్వేషించండి...',
+      'All Topics': 'అన్ని విషయాలు',
+      'Biosecurity Basics': 'జివ రక్షణ మూలభూతాలు',
+      'Pig Farming': 'పండి పాలన',
+      'Poultry Farming': 'కోడి పాలన',
+      'Disease Prevention': 'రోగ రోధన',
+      'Farm Management': 'వేళాం నిర్వాహణ',
+      'Watch Now': 'ఇప్పుడు చూడండి',
+      'Notes': 'గమనికలు',
+      'Share': 'పంచుకోండి',
+      'Additional Resources': 'అతిరిక్త వసులు',
+      'Download': 'డౌన్‌లోడ్',
+      
+      // Video Titles and Descriptions
+      'Modern Livestock Management Techniques': 'ఆধ৑নুক পশটসম্পদ ৤২াপনা కৌশল।',
+      'Comprehensive guide to modern livestock management practices including feeding, housing, and health monitoring for optimal farm productivity.': 'সর্৩োত্তম ఖামৈ঵ উৎদানশীলতার জন্য ఖাদ্য় প্রদৣ, আৄাসন এৄ স্বাস্থ্য পর্য়োেৠেণ সহ ఆধ৑নুক পশজসম্পদ ৤৩াপনা అন৑শীলনের ৬িস্তুত গাইদ।',
+      'Advanced Livestock Health Management': 'ఉন্নত পশটসম্পদ স্বাস্থ্য ৤৩াপনা।',
+      'Professional guide to livestock health management covering disease prevention, treatment protocols, and maintaining optimal animal welfare standards.': 'রোগ প্রতিরোধ, চিকিৎসা প্রোটল এ৅ সর্বোত্তম পশট కল্যাণ মান ৬জায় রাఖা কভার করে পশটসম্পদ স্বাস্থ্য ৤২াপনার পেশাদার গাইদ।',
+      'Pig Farming: Disease Prevention Strategies': 'শূকর পালন: রোগ প্রতিরোধ కৌশল।',
+      'Learn effective disease prevention methods specifically designed for pig farms, including vaccination schedules and sanitation protocols.': 'টিকাদানের সময়সূচি এ৅ স্যানিটেশন প্রোটল সহ শূকর ఖামারের জন্য ৬িশেষভা৬ে ডিজাইন করা కার্য়কর রোগ প্রতিরোধ পদ্ধতি শিఖন।',
+      'Poultry Health Management & Disease Control': 'হাঁস-ম৑রগির স্বাস্থ্য ৤২াপনা এ৅ রোগ নিয়ন্ত্রণ।',
+      'Complete guide to maintaining poultry health, recognizing common diseases, and implementing effective treatment and prevention measures.': 'হাঁস-ম৑রগির স্বাস্থ্য ৬জায় রাఖা, সাধারণ রোগ চিহ্নিতকরণ এ৅ কার্য়কর চিকিৎসা ও প্রতিরোধমূলক ৤২া ৬াস্তৄায়নের সম্পূর্ণ গাইদ।',
+      'Professional Cattle Management Systems': 'পেশাদার গ৬াদি পশত ৤২াপনা সিস্টেম।',
+      'Comprehensive guide to professional cattle management systems covering breeding programs, nutrition planning, and modern farming technologies for enhanced productivity.': 'উন্নত উৎাদনশীলতার জন্য প্রজনন কর্মসূচি, পাষ্টি পরিকল্পনা এ৅ আধতনিক ক৆ষি প্র৯মক্তি কভার করে পেশাদার গ৬াদি পশত ৤২াপনা সিস্টেমের ৬িস্তুত গাইদ।',
+      'Complete Livestock Farm Management Guide': 'সম্পূর্ণ পশতসম্পদ ఖামার ৤২াপনা গাইদ।',
+      'Comprehensive livestock farm management guide covering animal care, feeding protocols, health monitoring, and maximizing farm productivity.': 'পশত ৯ত্ন, ఖাদ্৯ প্রোটল, স্বাস্থ্য পর্৯েৠেণ এ৅ ఖামারের উৎাদনশীলতা সর্৩োচ্চকরণ ক৭ার করে ৬িস্তুত পশতসম্পদ ఖামার ৤৩াপনা গাইদ।',
+      
+      // Resource Titles and Descriptions  
+      'Livestock Biosecurity & Animal Health Policies': 'পশতসম্পদ জిভ নিరাৈত্তা এ৅ পশত স্বাস্থ্য নীতি।',
+      'FAO Biosecurity Principles and Policy Frameworks (Comprehensive global perspective on biosecurity strategies and guidelines)': 'FAO জిভ নিరাৈত্তা নীতি এ৅ নীতি কাৃামো (জిভ নিరাৈত্তা కৌশল এ৅ নির্দেশিকার উপর ৬িস্তুত ৬িশ্৬৤াী দ৉ষ্টি্ুন্গি)',
+      'FAO Biosecurity Toolkit PDF': 'FAO জిভ নিరাৈত্তা টেলకিট PDF',
+      'Biosecurity & Biosafety Manual for Bovines in India': 'ভারতে গ৬াদি পশতর জন্য জిভ নিరাৈত্তা এ৅ জిভ নিరাৈত্তা ম্যানুয়াল।',
+      'Practical guidelines and checklists tailored for Indian farms': 'ভারতীয় ఖামারের জন্য উপ৯োগী ৤২াহারিক নির্দেশিকা এ৅ চেকলিস্ট।',
+      'Biosecurity & Biosafety Manual PDF': 'জిভ নিరাৈত্তা এ৅ জిভ নিరাৈত্তা ম্যানুয়াল PDF',
+      'Livestock Emergency Response & Operational Guidelines': 'পশতসম্পদ জরুরি প্রতিক্রিয়া এ৅ অপারেশনাল নির্দেশিকা।',
+      'Operational Guidelines for Livestock Health & Disease Control in India': 'ভারতে পশতসম্পদ স্বাস্থ্য এ৅ রোগ নিয়ন্ত্রণের জন্য অপারেশনাল নির্দেশিকা।',
+      'Operational Guidelines Livestock Health PDF': 'পশতসম্পদ স্বাস্থ্য অপারেশনাল নির্দেশিকা PDF',
+      'Livestock Emergency Response Plan Template': 'পশতসম্পদ জরুরি প্রতিক্রিয়া পরিকল্পনা টেমপ্লেট।',
+      'Stepwise plan for managing livestock emergencies': 'পশতসম্পদ জরুরি অ৩স্থা পরিচালনার জন্য ধাপে ধাপে পরিকল্পনা।',
+      'Livestock Emergency Response Plan PDF': 'পশতসম্পদ জরুরি প্রতিক্রিয়া পরিকল্পনা PDF'
     },
 
     // Tamil (தமிழ்)
@@ -1336,7 +1703,25 @@ export const getTranslation = (text, currentLanguage) => {
       'Immediate attention needed: {{text}} - This is critical for biosecurity.': 'தற்காலிக கவனம் தேவை: {{text}} - இது தீவ புரக்காப்புக்கு மிகவும் மச்சிகியமானது.',
       'Improvement needed: {{text}} - Consider upgrading your current practices.': 'மெள்வத்தி தேவை: {{text}} - உங்கள் தற்போதைய நடவடிக்கைகளை மేம்படுத்துவதை கருதில் கள்ருத்தி.',
       'Enhancement opportunity: {{text}} - Good foundation but room for improvement.': 'மெள்வத்தி வாய்ப்பு: {{text}} - நல்ல அடித்தளம் ஆனால் மெள்வத்திக்கு இடம் உள்ளது.',
-      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'உத்தமமான தீவ புரக்காப்பு நடவடிக்கைகள்! உங்கள் தற்போதைய தர வச்சத்தின் காணித்தல் மற்றும் ୐திதால் தோங்கலாம் உரவி தருக.'
+      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'உத்தமமான தீவ புரக்காப்பு நடவடிக்கைகள்! உங்கள் தற்போதைய தர வச்சத்தின் காணித்தல் மற்றும் ୐திதால் தோங்கலாம் உரவி தருக.',
+      
+      // Footer
+      'Your trusted partner in farm protection. Empowering farmers with comprehensive biosecurity solutions for pig and poultry farms.': 'பண்ணை பாதுகாப்பில் உங்கள் நம்பகமான பங்காளி. பன்றி மற்றும் கோழி பண்ணைகளுக்கான விரிவான தீவ புரக்காப்பு தீர்வுகள் மூலம் விவசாயிகளை தரமிளலாக்குதல்.',
+      'Quick Links': 'வேக இணைப்புகள்',
+      'Dashboard': 'கண்காணி பலகை',
+      'Compliance': 'இணக்கம்',
+      'Contact Us': 'எங்களை தொடர்பு கொள்ளவும்',
+      'Feedback': 'கருத்து',
+      'Settings': 'அமைப்புகள்',
+      'Support': 'ஆதரவு',
+      'Contact Information': 'தொடர்பு தகவல்',
+      'Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': 'மீன் வளர்ப்பு, கால்நடை வளர்ப்பு மற்றும் பாலேரி அமைச்சகம், இந்திய அரசு',
+      'Facebook': 'பేஸ்புக்',
+      'Twitter': 'ட்விட்டர்',
+      'Instagram': 'இன்ஸ்டாக்ராம்',
+      'Privacy': 'தனியுரிமை',
+      'Learning': 'கற்றல்',
+      '© {{year}} PashuMitra. All rights reserved. | Developed for the Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': '© {{year}} பசுமித்ரா. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை. | மீன் வளர்ப்பு, கால்நடை வளர்ப்பு மற்றும் பாலேரி அமைச்சகத்துக்காக உருவாக்கப்பட்டது'
     },
 
     // Marathi (मराठी)  
@@ -1596,7 +1981,69 @@ export const getTranslation = (text, currentLanguage) => {
       'Immediate attention needed: {{text}} - This is critical for biosecurity.': 'तात्काळ लक्ष देणे आवश्यक: {{text}} - हे जैव सुरक्षेसाठी अतिशय महत्त्वाचे आहे।',
       'Improvement needed: {{text}} - Consider upgrading your current practices.': 'सुधारणा आवश्यक: {{text}} - आपल्या सद्याच्या पद्धतींचा सुधारणा करण्याचा विचार करा।',
       'Enhancement opportunity: {{text}} - Good foundation but room for improvement.': 'सुधारणाची संधी: {{text}} - चांगला पाया परंतु सुधारणेसाठी जागा आहे।',
-      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'उत्तम जैव सुरक्षा पद्धती! आपल्या सद्याच्या मानदंडांचे निरीक्षण आणि देखभाल चालू ठेवा।'
+      'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.': 'उत्तम जैव सुरक्षा पद्धती! आपल्या सद्याच्या मानदंडांचे निरीक्षण आणि देखभाल चालू ठेवा।',
+      
+      // Footer
+      'Your trusted partner in farm protection. Empowering farmers with comprehensive biosecurity solutions for pig and poultry farms.': 'शेत संरक्षणात आपला विश्वसनीय भागीदार। डुक्कर आणि कोंबडी शेतांसाठी सर्वसमावेशक जैव सुरक्षा उपायांसह शेतकऱ्यांना सशक्त करणे।',
+      'Quick Links': 'द्रुत दुवे',
+      'Dashboard': 'डॅशबोर्ड',
+      'Compliance': 'अनुपालन',
+      'Contact Us': 'आमच्याशी संपर्क करा',
+      'Feedback': 'प्रतिक्रिया',
+      'Settings': 'सेटिंग्ज',
+      'Support': 'सहाय्य',
+      'Contact Information': 'संपर्क माहिती',
+      'Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': 'मासेमारी, पशुपालन आणि डेअरी मंत्रालय, भारत सरकार',
+      'Facebook': 'फेसबुक',
+      'Twitter': 'ट्विटर',
+      'Instagram': 'इन्स्टाग्राम',
+      'Privacy': 'गोपनीयता',
+      'Learning': 'शिक्षण',
+      '© {{year}} PashuMitra. All rights reserved. | Developed for the Ministry of Fisheries, Animal Husbandry & Dairying, Government of India': '© {{year}} पशुमित्र। सर्व अधिकार राखीव आहेत। | मासेमारी, पशुपालन आणि डेअरी मंत्रालय, भारत सरकार करिता विकसित',
+      
+      // Learning Page
+      'Learning Center': 'शिक्षण केंद्र',
+      'Master biosecurity practices with our comprehensive video tutorials and resources. Learn from experts and protect your farm.': 'आमच्या विस्तृत व्हिडिओ ट्यूटोरियल आणि संसाधनांसह जैव सुरक्षा प्रथांमध्ये प्रावीण्य मिळवा। तज्ञांकडून शिका आणि आपल्या शेताचे रक्षण करा।',
+      'Search for topics, diseases, or practices...': 'विषय, रोग, किंवा प्रथांसाठी शोधा...',
+      'All Topics': 'सर्व विषय',
+      'Biosecurity Basics': 'जैव सुरक्षा मूलभूत गोष्टी',
+      'Pig Farming': 'डुक्कर पालन',
+      'Poultry Farming': 'कोंबडी पालन',
+      'Disease Prevention': 'रोग प्रतिबंध',
+      'Farm Management': 'शेत व्यवस्थापन',
+      'Watch Now': 'आता पाहा',
+      'Notes': 'टिप्पण्या',
+      'Share': 'शेअर करा',
+      'Additional Resources': 'अतिरिक्त संसाधने',
+      'Download': 'डाउनलोड',
+      
+      // Video Titles and Descriptions
+      'Modern Livestock Management Techniques': 'आधुनिक पशुधन व्यवस्थापन तंत्रे',
+      'Comprehensive guide to modern livestock management practices including feeding, housing, and health monitoring for optimal farm productivity.': 'सर्वोत्तम शेत उत्पादकतेसाठी आहार, आवास आणि आरोग्य देखरेख यासह आधुनिक पशुधन व्यवस्थापन प्रथांचा विस्तृत मार्गदर्शक।',
+      'Advanced Livestock Health Management': 'प्रगत पशुधन आरोग्य व्यवस्थापन',
+      'Professional guide to livestock health management covering disease prevention, treatment protocols, and maintaining optimal animal welfare standards.': 'रोग प्रतिबंध, उपचार प्रोटोकॉल आणि सर्वोत्तम प्राणी कल्याण मानदंड विशें पशुधन आरोग्य व्यवस्थापनाचा व्यावसायिक मार्गदर्शक।',
+      'Pig Farming: Disease Prevention Strategies': 'डुक्कर पालन: रोग प्रतिबंध योजना',
+      'Learn effective disease prevention methods specifically designed for pig farms, including vaccination schedules and sanitation protocols.': 'लसीकरण वेळापत्रक आणि स्वच्छता प्रोटोकॉल यासह डुक्कर शेतांसाठी विशेषतः तयार केलेले प्रभावी रोग प्रतिबंध पद्धती शिका।',
+      'Poultry Health Management & Disease Control': 'कोंबडी आरोग्य व्यवस्थापन आणि रोग नियंत्रण',
+      'Complete guide to maintaining poultry health, recognizing common diseases, and implementing effective treatment and prevention measures.': 'कोंबडी आरोग्य बजाय ठेवणे, सामान्य रोग ओळखणे आणि प्रभावी उपचार आणि प्रतिबंध उपाययोजना अंमलबजावणीचा संपूर्ण मार्गदर्शक।',
+      'Professional Cattle Management Systems': 'व्यावसायिक गुरे व्यवस्थापन प्रणाली',
+      'Comprehensive guide to professional cattle management systems covering breeding programs, nutrition planning, and modern farming technologies for enhanced productivity.': 'वाढिव उत्पादकतेसाठी प्रजनन कार्यक्रम, पोषण नियोजन आणि आधुनिक शेती तंत्रज्ञान यांना व्याप्त करणारा व्यावसायिक गुरे व्यवस्थापन प्रणालीचा विस्तृत मार्गदर्शक।',
+      'Complete Livestock Farm Management Guide': 'संपूर्ण पशुधन शेत व्यवस्थापन मार्गदर्शक',
+      'Comprehensive livestock farm management guide covering animal care, feeding protocols, health monitoring, and maximizing farm productivity.': 'प्राणी देखभाल, आहार प्रोटोकॉल, आरोग्य देखरेख आणि शेत उत्पादकता वाढविणे यांना व्याप्त करणारा विस्तृत पशुधन शेत व्यवस्थापन मार्गदर्शक।',
+      
+      // Resource Titles and Descriptions  
+      'Livestock Biosecurity & Animal Health Policies': 'पशुधन जैव सुरक्षा आणि प्राणी आरोग्य धोरणे',
+      'FAO Biosecurity Principles and Policy Frameworks (Comprehensive global perspective on biosecurity strategies and guidelines)': 'FAO जैव सुरक्षा तत्वे आणि धोरण ढांचे (जैव सुरक्षा योजना आणि मार्गदर्शन तत्वांवर विस्तृत जागतिक दृष्टिकोन)',
+      'FAO Biosecurity Toolkit PDF': 'FAO जैव सुरक्षा टूलकिट PDF',
+      'Biosecurity & Biosafety Manual for Bovines in India': 'भारतात गोवंशासाठी जैव सुरक्षा आणि जैव सुरक्षा मेनुअल',
+      'Practical guidelines and checklists tailored for Indian farms': 'भारतीय शेतांसाठी तयार केलेले व्यावहारिक मार्गदर्शक तत्वे आणि चेकलिस्ट',
+      'Biosecurity & Biosafety Manual PDF': 'जैव सुरक्षा आणि जैव सुरक्षा मेनुअल PDF',
+      'Livestock Emergency Response & Operational Guidelines': 'पशुधन आपत्कालीन प्रतिसाद आणि कामकाजाचे मार्गदर्शन तत्वे',
+      'Operational Guidelines for Livestock Health & Disease Control in India': 'भारतात पशुधन आरोग्य आणि रोग नियंत्रणासाठी कामकाजाचे मार्गदर्शन तत्वे',
+      'Operational Guidelines Livestock Health PDF': 'पशुधन आरोग्य कामकाजाचे मार्गदर्शन तत्वे PDF',
+      'Livestock Emergency Response Plan Template': 'पशुधन आपत्कालीन प्रतिसाद योजना टेम्पलेट',
+      'Stepwise plan for managing livestock emergencies': 'पशुधन आपत्कालीन परिस्थिती व्यवस्थापनासाठी टप्पेवार योजना',
+      'Livestock Emergency Response Plan PDF': 'पशुधन आपत्कालीन प्रतिसाद योजना PDF'
     },
 
     // Gujarati (ગુજરાતી)
@@ -1761,10 +2208,20 @@ export const getTranslation = (text, currentLanguage) => {
   };
 
   const langTranslations = translations[currentLanguage];
-  return langTranslations ? (langTranslations[text] || text) : text;
+  let translation = langTranslations ? (langTranslations[text] || text) : text;
+  
+  // Handle parameter interpolation (like {{count}}, {{text}}, etc.)
+  if (params && Object.keys(params).length > 0) {
+    Object.keys(params).forEach(key => {
+      const regex = new RegExp(`{{${key}}}`, 'g');
+      translation = translation.replace(regex, params[key]);
+    });
+  }
+  
+  return translation;
 };
 
 // Helper function specifically for components to use
 export const usePageTranslation = (currentLanguage) => {
-  return (text) => getTranslation(text, currentLanguage);
+  return (text, params) => getTranslation(text, currentLanguage, params);
 };

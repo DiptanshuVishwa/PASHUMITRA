@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiMail, FiPhone, FiMapPin, FiFacebook, FiTwitter, FiInstagram } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
+import { getTranslation } from '../utils/translations';
 
 const FooterContainer = styled.footer`
   background-color: var(--dark-gray);
@@ -79,48 +80,51 @@ const FooterBottom = styled.div`
 `;
 
 const Footer = () => {
-  const { t } = useLanguage();
+  const { currentLanguage } = useLanguage();
+  
+  // Translation helper function
+  const t = (text, params) => getTranslation(text, currentLanguage, params);
 
   return (
     <FooterContainer>
       <FooterContent>
         <FooterGrid>
           <FooterSection>
-            <h3>PashuMitra</h3>
-            <p>Your trusted partner in farm protection. Empowering farmers with comprehensive biosecurity solutions for pig and poultry farms.</p>
+            <h3>{t('PashuMitra')}</h3>
+            <p>{t('Your trusted partner in farm protection. Empowering farmers with comprehensive biosecurity solutions for pig and poultry farms.')}</p>
             <SocialLinks>
-              <a href="#" aria-label="Facebook">
+              <a href="#" aria-label={t('Facebook')}>
                 <FiFacebook />
               </a>
-              <a href="#" aria-label="Twitter">
+              <a href="#" aria-label={t('Twitter')}>
                 <FiTwitter />
               </a>
-              <a href="#" aria-label="Instagram">
+              <a href="#" aria-label={t('Instagram')}>
                 <FiInstagram />
               </a>
             </SocialLinks>
           </FooterSection>
 
           <FooterSection>
-            <h3>Quick Links</h3>
-            <FooterLink to="/dashboard">{t('nav.dashboard')}</FooterLink>
-            <FooterLink to="/compliance">{t('nav.compliance')}</FooterLink>
-            <FooterLink to="/learning">{t('nav.learning')}</FooterLink>
-            <FooterLink to="/raise-alert">{t('nav.raiseAlert')}</FooterLink>
-            <FooterLink to="/faq">{t('nav.faq')}</FooterLink>
+            <h3>{t('Quick Links')}</h3>
+            <FooterLink to="/dashboard">{t('Dashboard')}</FooterLink>
+            <FooterLink to="/compliance">{t('Compliance')}</FooterLink>
+            <FooterLink to="/learning">{t('Learning')}</FooterLink>
+            <FooterLink to="/raise-alert">{t('Raise Alert')}</FooterLink>
+            <FooterLink to="/faq">{t('FAQ')}</FooterLink>
           </FooterSection>
 
           <FooterSection>
-            <h3>Support</h3>
-            <FooterLink to="/contact-us">{t('nav.contactUs')}</FooterLink>
-            <FooterLink to="/contact-vet">{t('nav.contactVet')}</FooterLink>
-            <FooterLink to="/feedback">{t('nav.feedback')}</FooterLink>
-            <FooterLink to="/privacy">{t('nav.privacy')}</FooterLink>
-            <FooterLink to="/settings">{t('nav.settings')}</FooterLink>
+            <h3>{t('Support')}</h3>
+            <FooterLink to="/contact-us">{t('Contact Us')}</FooterLink>
+            <FooterLink to="/contact-vet">{t('Contact Vet')}</FooterLink>
+            <FooterLink to="/feedback">{t('Feedback')}</FooterLink>
+            <FooterLink to="/privacy">{t('Privacy')}</FooterLink>
+            <FooterLink to="/settings">{t('Settings')}</FooterLink>
           </FooterSection>
 
           <FooterSection>
-            <h3>Contact Information</h3>
+            <h3>{t('Contact Information')}</h3>
             <ContactInfo>
               <FiMail />
               <span>pashumitra@gmail.com</span>
@@ -131,13 +135,13 @@ const Footer = () => {
             </ContactInfo>
             <ContactInfo>
               <FiMapPin />
-              <span>Ministry of Fisheries, Animal Husbandry & Dairying, Government of India</span>
+              <span>{t('Ministry of Fisheries, Animal Husbandry & Dairying, Government of India')}</span>
             </ContactInfo>
           </FooterSection>
         </FooterGrid>
 
         <FooterBottom>
-          <p>&copy; 2024 PashuMitra. All rights reserved. | Developed for the Ministry of Fisheries, Animal Husbandry & Dairying, Government of India</p>
+          <p>{t('© {{year}} PashuMitra. All rights reserved. | Developed for the Ministry of Fisheries, Animal Husbandry & Dairying, Government of India', { year: 2024 })}</p>
         </FooterBottom>
       </FooterContent>
     </FooterContainer>

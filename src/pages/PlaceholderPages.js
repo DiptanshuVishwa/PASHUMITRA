@@ -12,6 +12,8 @@ import {
   FiStar,
   FiSearch
 } from 'react-icons/fi';
+import { useLanguage } from '../context/LanguageContext';
+import { getTranslation } from '../utils/translations';
 // Import the new CompliancePage, RaiseAlertPage, NotificationsPage, ProfilePage, and PrivacyPolicy
 import CompliancePage from './CompliancePage';
 import RaiseAlertPage from './RaiseAlertPage';
@@ -404,23 +406,27 @@ const ThumbnailImage = ({ youtubeId, alt }) => {
 
 // Learning page
 export const Learning = () => {
+  const { currentLanguage } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  
+  // Translation helper function
+  const t = (text, params) => getTranslation(text, currentLanguage, params);
 
   const categories = [
-    { id: 'all', label: 'All Topics' },
-    { id: 'biosecurity', label: 'Biosecurity Basics' },
-    { id: 'pig', label: 'Pig Farming' },
-    { id: 'poultry', label: 'Poultry Farming' },
-    { id: 'diseases', label: 'Disease Prevention' },
-    { id: 'management', label: 'Farm Management' }
+    { id: 'all', label: t('All Topics') },
+    { id: 'biosecurity', label: t('Biosecurity Basics') },
+    { id: 'pig', label: t('Pig Farming') },
+    { id: 'poultry', label: t('Poultry Farming') },
+    { id: 'diseases', label: t('Disease Prevention') },
+    { id: 'management', label: t('Farm Management') }
   ];
 
   const videos = [
     {
       id: 1,
-      title: "Modern Livestock Management Techniques",
-      description: "Comprehensive guide to modern livestock management practices including feeding, housing, and health monitoring for optimal farm productivity.",
+      title: t("Modern Livestock Management Techniques"),
+      description: t("Comprehensive guide to modern livestock management practices including feeding, housing, and health monitoring for optimal farm productivity."),
       category: "management",
       duration: "12:30",
       rating: 4.8,
@@ -429,8 +435,8 @@ export const Learning = () => {
     },
     {
       id: 2,
-      title: "Advanced Livestock Health Management",
-      description: "Professional guide to livestock health management covering disease prevention, treatment protocols, and maintaining optimal animal welfare standards.",
+      title: t("Advanced Livestock Health Management"),
+      description: t("Professional guide to livestock health management covering disease prevention, treatment protocols, and maintaining optimal animal welfare standards."),
       category: "biosecurity",
       duration: "15:20",
       rating: 4.8,
@@ -439,8 +445,8 @@ export const Learning = () => {
     },
     {
       id: 3,
-      title: "Pig Farming: Disease Prevention Strategies",
-      description: "Learn effective disease prevention methods specifically designed for pig farms, including vaccination schedules and sanitation protocols.",
+      title: t("Pig Farming: Disease Prevention Strategies"),
+      description: t("Learn effective disease prevention methods specifically designed for pig farms, including vaccination schedules and sanitation protocols."),
       category: "pig",
       duration: "16:20",
       rating: 4.7,
@@ -449,8 +455,8 @@ export const Learning = () => {
     },
     {
       id: 4,
-      title: "Poultry Health Management & Disease Control",
-      description: "Complete guide to maintaining poultry health, recognizing common diseases, and implementing effective treatment and prevention measures.",
+      title: t("Poultry Health Management & Disease Control"),
+      description: t("Complete guide to maintaining poultry health, recognizing common diseases, and implementing effective treatment and prevention measures."),
       category: "poultry",
       duration: "13:15",
       rating: 4.6,
@@ -459,8 +465,8 @@ export const Learning = () => {
     },
     {
       id: 5,
-      title: "Professional Cattle Management Systems",
-      description: "Comprehensive guide to professional cattle management systems covering breeding programs, nutrition planning, and modern farming technologies for enhanced productivity.",
+      title: t("Professional Cattle Management Systems"),
+      description: t("Comprehensive guide to professional cattle management systems covering breeding programs, nutrition planning, and modern farming technologies for enhanced productivity."),
       category: "management",
       duration: "18:45",
       rating: 4.7,
@@ -469,8 +475,8 @@ export const Learning = () => {
     },
     {
       id: 6,
-      title: "Complete Livestock Farm Management Guide",
-      description: "Comprehensive livestock farm management guide covering animal care, feeding protocols, health monitoring, and maximizing farm productivity.",
+      title: t("Complete Livestock Farm Management Guide"),
+      description: t("Comprehensive livestock farm management guide covering animal care, feeding protocols, health monitoring, and maximizing farm productivity."),
       category: "management",
       duration: "19:30",
       rating: 4.8,
@@ -481,28 +487,28 @@ export const Learning = () => {
 
   const resources = [
     {
-      title: "Livestock Biosecurity & Animal Health Policies",
-      description: "FAO Biosecurity Principles and Policy Frameworks (Comprehensive global perspective on biosecurity strategies and guidelines)",
+      title: t("Livestock Biosecurity & Animal Health Policies"),
+      description: t("FAO Biosecurity Principles and Policy Frameworks (Comprehensive global perspective on biosecurity strategies and guidelines)"),
       link: "https://www.fao.org/4/a1140e/a1140e01.pdf",
-      type: "FAO Biosecurity Toolkit PDF"
+      type: t("FAO Biosecurity Toolkit PDF")
     },
     {
-      title: "Biosecurity & Biosafety Manual for Bovines in India",
-      description: "Practical guidelines and checklists tailored for Indian farms",
+      title: t("Biosecurity & Biosafety Manual for Bovines in India"),
+      description: t("Practical guidelines and checklists tailored for Indian farms"),
       link: "https://epashuhaat.com/India/e-pashudhan/documents/Biosecurity%20and%20Biosafety%20Manual.pdf",
-      type: "Biosecurity & Biosafety Manual PDF"
+      type: t("Biosecurity & Biosafety Manual PDF")
     },
     {
-      title: "Livestock Emergency Response & Operational Guidelines",
-      description: "Operational Guidelines for Livestock Health & Disease Control in India",
+      title: t("Livestock Emergency Response & Operational Guidelines"),
+      description: t("Operational Guidelines for Livestock Health & Disease Control in India"),
       link: "https://megahvt.gov.in/miscellaneous/LH_DC_Operational_Guidelines.pdf",
-      type: "Operational Guidelines Livestock Health PDF"
+      type: t("Operational Guidelines Livestock Health PDF")
     },
     {
-      title: "Livestock Emergency Response Plan Template",
-      description: "Stepwise plan for managing livestock emergencies",
+      title: t("Livestock Emergency Response Plan Template"),
+      description: t("Stepwise plan for managing livestock emergencies"),
       link: "https://flsart.org/resource/TLAER/Livestock.pdf",
-      type: "Livestock Emergency Response Plan PDF"
+      type: t("Livestock Emergency Response Plan PDF")
     }
   ];
 
@@ -540,10 +546,9 @@ export const Learning = () => {
   return (
     <LearningContainer>
       <LearningHeader>
-        <h1>Learning Center</h1>
+        <h1>{t('Learning Center')}</h1>
         <p>
-          Master biosecurity practices with our comprehensive video tutorials and resources.
-          Learn from experts and protect your farm.
+          {t('Master biosecurity practices with our comprehensive video tutorials and resources. Learn from experts and protect your farm.')}
         </p>
       </LearningHeader>
 
@@ -551,7 +556,7 @@ export const Learning = () => {
         <SearchBox>
           <input
             type="text"
-            placeholder="Search for topics, diseases, or practices..."
+            placeholder={t('Search for topics, diseases, or practices...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -609,13 +614,13 @@ export const Learning = () => {
                   className="primary"
                   onClick={() => openYouTubeVideo(video.youtubeId)}
                 >
-                  <FiPlay /> Watch Now
+                  <FiPlay /> {t('Watch Now')}
                 </ActionButton>
                 <ActionButton>
-                  <FiBookOpen /> Notes
+                  <FiBookOpen /> {t('Notes')}
                 </ActionButton>
                 <ActionButton>
-                  <FiExternalLink /> Share
+                  <FiExternalLink /> {t('Share')}
                 </ActionButton>
               </VideoActions>
             </VideoContent>
@@ -624,7 +629,7 @@ export const Learning = () => {
       </VideoGrid>
 
       <ResourcesSection>
-        <h2>Additional Resources</h2>
+        <h2>{t('Additional Resources')}</h2>
         <ResourceGrid>
           {resources.map((resource, index) => (
             <ResourceCard
@@ -663,7 +668,7 @@ export const Learning = () => {
                 }}
               >
                 <FiDownload size={14} />
-                Download {resource.type}
+{t('Download')} {resource.type}
               </span>
             </ResourceCard>
           ))}

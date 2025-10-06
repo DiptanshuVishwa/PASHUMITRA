@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { getTranslation } from '../utils/translations';
+import { useLanguage } from '../context/LanguageContext';
 import {
   FiShield,
   FiAlertTriangle,
@@ -308,22 +309,13 @@ const ActionButton = styled.button`
 `;
 
 const RiskAssessmentPage = () => {
-  const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'en');
+  const { currentLanguage } = useLanguage();
   const [answers, setAnswers] = useState({});
   const [currentScore, setCurrentScore] = useState(0);
   const [assessmentComplete, setAssessmentComplete] = useState(false);
 
   // Translation helper function
-  const t = (text) => getTranslation(text, currentLanguage);
-
-  // Listen for language changes
-  useEffect(() => {
-    const handleLanguageChange = () => {
-      setCurrentLanguage(localStorage.getItem('language') || 'en');
-    };
-    window.addEventListener('languageChanged', handleLanguageChange);
-    return () => window.removeEventListener('languageChanged', handleLanguageChange);
-  }, []);
+  const t = (text, params) => getTranslation(text, currentLanguage, params);
 
   // Risk assessment questionnaire data
   const assessmentCategories = [
@@ -658,7 +650,7 @@ const RiskAssessmentPage = () => {
           <ScoreCard>
             <ScoreDisplay score={currentScore}>
               <div className="score-number">{currentScore}</div>
-              <div className="score-label">Biosecurity Score</div>
+              <div className="score-label">{t('Biosecurity Score')}</div>
             </ScoreDisplay>
             
             <RiskLevel level={risk.level}>
@@ -668,12 +660,12 @@ const RiskAssessmentPage = () => {
             <ActionButtons>
               <ActionButton className="secondary" onClick={resetAssessment}>
                 <FiRefreshCw />
-                Reset
+                {t('Reset')}
               </ActionButton>
               {assessmentComplete && (
                 <ActionButton className="primary" onClick={downloadReport}>
                   <FiDownload />
-                  Report
+                  {t('Report')}
                 </ActionButton>
               )}
             </ActionButtons>
@@ -690,7 +682,7 @@ const RiskAssessmentPage = () => {
                 gap: '8px'
               }}>
                 <FiTarget />
-                Recommendations
+                {t('Recommendations')}
               </h3>
               
               {recommendations.slice(0, 5).map((rec, index) => (
@@ -713,7 +705,7 @@ const RiskAssessmentPage = () => {
                   color: '#666', 
                   fontSize: '14px' 
                 }}>
-                  +{recommendations.length - 5} more recommendations in full report
+                  {t('+{{count}} more recommendations in full report', { count: recommendations.length - 5 })}
                 </div>
               )}
             </RecommendationsCard>
