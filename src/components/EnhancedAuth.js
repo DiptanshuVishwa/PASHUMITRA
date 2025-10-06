@@ -16,6 +16,7 @@ import {
   useFormValidation
 } from '../utils/validation';
 import toast from 'react-hot-toast';
+import VerificationModal from './VerificationModal';
 
 const AuthContainer = styled.div`
   min-height: 100vh;
@@ -199,6 +200,17 @@ const EnhancedAuth = () => {
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  
+  // Email verification modal state
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState('');
+  
+  console.log('🔍 EnhancedAuth render state:', {
+    isLogin,
+    showVerificationModal,
+    verificationEmail,
+    isAuthenticated
+  });
 
   // Form validation setup
   const initialData = {
@@ -351,23 +363,33 @@ const EnhancedAuth = () => {
         : await register(userData);
 
       if (result.success) {
-        toast.success(isLogin ? 'Login successful!' : 'Registration successful!');
-        
-        const searchParams = new URLSearchParams(location.search);
-        let redirectTo;
-        
         if (isLogin) {
-          // For existing users logging in, use redirect parameter or default to landing page
-          redirectTo = searchParams.get('redirect') || '/';
+          // Login successful - proceed normally
+          toast.success('Login successful!');
+          const searchParams = new URLSearchParams(location.search);
+          const redirectTo = searchParams.get('redirect') || '/';
+          
+          setTimeout(() => {
+            navigate(redirectTo);
+          }, 1500);
         } else {
-          // For new user registration, always redirect to questionnaire page
-          // This helps onboard new users by collecting their information
-          redirectTo = '/questionnaire';
+          // Registration - check if user has token (verified) or not
+          console.log('🔍 Registration result:', result);
+          
+          if (result.token && result.data?.user) {
+            // User is verified and has token - proceed to questionnaire
+            toast.success('Registration successful! Email already verified.');
+            setTimeout(() => {
+              navigate('/questionnaire');
+            }, 1500);
+          } else {
+            // User registered but not verified - show verification modal
+            console.log('🔍 Registration successful, showing verification modal');
+            setVerificationEmail(userData.email);
+            setShowVerificationModal(true);
+            // Don't show success toast here, let the modal handle the flow
+          }
         }
-        
-        setTimeout(() => {
-          navigate(redirectTo);
-        }, 1500);
       } else {
         toast.error(result.error || 'Authentication failed');
       }
@@ -684,6 +706,17 @@ onChange={handleInputChange}
           </SwitchText>
         </form>
       </AuthCard>
+      
+      {/* Email Verification Modal */}
+      <VerificationModal 
+        isOpen={showVerificationModal}
+        userEmail={verificationEmail}
+        onClose={() => {
+          console.log('🔍 Verification modal closed');
+          setShowVerificationModal(false);
+          setVerificationEmail('');
+        }}
+      />
     </AuthContainer>
   );
 };
