@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { getTranslation } from '../utils/translations';
 import {
   FiShield,
   FiAlertTriangle,
@@ -307,175 +308,188 @@ const ActionButton = styled.button`
 `;
 
 const RiskAssessmentPage = () => {
+  const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'en');
   const [answers, setAnswers] = useState({});
   const [currentScore, setCurrentScore] = useState(0);
   const [assessmentComplete, setAssessmentComplete] = useState(false);
+
+  // Translation helper function
+  const t = (text) => getTranslation(text, currentLanguage);
+
+  // Listen for language changes
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      setCurrentLanguage(localStorage.getItem('language') || 'en');
+    };
+    window.addEventListener('languageChanged', handleLanguageChange);
+    return () => window.removeEventListener('languageChanged', handleLanguageChange);
+  }, []);
 
   // Risk assessment questionnaire data
   const assessmentCategories = [
     {
       id: 'facility',
-      title: 'Farm Infrastructure & Biosecurity',
+      title: t('Farm Infrastructure & Biosecurity'),
       icon: FiHome,
       questions: [
         {
           id: 'entry_control',
-          text: 'Do you have controlled entry points to your farm with disinfection facilities?',
-          description: 'Entry control prevents contamination from vehicles, people, and equipment',
+          text: t('Do you have controlled entry points to your farm with disinfection facilities?'),
+          description: t('Entry control prevents contamination from vehicles, people, and equipment'),
           options: [
-            { value: 'always', text: 'Always', score: 10 },
-            { value: 'sometimes', text: 'Sometimes', score: 6 },
-            { value: 'rarely', text: 'Rarely', score: 3 },
-            { value: 'never', text: 'Never', score: 0 }
+            { value: 'always', text: t('Always'), score: 10 },
+            { value: 'sometimes', text: t('Sometimes'), score: 6 },
+            { value: 'rarely', text: t('Rarely'), score: 3 },
+            { value: 'never', text: t('Never'), score: 0 }
           ]
         },
         {
           id: 'quarantine_facilities',
-          text: 'Do you have dedicated quarantine facilities for new or sick animals?',
-          description: 'Quarantine prevents disease spread from new arrivals or infected animals',
+          text: t('Do you have dedicated quarantine facilities for new or sick animals?'),
+          description: t('Quarantine prevents disease spread from new arrivals or infected animals'),
           options: [
-            { value: 'dedicated', text: 'Dedicated Facility', score: 10 },
-            { value: 'temporary', text: 'Temporary Setup', score: 6 },
-            { value: 'same_area', text: 'Same Area', score: 2 },
-            { value: 'none', text: 'No Quarantine', score: 0 }
+            { value: 'dedicated', text: t('Dedicated Facility'), score: 10 },
+            { value: 'temporary', text: t('Temporary Setup'), score: 6 },
+            { value: 'same_area', text: t('Same Area'), score: 2 },
+            { value: 'none', text: t('No Quarantine'), score: 0 }
           ]
         },
         {
           id: 'fencing',
-          text: 'How secure is your farm perimeter fencing?',
-          description: 'Proper fencing prevents unauthorized access and wildlife intrusion',
+          text: t('How secure is your farm perimeter fencing?'),
+          description: t('Proper fencing prevents unauthorized access and wildlife intrusion'),
           options: [
-            { value: 'excellent', text: 'Excellent', score: 10 },
-            { value: 'good', text: 'Good', score: 7 },
-            { value: 'adequate', text: 'Adequate', score: 4 },
-            { value: 'poor', text: 'Poor', score: 0 }
+            { value: 'excellent', text: t('Excellent'), score: 10 },
+            { value: 'good', text: t('Good'), score: 7 },
+            { value: 'adequate', text: t('Adequate'), score: 4 },
+            { value: 'poor', text: t('Poor'), score: 0 }
           ]
         }
       ]
     },
     {
       id: 'personnel',
-      title: 'Personnel & Visitor Management',
+      title: t('Personnel & Visitor Management'),
       icon: FiUsers,
       questions: [
         {
           id: 'staff_training',
-          text: 'How frequently do you conduct biosecurity training for farm staff?',
-          description: 'Regular training ensures staff follow proper biosecurity protocols',
+          text: t('How frequently do you conduct biosecurity training for farm staff?'),
+          description: t('Regular training ensures staff follow proper biosecurity protocols'),
           options: [
-            { value: 'monthly', text: 'Monthly', score: 10 },
-            { value: 'quarterly', text: 'Quarterly', score: 7 },
-            { value: 'annually', text: 'Annually', score: 4 },
-            { value: 'never', text: 'Never', score: 0 }
+            { value: 'monthly', text: t('Monthly'), score: 10 },
+            { value: 'quarterly', text: t('Quarterly'), score: 7 },
+            { value: 'annually', text: t('Annually'), score: 4 },
+            { value: 'never', text: t('Never'), score: 0 }
           ]
         },
         {
           id: 'visitor_protocol',
-          text: 'Do you have strict visitor protocols including health checks and protective clothing?',
-          description: 'Visitor protocols prevent disease introduction from external sources',
+          text: t('Do you have strict visitor protocols including health checks and protective clothing?'),
+          description: t('Visitor protocols prevent disease introduction from external sources'),
           options: [
-            { value: 'strict', text: 'Very Strict', score: 10 },
-            { value: 'moderate', text: 'Moderate', score: 6 },
-            { value: 'basic', text: 'Basic Only', score: 3 },
-            { value: 'none', text: 'No Protocols', score: 0 }
+            { value: 'strict', text: t('Very Strict'), score: 10 },
+            { value: 'moderate', text: t('Moderate'), score: 6 },
+            { value: 'basic', text: t('Basic Only'), score: 3 },
+            { value: 'none', text: t('No Protocols'), score: 0 }
           ]
         }
       ]
     },
     {
       id: 'vehicles',
-      title: 'Vehicle & Equipment Management',
+      title: t('Vehicle & Equipment Management'),
       icon: FiTruck,
       questions: [
         {
           id: 'vehicle_disinfection',
-          text: 'Do you disinfect all vehicles entering your farm premises?',
-          description: 'Vehicle disinfection prevents pathogen transmission via contaminated surfaces',
+          text: t('Do you disinfect all vehicles entering your farm premises?'),
+          description: t('Vehicle disinfection prevents pathogen transmission via contaminated surfaces'),
           options: [
-            { value: 'always', text: 'Always', score: 10 },
-            { value: 'delivery_only', text: 'Delivery Vehicles Only', score: 6 },
-            { value: 'sometimes', text: 'Sometimes', score: 3 },
-            { value: 'never', text: 'Never', score: 0 }
+            { value: 'always', text: t('Always'), score: 10 },
+            { value: 'delivery_only', text: t('Delivery Vehicles Only'), score: 6 },
+            { value: 'sometimes', text: t('Sometimes'), score: 3 },
+            { value: 'never', text: t('Never'), score: 0 }
           ]
         },
         {
           id: 'equipment_sharing',
-          text: 'How do you manage shared equipment with other farms?',
-          description: 'Shared equipment can be a major source of disease transmission',
+          text: t('How do you manage shared equipment with other farms?'),
+          description: t('Shared equipment can be a major source of disease transmission'),
           options: [
-            { value: 'disinfect', text: 'Always Disinfect', score: 10 },
-            { value: 'avoid', text: 'Avoid Sharing', score: 8 },
-            { value: 'sometimes', text: 'Sometimes Clean', score: 4 },
-            { value: 'no_precautions', text: 'No Precautions', score: 0 }
+            { value: 'disinfect', text: t('Always Disinfect'), score: 10 },
+            { value: 'avoid', text: t('Avoid Sharing'), score: 8 },
+            { value: 'sometimes', text: t('Sometimes Clean'), score: 4 },
+            { value: 'no_precautions', text: t('No Precautions'), score: 0 }
           ]
         }
       ]
     },
     {
       id: 'water_feed',
-      title: 'Water & Feed Quality Management',
+      title: t('Water & Feed Quality Management'),
       icon: FiDroplet,
       questions: [
         {
           id: 'water_source',
-          text: 'What is your primary water source and how do you ensure its quality?',
-          description: 'Clean water is essential for animal health and disease prevention',
+          text: t('What is your primary water source and how do you ensure its quality?'),
+          description: t('Clean water is essential for animal health and disease prevention'),
           options: [
-            { value: 'tested_treated', text: 'Tested & Treated', score: 10 },
-            { value: 'borewell', text: 'Protected Borewell', score: 7 },
-            { value: 'municipal', text: 'Municipal Supply', score: 6 },
-            { value: 'untested', text: 'Untested Source', score: 0 }
+            { value: 'tested_treated', text: t('Tested & Treated'), score: 10 },
+            { value: 'borewell', text: t('Protected Borewell'), score: 7 },
+            { value: 'municipal', text: t('Municipal Supply'), score: 6 },
+            { value: 'untested', text: t('Untested Source'), score: 0 }
           ]
         },
         {
           id: 'feed_storage',
-          text: 'How do you store and manage animal feed to prevent contamination?',
-          description: 'Proper feed storage prevents mold, pests, and contamination',
+          text: t('How do you store and manage animal feed to prevent contamination?'),
+          description: t('Proper feed storage prevents mold, pests, and contamination'),
           options: [
-            { value: 'sealed_containers', text: 'Sealed Containers', score: 10 },
-            { value: 'covered_dry', text: 'Covered & Dry', score: 7 },
-            { value: 'basic_cover', text: 'Basic Cover', score: 4 },
-            { value: 'open_storage', text: 'Open Storage', score: 0 }
+            { value: 'sealed_containers', text: t('Sealed Containers'), score: 10 },
+            { value: 'covered_dry', text: t('Covered & Dry'), score: 7 },
+            { value: 'basic_cover', text: t('Basic Cover'), score: 4 },
+            { value: 'open_storage', text: t('Open Storage'), score: 0 }
           ]
         }
       ]
     },
     {
       id: 'health_monitoring',
-      title: 'Animal Health Monitoring',
+      title: t('Animal Health Monitoring'),
       icon: FiActivity,
       questions: [
         {
           id: 'health_checks',
-          text: 'How frequently do you conduct health checks on your animals?',
-          description: 'Regular health monitoring helps detect diseases early',
+          text: t('How frequently do you conduct health checks on your animals?'),
+          description: t('Regular health monitoring helps detect diseases early'),
           options: [
-            { value: 'daily', text: 'Daily', score: 10 },
-            { value: 'weekly', text: 'Weekly', score: 7 },
-            { value: 'monthly', text: 'Monthly', score: 4 },
-            { value: 'when_sick', text: 'Only When Sick', score: 0 }
+            { value: 'daily', text: t('Daily'), score: 10 },
+            { value: 'weekly', text: t('Weekly'), score: 7 },
+            { value: 'monthly', text: t('Monthly'), score: 4 },
+            { value: 'when_sick', text: t('Only When Sick'), score: 0 }
           ]
         },
         {
           id: 'vaccination_program',
-          text: 'Do you follow a regular vaccination schedule for your animals?',
-          description: 'Vaccinations are crucial for preventing infectious diseases',
+          text: t('Do you follow a regular vaccination schedule for your animals?'),
+          description: t('Vaccinations are crucial for preventing infectious diseases'),
           options: [
-            { value: 'strict_schedule', text: 'Strict Schedule', score: 10 },
-            { value: 'mostly_follow', text: 'Mostly Follow', score: 7 },
-            { value: 'basic', text: 'Basic Vaccines', score: 4 },
-            { value: 'no_schedule', text: 'No Schedule', score: 0 }
+            { value: 'strict_schedule', text: t('Strict Schedule'), score: 10 },
+            { value: 'mostly_follow', text: t('Mostly Follow'), score: 7 },
+            { value: 'basic', text: t('Basic Vaccines'), score: 4 },
+            { value: 'no_schedule', text: t('No Schedule'), score: 0 }
           ]
         },
         {
           id: 'record_keeping',
-          text: 'How detailed are your animal health and treatment records?',
-          description: 'Good records help track health patterns and treatment effectiveness',
+          text: t('How detailed are your animal health and treatment records?'),
+          description: t('Good records help track health patterns and treatment effectiveness'),
           options: [
-            { value: 'comprehensive', text: 'Comprehensive', score: 10 },
-            { value: 'basic', text: 'Basic Records', score: 6 },
-            { value: 'minimal', text: 'Minimal', score: 3 },
-            { value: 'none', text: 'No Records', score: 0 }
+            { value: 'comprehensive', text: t('Comprehensive'), score: 10 },
+            { value: 'basic', text: t('Basic Records'), score: 6 },
+            { value: 'minimal', text: t('Minimal'), score: 3 },
+            { value: 'none', text: t('No Records'), score: 0 }
           ]
         }
       ]
@@ -506,9 +520,9 @@ const RiskAssessmentPage = () => {
   }, [answers, assessmentCategories]);
 
   const getRiskLevel = (score) => {
-    if (score >= 80) return { level: 'low', text: 'Low Risk' };
-    if (score >= 60) return { level: 'medium', text: 'Medium Risk' };
-    return { level: 'high', text: 'High Risk' };
+    if (score >= 80) return { level: 'low', text: t('Low Risk') };
+    if (score >= 60) return { level: 'medium', text: t('Medium Risk') };
+    return { level: 'high', text: t('High Risk') };
   };
 
   const getRecommendations = (score) => {
@@ -523,13 +537,13 @@ const RiskAssessmentPage = () => {
           
           if (answer?.score === 0 || !answer) {
             priority = 'high';
-            text = `Immediate attention needed: ${question.text.replace('?', '')} - This is critical for biosecurity.`;
+            text = t('Immediate attention needed: {{text}} - This is critical for biosecurity.', { text: question.text.replace('?', '') });
           } else if (answer.score < 5) {
             priority = 'medium';
-            text = `Improvement needed: ${question.text.replace('?', '')} - Consider upgrading your current practices.`;
+            text = t('Improvement needed: {{text}} - Consider upgrading your current practices.', { text: question.text.replace('?', '') });
           } else {
             priority = 'low';
-            text = `Enhancement opportunity: ${question.text.replace('?', '')} - Good foundation but room for improvement.`;
+            text = t('Enhancement opportunity: {{text}} - Good foundation but room for improvement.', { text: question.text.replace('?', '') });
           }
           
           recommendations.push({ text, priority });
@@ -539,7 +553,7 @@ const RiskAssessmentPage = () => {
     
     if (recommendations.length === 0) {
       recommendations.push({
-        text: 'Excellent biosecurity practices! Continue monitoring and maintaining your current standards.',
+        text: t('Excellent biosecurity practices! Continue monitoring and maintaining your current standards.'),
         priority: 'low'
       });
     }
@@ -575,7 +589,7 @@ const RiskAssessmentPage = () => {
 
   const downloadReport = () => {
     // Placeholder for PDF generation
-    alert('Assessment report download feature will be implemented soon!');
+    alert(t('Assessment report download feature will be implemented soon!'));
   };
 
   const risk = getRiskLevel(currentScore);
@@ -586,11 +600,10 @@ const RiskAssessmentPage = () => {
       <Header>
         <h1>
           <FiShield className="shield-icon" />
-          Biosecurity Risk Assessment
+          {t('Biosecurity Risk Assessment')}
         </h1>
         <p>
-          Evaluate your farm's biosecurity measures and receive personalized recommendations 
-          to improve animal health and prevent disease outbreaks.
+          {t("Evaluate your farm's biosecurity measures and receive personalized recommendations to improve animal health and prevent disease outbreaks.")}
         </p>
       </Header>
 
@@ -605,8 +618,11 @@ const RiskAssessmentPage = () => {
           </ProgressBar>
           
           <ProgressText>
-            Progress: {getAnsweredQuestions()} of {getTotalQuestions()} questions answered 
-            ({Math.round(getProgress())}%)
+            {t('Progress: {{answered}} of {{total}} questions answered ({{progress}}%)', {
+              answered: getAnsweredQuestions(),
+              total: getTotalQuestions(),
+              progress: Math.round(getProgress())
+            })}
           </ProgressText>
 
           {assessmentCategories.map((category) => (

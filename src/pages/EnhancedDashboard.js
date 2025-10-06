@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import LiveHeatMap from '../components/LiveHeatMap';
 import { alertAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { getTranslation } from '../utils/translations';
 import toast from 'react-hot-toast';
 import { 
   LineChart, 
@@ -480,7 +482,11 @@ const ActionCard = styled(motion.div)`
 
 const EnhancedDashboard = () => {
   const { user, isAuthenticated } = useAuth();
+  const { currentLanguage } = useLanguage();
   const [recentAlerts, setRecentAlerts] = useState([]);
+  
+  // Create translation function using our central utility
+  const t = (text) => getTranslation(text, currentLanguage);
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [alertStats, setAlertStats] = useState({
     total: 0,
@@ -519,7 +525,7 @@ const EnhancedDashboard = () => {
       
     } catch (error) {
       console.error('Failed to fetch recent alerts:', error);
-      toast.error('Failed to load recent alerts');
+      toast.error(t('Failed to load recent alerts'));
     } finally {
       setAlertsLoading(false);
     }
@@ -576,49 +582,51 @@ const EnhancedDashboard = () => {
     
     if (diffInHours < 1) {
       const diffInMinutes = Math.floor((now - alertTime) / (1000 * 60));
-      return `${diffInMinutes} minutes ago`;
+      return t('{{count}} minutes ago', { count: diffInMinutes });
     } else if (diffInHours < 24) {
-      return `${diffInHours} hours ago`;
+      return t('{{count}} hours ago', { count: diffInHours });
     } else {
       const diffInDays = Math.floor(diffInHours / 24);
-      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+      return diffInDays === 1 
+        ? t('1 day ago') 
+        : t('{{count}} days ago', { count: diffInDays });
     }
   };
   
   // Helper function to get priority level
   const getAlertPriority = (severity) => {
     switch (severity) {
-      case 'critical': return 'high';
-      case 'high': return 'high';
-      case 'medium': return 'medium';
-      case 'low': return 'low';
-      default: return 'medium';
+      case 'critical': return t('High');
+      case 'high': return t('High');
+      case 'medium': return t('Medium');
+      case 'low': return t('Low');
+      default: return t('Medium');
     }
   };
 
   const quickActions = [
     {
       icon: <FiAlertTriangle />,
-      title: 'Raise Alert',
-      description: 'Report urgent farm issues',
+      title: t('Raise Alert'),
+      description: t('Report urgent farm issues'),
       href: '/raise-alert'
     },
     {
       icon: <FiShield />,
-      title: 'Compliance Check',
-      description: 'Run biosecurity assessment',
+      title: t('Compliance Check'),
+      description: t('Run biosecurity assessment'),
       href: '/compliance'
     },
     {
       icon: <FiUsers />,
-      title: 'Expert Consultation',
-      description: 'Connect with veterinarians',
+      title: t('Expert Consultation'),
+      description: t('Connect with veterinarians'),
       href: '/experts'
     },
     {
       icon: <FiBarChart2 />,
-      title: 'Generate Report',
-      description: 'Download farm analytics',
+      title: t('Generate Report'),
+      description: t('Download farm analytics'),
       href: '/analytics'
     }
   ];
@@ -629,14 +637,14 @@ const EnhancedDashboard = () => {
         <div className="header-left">
           <h1>
             <FiHome className="dashboard-icon" />
-            Farm Dashboard
+            {t('Farm Dashboard')}
           </h1>
-          <p>Monitor your farm's health, compliance, and performance in real-time</p>
+          <p>{t('Monitor your farm\'s health, compliance, and performance in real-time')}</p>
         </div>
         <div className="header-right">
           <div className="last-updated">
             <FiClock />
-            Last updated: {new Date().toLocaleTimeString()}
+            {t('Last updated')}: {new Date().toLocaleTimeString()}
           </div>
         </div>
       </DashboardHeader>
@@ -657,8 +665,8 @@ const EnhancedDashboard = () => {
             </div>
           </div>
           <div className="stat-value">92%</div>
-          <div className="stat-label">Compliance Score</div>
-          <div className="stat-sublabel">Above industry average</div>
+          <div className="stat-label">{t('Compliance Score')}</div>
+          <div className="stat-sublabel">{t('Above industry average')}</div>
         </StatCard>
 
         <StatCard 
@@ -676,10 +684,10 @@ const EnhancedDashboard = () => {
             </div>
           </div>
           <div className="stat-value">{alertsLoading ? '...' : alertStats.active}</div>
-          <div className="stat-label">Active Alerts</div>
+          <div className="stat-label">{t('Active Alerts')}</div>
           <div className="stat-sublabel">
-            {alertsLoading ? 'Loading...' : 
-              isAuthenticated ? `${alertStats.userAlerts} your alerts` : `${alertStats.total} total alerts`
+            {alertsLoading ? t('Loading...') : 
+              isAuthenticated ? t('{{count}} your alerts', { count: alertStats.userAlerts }) : t('{{count}} total alerts', { count: alertStats.total })
             }
           </div>
         </StatCard>
@@ -699,8 +707,8 @@ const EnhancedDashboard = () => {
             </div>
           </div>
           <div className="stat-value">487</div>
-          <div className="stat-label">Healthy Animals</div>
-          <div className="stat-sublabel">98% health rate</div>
+          <div className="stat-label">{t('Healthy Animals')}</div>
+          <div className="stat-sublabel">{t('98% health rate')}</div>
         </StatCard>
 
         <StatCard 
@@ -718,8 +726,8 @@ const EnhancedDashboard = () => {
             </div>
           </div>
           <div className="stat-value">25°C</div>
-          <div className="stat-label">Avg Temperature</div>
-          <div className="stat-sublabel">Optimal range</div>
+          <div className="stat-label">{t('Avg Temperature')}</div>
+          <div className="stat-sublabel">{t('Optimal range')}</div>
         </StatCard>
       </StatsGrid>
 
@@ -732,9 +740,9 @@ const EnhancedDashboard = () => {
           <div className="chart-header">
             <div className="chart-title">
               <FiTrendingUp className="chart-icon" />
-              Compliance Score Trend
+              {t('Compliance Score Trend')}
             </div>
-            <div className="chart-period">Last 6 months</div>
+            <div className="chart-period">{t('Last 6 months')}</div>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={complianceData}>
@@ -769,9 +777,9 @@ const EnhancedDashboard = () => {
           <div className="chart-header">
             <div className="chart-title">
               <FiPieChart className="chart-icon" />
-              Alert Distribution
+              {t('Alert Distribution')}
             </div>
-            <div className="chart-period">This month</div>
+            <div className="chart-period">{t('This month')}</div>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -803,9 +811,9 @@ const EnhancedDashboard = () => {
         <div className="chart-header">
           <div className="chart-title">
             <FiActivity className="chart-icon" />
-            Farm Environment Monitoring
+            {t('Farm Environment Monitoring')}
           </div>
-          <div className="chart-period">Last 7 days</div>
+          <div className="chart-period">{t('Last 7 days')}</div>
         </div>
         <ResponsiveContainer width="100%" height={350}>
           <AreaChart data={farmHealthData}>
@@ -843,21 +851,21 @@ const EnhancedDashboard = () => {
         <div className="map-header">
           <div className="map-title">
             <FiMapPin />
-            Regional Disease Risk Map
+            {t('Regional Disease Risk Map')}
           </div>
         </div>
         <MapContainer>
           <MapStats>
             <div className="stat-item">
-              <span className="stat-label">Total Regions:</span>
+              <span className="stat-label">{t('Total Regions')}:</span>
               <span className="stat-value">{regionData.length}</span>
             </div>
             <div className="stat-item">
-              <span className="stat-label">High Risk:</span>
+              <span className="stat-label">{t('High Risk')}:</span>
               <span className="stat-value">{regionData.filter(r => r.riskLevel === 'high').length}</span>
             </div>
             <div className="stat-item">
-              <span className="stat-label">Total Alerts:</span>
+              <span className="stat-label">{t('Total Alerts')}:</span>
               <span className="stat-value">{regionData.reduce((sum, r) => sum + r.alertCount, 0)}</span>
             </div>
           </MapStats>
@@ -871,9 +879,9 @@ const EnhancedDashboard = () => {
           <div className="alerts-header">
             <div className="alerts-title">
               <FiBell />
-              Recent Alerts
+              {t('Recent Alerts')}
             </div>
-            <a href="/profile?tab=my-alerts" className="view-all">View All</a>
+            <a href="/profile?tab=my-alerts" className="view-all">{t('View All')}</a>
           </div>
           
           {alertsLoading ? (
@@ -901,14 +909,14 @@ const EnhancedDashboard = () => {
                   <div className="alert-meta">
                     <span>
                       <FiMapPin /> 
-                      {alert.location?.district || alert.location?.state || 'Location not specified'}
+                      {alert.location?.district || alert.location?.state || t('Location not specified')}
                     </span>
                     <span>
                       <FiClock /> 
                       {formatAlertTime(alert.createdAt)}
                     </span>
                     {alert.reportedBy && alert.reportedBy.name && (
-                      <span>By: {alert.reportedBy.name}</span>
+                      <span>{t('By')}: {alert.reportedBy.name}</span>
                     )}
                   </div>
                 </div>
@@ -918,9 +926,9 @@ const EnhancedDashboard = () => {
           ) : (
             <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
               <FiAlertTriangle style={{ fontSize: '48px', marginBottom: '16px', color: '#ccc' }} />
-              <div>No recent alerts found</div>
+              <div>{t('No recent alerts found')}</div>
               <div style={{ fontSize: '14px', marginTop: '8px' }}>
-                New alerts will appear here when submitted
+                {t('New alerts will appear here when submitted')}
               </div>
             </div>
           )}

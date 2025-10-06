@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
-import { LanguageProvider } from './context/LanguageContext';
+import { LanguageProvider } from './context/EnhancedLanguageContext'; // Use enhanced version
+import { Toaster } from 'react-hot-toast'; // Add this import
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import LanguageLoadingModal from './components/LanguageLoadingModal';
+import LanguageLoadingModal from './components/LanguageLoadingModal'; // Add this import
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Auth from './pages/Auth';
@@ -33,7 +33,7 @@ import './App.css';
 
 function App() {
   return (
-    <LanguageProvider>
+    <LanguageProvider> {/* Use Enhanced Language Provider */}
       <AuthProvider>
         <Router>
           <div className="App">

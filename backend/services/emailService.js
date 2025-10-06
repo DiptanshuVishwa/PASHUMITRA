@@ -191,61 +191,410 @@ Made with ❤️ for Indian farmers and livestock owners`;
     const { email, name } = userData;
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
-    const subject = 'Verify Your Email - PashuMitra Portal';
+    const subject = '🔐 Verify Your Email - PashuMitra Portal';
     const htmlContent = `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Email Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Email Verification - PashuMitra Portal</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #4CAF50; color: white; padding: 20px; text-align: center; }
-        .content { background: #f9f9f9; padding: 30px; }
-        .button { display: inline-block; background: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; }
-        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+        /* Reset styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* Base styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .email-wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f4f7fa;
+            padding: 20px 0;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 30px 30px;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: white;
+            border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+        }
+        
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content {
+            padding: 40px 30px;
+            background: white;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            color: #2E7D32;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        .cta-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .verify-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white !important;
+            text-decoration: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .verify-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .backup-link {
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .backup-link p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .backup-link code {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 12px;
+            color: #333;
+            word-break: break-all;
+            display: block;
+            margin-top: 10px;
+        }
+        
+        .security-notice {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b3 100%);
+            border-left: 4px solid #ff9800;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .security-notice-title {
+            color: #f57c00;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-notice-title::before {
+            content: '🔒';
+            margin-right: 8px;
+        }
+        
+        .security-notice p {
+            color: #bf5000;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .benefits {
+            background: #f1f8e9;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .benefits h3 {
+            color: #2E7D32;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .benefits-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .benefits-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            color: #4CAF50;
+            font-size: 14px;
+        }
+        
+        .benefits-list li::before {
+            content: '✓';
+            background: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            background: #ddd;
+            border-radius: 50%;
+            margin: 0 8px;
+            text-decoration: none;
+            color: white;
+            line-height: 36px;
+            font-size: 16px;
+        }
+        
+        /* Mobile responsiveness */
+        @media screen and (max-width: 600px) {
+            .email-container {
+                max-width: 100%;
+                margin: 0 10px;
+                border-radius: 8px;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .verify-button {
+                padding: 16px 30px;
+                font-size: 16px;
+                display: block;
+                margin: 0 auto;
+                max-width: 280px;
+            }
+            
+            .greeting {
+                font-size: 18px;
+            }
+            
+            .message {
+                font-size: 15px;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .backup-link {
+                background: #2a2a2a;
+                border-color: #555;
+            }
+            
+            .backup-link code {
+                background: #1a1a1a;
+                border-color: #555;
+                color: #ccc;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>📧 Email Verification Required</h2>
-        </div>
-        <div class="content">
-            <h3>Hello ${name}!</h3>
-            <p>Thank you for registering with PashuMitra Portal. To complete your registration and secure your account, please verify your email address.</p>
-            
-            <p><a href="${verificationUrl}" class="button">Verify Email Address</a></p>
-            
-            <p>If the button doesn't work, please copy and paste this link into your browser:</p>
-            <p><code>${verificationUrl}</code></p>
-            
-            <p>This verification link will expire in 24 hours for security reasons.</p>
-            
-            <p>If you didn't create this account, please ignore this email.</p>
-        </div>
-        <div class="footer">
-            <p>© ${new Date().getFullYear()} PashuMitra Portal</p>
-        </div>
-    </div>
+    <table class="email-wrapper" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center">
+                <div class="email-container">
+                    <div class="header">
+                        <div class="header-icon">🔐</div>
+                        <h1>Email Verification</h1>
+                    </div>
+                    
+                    <div class="content">
+                        <div class="greeting">Hello ${name}!</div>
+                        
+                        <div class="message">
+                            Welcome to <strong>PashuMitra Portal</strong> - India's most trusted livestock management platform! 
+                            To get started and secure your account, please verify your email address.
+                        </div>
+                        
+                        <div class="benefits">
+                            <h3>🎯 What's waiting for you:</h3>
+                            <ul class="benefits-list">
+                                <li>Real-time livestock health monitoring</li>
+                                <li>Instant disease outbreak alerts</li>
+                                <li>Direct access to certified veterinarians</li>
+                                <li>Comprehensive health analytics dashboard</li>
+                                <li>Digital medical records management</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="cta-container">
+                            <a href="${verificationUrl}" class="verify-button">🔓 Verify Email Address</a>
+                        </div>
+                        
+                        <div class="backup-link">
+                            <p><strong>Can't click the button?</strong></p>
+                            <p>Copy and paste this link into your browser:</p>
+                            <code>${verificationUrl}</code>
+                        </div>
+                        
+                        <div class="security-notice">
+                            <div class="security-notice-title">Security Information</div>
+                            <p>• This verification link expires in <strong>24 hours</strong></p>
+                            <p>• If you didn't create this account, simply ignore this email</p>
+                            <p>• Never share this link with anyone else</p>
+                        </div>
+                        
+                        <p style="margin-top: 30px; color: #666; font-size: 14px; text-align: center;">
+                            Need help? Contact our support team at 
+                            <a href="mailto:team.pashumitra@gmail.com" style="color: #4CAF50;">team.pashumitra@gmail.com</a>
+                        </p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p><strong>PashuMitra Portal</strong></p>
+                        <p>Protecting livestock, empowering farmers</p>
+                        <div class="social-links">
+                            <a href="#" style="background: #1877f2;">📘</a>
+                            <a href="#" style="background: #1da1f2;">🐦</a>
+                            <a href="#" style="background: #0077b5;">💼</a>
+                        </div>
+                        <p>© ${new Date().getFullYear()} PashuMitra Portal. All rights reserved.</p>
+                        <p>Made with ❤️ for Indian farmers and livestock owners</p>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>`;
 
     const textContent = `
-Email Verification Required
+🔐 EMAIL VERIFICATION REQUIRED
 
 Hello ${name}!
 
-Thank you for registering with PashuMitra Portal. To complete your registration and secure your account, please verify your email address.
+Welcome to PashuMitra Portal - India's most trusted livestock management platform!
 
-Click here to verify: ${verificationUrl}
+To get started and secure your account, please verify your email address.
 
-This verification link will expire in 24 hours for security reasons.
+🎯 What's waiting for you:
+• Real-time livestock health monitoring
+• Instant disease outbreak alerts  
+• Direct access to certified veterinarians
+• Comprehensive health analytics dashboard
+• Digital medical records management
 
-If you didn't create this account, please ignore this email.
+🔗 VERIFY YOUR EMAIL:
+Click here: ${verificationUrl}
 
-© ${new Date().getFullYear()} PashuMitra Portal`;
+🔒 SECURITY INFORMATION:
+• This verification link expires in 24 hours
+• If you didn't create this account, simply ignore this email
+• Never share this link with anyone else
+
+Need help? Contact our support team at team.pashumitra@gmail.com
+
+© ${new Date().getFullYear()} PashuMitra Portal - Made with ❤️ for Indian farmers`;
 
     return await this.sendEmail({
       to: email,

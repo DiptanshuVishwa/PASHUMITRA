@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiUser, FiPhone, FiMapPin, FiGlobe } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { getTranslation } from '../utils/translations';
 
 const AuthContainer = styled.div`
   min-height: 100vh;
@@ -202,7 +203,8 @@ const SuccessMessage = styled.div`
 
 const Auth = () => {
   const { login, register, forgotPassword, isAuthenticated, loading: authLoading } = useAuth();
-  const { t } = useLanguage();
+  const { currentLanguage } = useLanguage();
+  const getPageTranslation = (text) => getTranslation(text, currentLanguage);
   const navigate = useNavigate();
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
@@ -308,9 +310,18 @@ const Auth = () => {
       if (result.success) {
         setSuccess(isLogin ? 'Login successful!' : 'Registration successful! Please check your email to verify your account.');
         
-        // Get the redirect URL from query parameters for post-login redirect
+        // Get the redirect URL from query parameters for post-login/registration redirect
         const searchParams = new URLSearchParams(location.search);
-        const redirectTo = searchParams.get('redirect') || '/';
+        let redirectTo;
+        
+        if (isLogin) {
+          // For existing users logging in, use redirect parameter or default to landing page
+          redirectTo = searchParams.get('redirect') || '/';
+        } else {
+          // For new user registration, always redirect to questionnaire page
+          // This helps onboard new users by collecting their information
+          redirectTo = '/questionnaire';
+        }
         
         setTimeout(() => {
           console.log(`🔄 ${isLogin ? 'Login' : 'Registration'} Redirect → Going to:`, redirectTo);
@@ -359,8 +370,8 @@ const Auth = () => {
         transition={{ duration: 0.6 }}
       >
         <AuthHeader>
-          <h1>{isLogin ? 'Welcome Back' : 'Join PashuMitra'}</h1>
-          <p>Welcome to PashuMitra - Your Partner in Farm Protection</p>
+          <h1>{getPageTranslation(isLogin ? 'Welcome Back' : 'Join PashuMitra')}</h1>
+          <p>{getPageTranslation('Welcome to PashuMitra - Your Partner in Farm Protection')}</p>
         </AuthHeader>
 
         <TabContainer>
@@ -368,13 +379,13 @@ const Auth = () => {
             $active={isLogin}
             onClick={() => setIsLogin(true)}
           >
-            Login
+            {getPageTranslation('Login')}
           </Tab>
           <Tab
             $active={!isLogin}
             onClick={() => setIsLogin(false)}
           >
-            Sign Up
+            {getPageTranslation('Sign Up')}
           </Tab>
         </TabContainer>
 
@@ -388,18 +399,18 @@ const Auth = () => {
           whileTap={{ scale: 0.98 }}
         >
           <FiGlobe />
-          {isLogin ? 'Login with Google' : 'Sign up with Google'}
+          {getPageTranslation(isLogin ? 'Login with Google' : 'Sign up with Google')}
         </GoogleButton>
 
         <Divider>
-          <span>Or continue with</span>
+          <span>{getPageTranslation('Or continue with')}</span>
         </Divider>
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <>
               <FormGroup>
-                <label>Full Name</label>
+                <label>{getPageTranslation('Full Name')}</label>
                 <div className="input-container">
                   <FiUser />
                   <input
@@ -407,14 +418,14 @@ const Auth = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="Enter your full name (letters and spaces only)"
+                    placeholder={getPageTranslation('Enter your full name (letters and spaces only)')}
                     required={!isLogin}
                   />
                 </div>
               </FormGroup>
 
               <FormGroup>
-                <label>Phone Number</label>
+                <label>{getPageTranslation('Phone Number')}</label>
                 <div className="input-container">
                   <FiPhone />
                   <input
@@ -422,14 +433,14 @@ const Auth = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    placeholder="Enter your phone number"
+                    placeholder={getPageTranslation('Enter your phone number')}
                     required={!isLogin}
                   />
                 </div>
               </FormGroup>
 
               <FormGroup>
-                <label>Farm Location</label>
+                <label>{getPageTranslation('Farm Location')}</label>
                 <div className="input-container">
                   <FiMapPin />
                   <input
@@ -437,7 +448,7 @@ const Auth = () => {
                     name="farmLocation"
                     value={formData.farmLocation}
                     onChange={handleInputChange}
-                    placeholder="Enter your farm location"
+                    placeholder={getPageTranslation('Enter your farm location')}
                     required={!isLogin}
                   />
                 </div>
@@ -446,7 +457,7 @@ const Auth = () => {
           )}
 
           <FormGroup>
-            <label>Email Address</label>
+            <label>{getPageTranslation('Email Address')}</label>
             <div className="input-container">
               <FiMail />
               <input
@@ -454,14 +465,14 @@ const Auth = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="Enter your email address"
+                placeholder={getPageTranslation('Enter your email address')}
                 required
               />
             </div>
           </FormGroup>
 
           <FormGroup>
-            <label>Password</label>
+            <label>{getPageTranslation('Password')}</label>
             <div className="input-container">
               <FiLock />
               <input
@@ -469,7 +480,7 @@ const Auth = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                placeholder={isLogin ? "Enter your password" : "Password (min 6 chars, include A-Z, a-z, 0-9)"}
+                placeholder={getPageTranslation(isLogin ? 'Enter your password' : 'Password (min 6 chars, include A-Z, a-z, 0-9)')}
                 required
               />
             </div>
@@ -477,7 +488,7 @@ const Auth = () => {
 
           {!isLogin && (
             <FormGroup>
-              <label>Confirm Password</label>
+              <label>{getPageTranslation('Confirm Password')}</label>
               <div className="input-container">
                 <FiLock />
                 <input
@@ -485,7 +496,7 @@ const Auth = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  placeholder="Confirm password"
+                  placeholder={getPageTranslation('Confirm password')}
                   required
                 />
               </div>
@@ -498,7 +509,7 @@ const Auth = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {(loading || authLoading) ? 'Please wait...' : (isLogin ? 'Login' : 'Sign Up')}
+            {(loading || authLoading) ? getPageTranslation('Please wait...') : getPageTranslation(isLogin ? 'Login' : 'Sign Up')}
           </SubmitButton>
         </form>
 
@@ -509,18 +520,18 @@ const Auth = () => {
               onClick={handleForgotPassword}
               disabled={loading || authLoading}
             >
-              Forgot Password?
+              {getPageTranslation('Forgot Password?')}
             </button>
           </SwitchText>
         )}
 
         <SwitchText>
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+          {getPageTranslation(isLogin ? "Don't have an account?" : "Already have an account?")}{' '}
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
           >
-            {isLogin ? 'Sign Up' : 'Login'}
+            {getPageTranslation(isLogin ? 'Sign Up' : 'Login')}
           </button>
         </SwitchText>
       </AuthCard>

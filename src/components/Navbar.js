@@ -640,6 +640,258 @@ const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { currentLanguage, supportedLanguages, changeLanguage, t } = useLanguage();
   const navigate = useNavigate();
+  
+  // Navigation translations for all supported languages
+  const getNavTranslation = (text) => {
+    const translations = {
+      // Hindi (हिंदी)
+      'hi': {
+        'Home': 'होम',
+        'Dashboard': 'डैशबोर्ड',
+        'Compliance': 'अनुपालन',
+        'Risk Assessment': 'जोखिम मूल्यांकन',
+        'Raise an Alert': 'अलर्ट भेजें',
+        'Profile': 'प्रोफ़ाइल',
+        'Settings': 'सेटिंग्स',
+        'Logout': 'लॉगआउट',
+        'Login': 'लॉगिन',
+        'Sign Up': 'साइन अप',
+        'PashuMitra': 'पशुमित्र',
+        'YOUR PARTNER IN FARM PROTECTION': 'कृषि संरक्षण में आपका साथी',
+        'Others': 'अन्य',
+        'Learning': 'शिक्षा',
+        'Farm Management': 'फार्म प्रबंधन',
+        'Weather Dashboard': 'मौसम डैशबोर्ड',
+        'FAQ': 'सामान्य प्रश्न',
+        'Privacy': 'गोपनीयता',
+        'Feedback': 'फीडबैक',
+        'Contact Vet': 'पशु चिकित्सक से संपर्क',
+        'Contact Us': 'हमसे संपर्क',
+        'Main Menu': 'मुख्य मेनू',
+        'User': 'यूजर',
+        'Account': 'खाता'
+      },
+      // Bengali (বাংলা)
+      'bn': {
+        'Home': 'হোম',
+        'Dashboard': 'ড্যাশবোর্ড',
+        'Compliance': 'সম্মতি',
+        'Risk Assessment': 'ঝুঁকি মূল্যায়ন',
+        'Raise an Alert': 'সতর্কতা পাঠান',
+        'Profile': 'প্রোফাইল',
+        'Settings': 'সেটিংস',
+        'Logout': 'লগআউট',
+        'Login': 'লগইন',
+        'Sign Up': 'সাইন আপ',
+        'PashuMitra': 'পশুমিত্র',
+        'YOUR PARTNER IN FARM PROTECTION': 'কৃষি সুরক্ষায় আপনার সঙ্গী',
+        'Others': 'অন্যান্য',
+        'Learning': 'শিক্ষা',
+        'Farm Management': 'খামার ব্যবস্থাপনা',
+        'Weather Dashboard': 'আবহাওয়া ড্যাশবোর্ড',
+        'FAQ': 'সাধারণ প্রশ্ন',
+        'Privacy': 'গোপনীয়তা',
+        'Feedback': 'ফিডব্যাক',
+        'Contact Vet': 'পশু চিকিৎসকের সাথে যোগাযোগ',
+        'Contact Us': 'আমাদের সাথে যোগাযোগ',
+        'Main Menu': 'মুখ্য মেনু',
+        'User': 'ব্যবহারকারী',
+        'Account': 'অ্যাকাউন্ট'
+      },
+      // Telugu (తెలుగు)
+      'te': {
+        'Home': 'హోమ్',
+        'Dashboard': 'డాష్‌బోర్డ్',
+        'Compliance': 'కట్టుబడి ఉండండి',
+        'Risk Assessment': 'ప్రమాద అంచనా',
+        'Raise an Alert': 'అలర్ట్ పంపండి',
+        'Profile': 'ప్రొఫైల్',
+        'Settings': 'సెట్టింగులు',
+        'Logout': 'లాగౌట్',
+        'Login': 'లాగిన్',
+        'Sign Up': 'సైన్ అప్',
+        'PashuMitra': 'పశుమిత్ర',
+        'YOUR PARTNER IN FARM PROTECTION': 'వ్యవసాయ రక్షణలో మీ భాగస్వామి',
+        'Others': 'ఇతరులు',
+        'Learning': 'అభ్యాసం',
+        'Farm Management': 'వ్యవసాయ నిర్వహణ',
+        'Weather Dashboard': 'వాతావరణ డ్యాష్‌బోర్డ్',
+        'FAQ': 'సాధారణ ప్రశ్నలు',
+        'Privacy': 'గోప్యత',
+        'Feedback': 'అభిప్రాయం',
+        'Contact Vet': 'పశు వైద్యుడిని సంప్రదించండి',
+        'Contact Us': 'మమ్మల్ని సంప్రదించండి',
+        'Main Menu': 'ముఖ్య మెను',
+        'User': 'వాడుకరి',
+        'Account': 'ఖాతా'
+      },
+      // Tamil (தமிழ்)
+      'ta': {
+        'Home': 'முகப்பு',
+        'Dashboard': 'டாஷ்போர்ட்',
+        'Compliance': 'இணக்கம்',
+        'Risk Assessment': 'ஆபத்து மதிப்பீடு',
+        'Raise an Alert': 'எச்சரிக்கை அனுப்பு',
+        'Profile': 'சுயவிவரம்',
+        'Settings': 'அமைப்புகள்',
+        'Logout': 'வெளியேறு',
+        'Login': 'உள்நுழையவும்',
+        'Sign Up': 'பதிவு செய்யவும்',
+        'PashuMitra': 'பசுமித்ரா',
+        'YOUR PARTNER IN FARM PROTECTION': 'பண்ணை பாதுகாப்பில் உங்கள் கூட்டாளி',
+        'Others': 'மற்றவை',
+        'Learning': 'கற்றல்',
+        'Farm Management': 'பண்ணை நிர்வாகம்',
+        'Weather Dashboard': 'வானிலை டாஷ்போர்டு',
+        'FAQ': 'அடிக்கடி கேட்கப்படும் கேள்விகள்',
+        'Privacy': 'தனியுரிமை',
+        'Feedback': 'கருத்து',
+        'Contact Vet': 'கால்நடை மருத்துவரை தொடர்பு கொள்ளுங்கள்',
+        'Contact Us': 'எங்களை தொடர்பு கொள்ளுங்கள்',
+        'Main Menu': 'முக்கிய பட்டியல்',
+        'User': 'பயனர்',
+        'Account': 'கணக்கு'
+      },
+      // Marathi (मराठी)
+      'mr': {
+        'Home': 'होम',
+        'Dashboard': 'डॅशबोर्ड',
+        'Compliance': 'अनुपालन',
+        'Risk Assessment': 'जोखीम मूल्यांकन',
+        'Raise an Alert': 'अलर्ट पाठवा',
+        'Profile': 'प्रोफाइल',
+        'Settings': 'सेटिंग्ज',
+        'Logout': 'लॉगआउट',
+        'Login': 'लॉगिन',
+        'Sign Up': 'साइन अप',
+        'PashuMitra': 'पशुमित्र',
+        'YOUR PARTNER IN FARM PROTECTION': 'शेती संरक्षणात तुमचा भागीदार',
+        'Others': 'इतर',
+        'Learning': 'शिक्षा',
+        'Farm Management': 'शेती व्यवस्थापन',
+        'Weather Dashboard': 'हवामान डॅशबोर्ड',
+        'FAQ': 'वारंवार विचारले जाणारे प्रश्न',
+        'Privacy': 'गोपनीयता',
+        'Feedback': 'फीडबॅक',
+        'Contact Vet': 'पशु चिकित्सकाशी संपर्क साधा',
+        'Contact Us': 'आमच्याशी संपर्क साधा',
+        'Main Menu': 'मुख्य मेनू',
+        'User': 'वापरकर्ता',
+        'Account': 'खाते'
+      },
+      // Gujarati (ગુજરાતી)
+      'gu': {
+        'Home': 'હોમ',
+        'Dashboard': 'ડેશબોર્ડ',
+        'Compliance': 'અનુપાલન',
+        'Risk Assessment': 'જોખમ મૂલ્યાંકન',
+        'Raise an Alert': 'અલર્ટ મોકલો',
+        'Profile': 'પ્રોફાઇલ',
+        'Settings': 'સેટિંગ્સ',
+        'Logout': 'લોગઆઉટ',
+        'Login': 'લોગિન',
+        'Sign Up': 'સાઇન અપ',
+        'PashuMitra': 'પશુમિત્ર',
+        'YOUR PARTNER IN FARM PROTECTION': 'ખેત સંરક્ષણમાં તમારો ભાગીદાર',
+        'Others': 'અન્ય',
+        'Learning': 'શિક્ષણ',
+        'Farm Management': 'ખેત વ્યવસ્થાપન',
+        'Weather Dashboard': 'હવામાન ડેશબોર્ડ',
+        'FAQ': 'વારંવાર પૂછાતા પ્રશ્નો',
+        'Privacy': 'ગોપનીયતા',
+        'Feedback': 'ફીડબેક',
+        'Contact Vet': 'પશુવેદ સાથે સંપર્ક કરો',
+        'Contact Us': 'અમારો સંપર્ક કરો',
+        'Main Menu': 'મુખ્ય મેનુ',
+        'User': 'વાપરકર્તા',
+        'Account': 'ખાતું'
+      },
+      // Kannada (ಕನ್ನಡ)
+      'kn': {
+        'Home': 'ಮುಖಪುಟ',
+        'Dashboard': 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'Compliance': 'ಅನುಸರಣೆ',
+        'Risk Assessment': 'ಅಪಾಯ ಮೌಲ್ಯಮಾಪನ',
+        'Raise an Alert': 'ಅಲರ್ಟ್ ಕಳುಹಿಸಿ',
+        'Profile': 'ಪ್ರೊಫೈಲ್',
+        'Settings': 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
+        'Logout': 'ಲಾಗ್‌ಔಟ್',
+        'Login': 'ಲಾಗಿನ್',
+        'Sign Up': 'ಸೈನ್ ಅಪ್',
+        'PashuMitra': 'ಪಶುಮಿತ್ರ',
+        'YOUR PARTNER IN FARM PROTECTION': 'ಕೃಷಿ ಸಂರಕ್ಷಣೆಯಲ್ಲಿ ನಿಮ್ಮ ಸಹಚರ',
+        'Others': 'ಇತರರು',
+        'Learning': 'ಕಲಿಕೆ',
+        'Farm Management': 'ಕೃಷಿ ನಿರ್ವಹಣೆ',
+        'Weather Dashboard': 'ಹವಾಮಾನ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'FAQ': 'ಆಗಾಗ್ಗೆ ಕೇಳಲಾಗುವ ಪ್ರಶ್ನೆಗಳು',
+        'Privacy': 'ಗೌಪ್ಯತೆ',
+        'Feedback': 'ಪ್ರತಿಕ್ರಿಯೆ',
+        'Contact Vet': 'ಪಶುವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ',
+        'Contact Us': 'ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ',
+        'Main Menu': 'ಮುಖ್ಯ ಮೇನು',
+        'User': 'ಬೆಲೆಯಾಳು',
+        'Account': 'ಖಾತೆ'
+      },
+      // Malayalam (മലയാളം)
+      'ml': {
+        'Home': 'ഹോം',
+        'Dashboard': 'ഡാഷ്‌ബോർഡ്',
+        'Compliance': 'പാലിക്കൽ',
+        'Risk Assessment': 'അപകടസാധ്യത വിലയിരുത്തൽ',
+        'Raise an Alert': 'അലേർട്ട് അയയ്ക്കുക',
+        'Profile': 'പ്രൊഫൈൽ',
+        'Settings': 'ക്രമീകരണങ്ങൾ',
+        'Logout': 'ലോഗൗട്ട്',
+        'Login': 'ലോഗിൻ',
+        'Sign Up': 'സൈൻ അപ്പ്',
+        'PashuMitra': 'പശുമിത്രൻ',
+        'YOUR PARTNER IN FARM PROTECTION': 'കൃഷി സംരക്ഷണത്തിൽ നിങ്ങളുടെ പങ്കാളി',
+        'Others': 'മറ്റുള്ളവ',
+        'Learning': 'പഠനം',
+        'Farm Management': 'കൃഷി നിർവ്വഹണം',
+        'Weather Dashboard': 'കാലാവസ്ഥാ ഡാഷ്ബോർഡ്',
+        'FAQ': 'സാധാരണ ചോദ്യങ്ങൾ',
+        'Privacy': 'സ്വകാര്യത',
+        'Feedback': 'ഫീഡ്ബാക്ക്',
+        'Contact Vet': 'മൃഗചികിത്സകനെ ബന്ധപ്പെടുക',
+        'Contact Us': 'ഞങ്ങളെ ബന്ധപ്പെടുക',
+        'Main Menu': 'മുഖ്യ മെനു',
+        'User': 'ഉപയോക്താവ്',
+        'Account': 'അക്കൗണ്ട്'
+      },
+      // Punjabi (ਪੰਜਾਬੀ)
+      'pa': {
+        'Home': 'ਘਰ',
+        'Dashboard': 'ਡੈਸ਼ਬੋਰਡ',
+        'Compliance': 'ਅਨੁਪਾਲਨ',
+        'Risk Assessment': 'ਜੋਖਮ ਮੁਲਾਂਕਣ',
+        'Raise an Alert': 'ਅਲਰਟ ਭੇਜੋ',
+        'Profile': 'ਪ੍ਰੋਫਾਇਲ',
+        'Settings': 'ਸੈਟਿੰਗਾਂ',
+        'Logout': 'ਲਾਗਆਉਟ',
+        'Login': 'ਲਾਗਇਨ',
+        'Sign Up': 'ਸਾਈਨ ਅੱਪ',
+        'PashuMitra': 'ਪਸ਼ੂਮਿਤਰ',
+        'YOUR PARTNER IN FARM PROTECTION': 'ਖੇਤ ਸੁਰੱਖਿਆ ਵਿੱਚ ਤੁਹਾਡਾ ਸਾਥੀ',
+        'Others': 'ਹੋਰ',
+        'Learning': 'ਸਿੱਖਣਾ',
+        'Farm Management': 'ਖੇਤ ਪ੍ਰਬੰਧਨ',
+        'Weather Dashboard': 'ਮੌਸਮੀ ਡੈਸ਼ਬੋਰਡ',
+        'FAQ': 'ਆਮ ਸਵਾਲ',
+        'Privacy': 'ਗੁਪਤਤਾ',
+        'Feedback': 'ਫੀਡਬੈਕ',
+        'Contact Vet': 'ਪਸ਼ੂ ਚਿਕਿਤਸਕ ਨਾਲ ਸੰਪਰਕ ਕਰੋ',
+        'Contact Us': 'ਸਾਡੇ ਨਾਲ ਸੰਪਰਕ ਕਰੋ',
+        'Main Menu': 'ਮੁੱਖ ਮੀਨੂ',
+        'User': 'ਵਰਤੋਂਕਾਰ',
+        'Account': 'ਖਾਤਾ'
+      }
+    };
+
+    const langTranslations = translations[currentLanguage];
+    return langTranslations ? (langTranslations[text] || text) : text;
+  };
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showOthersDropdown, setShowOthersDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -730,19 +982,19 @@ const Navbar = () => {
             }}
           />
           <div className="logo-content">
-            <span className="logo-text">{t('landing.title')}</span>
-            <span className="tagline">{t('landing.tagline')}</span>
+            <span className="logo-text">{getNavTranslation('PashuMitra')}</span>
+            <span className="tagline">{getNavTranslation('YOUR PARTNER IN FARM PROTECTION')}</span>
           </div>
         </Logo>
 
         <NavLinks>
           <NavLink to="/" title="Home">
-            <FiHome /> Home
+            <FiHome /> {getNavTranslation('Home')}
           </NavLink>
-          <NavLink to="/dashboard">{t('nav.dashboard')}</NavLink>
-          <NavLink to="/compliance">{t('nav.compliance')}</NavLink>
-          <NavLink to="/risk-assessment">{t('nav.riskAssessment')}</NavLink>
-          <NavLink to="/raise-alert">{t('nav.raiseAlert')}</NavLink>
+          <NavLink to="/dashboard">{getNavTranslation('Dashboard')}</NavLink>
+          <NavLink to="/compliance">{getNavTranslation('Compliance')}</NavLink>
+          <NavLink to="/risk-assessment">{getNavTranslation('Risk Assessment')}</NavLink>
+          <NavLink to="/raise-alert">{getNavTranslation('Raise an Alert')}</NavLink>
 
           <button 
             ref={othersButtonRef}
@@ -770,7 +1022,7 @@ const Navbar = () => {
               e.target.style.color = '#333';
             }}
           >
-            Others <FiChevronDown style={{ 
+            {getNavTranslation('Others')} <FiChevronDown style={{ 
               transform: showOthersDropdown ? 'rotate(180deg)' : 'rotate(0deg)', 
               transition: 'transform 0.3s ease' 
             }} />
@@ -833,7 +1085,7 @@ const Navbar = () => {
                 <DropdownButton 
                   onClick={() => setShowUserDropdown(!showUserDropdown)}
                 >
-                  <FiUser /> {user?.name || 'User'} <FiChevronDown />
+                  <FiUser /> {user?.name || getNavTranslation('User')} <FiChevronDown />
                 </DropdownButton>
                 <AnimatePresence>
                   {showUserDropdown && (
@@ -845,11 +1097,11 @@ const Navbar = () => {
                     >
                       <DropdownItem to="/profile" onClick={() => setShowUserDropdown(false)}>
                         <FiUser style={{ marginRight: '8px' }} />
-                        {t('nav.profile')}
+                        {getNavTranslation('Profile')}
                       </DropdownItem>
                       <DropdownItem to="/settings" onClick={() => setShowUserDropdown(false)}>
                         <FiSettings style={{ marginRight: '8px' }} />
-                        {t('nav.settings')}
+                        {getNavTranslation('Settings')}
                       </DropdownItem>
                       <DropdownItem
                         as="button"
@@ -863,7 +1115,7 @@ const Navbar = () => {
                         }}
                       >
                         <FiLogOut style={{ marginRight: '8px' }} />
-                        {t('nav.logout')}
+                        {getNavTranslation('Logout')}
                       </DropdownItem>
                     </DropdownMenu>
                   )}
@@ -873,10 +1125,10 @@ const Navbar = () => {
           ) : (
             <AuthButtons>
               <AuthButton to="/auth" className="btn-outline">
-                {t('nav.login')}
+                {getNavTranslation('Login')}
               </AuthButton>
               <AuthButton to="/auth" className="btn-primary">
-                {t('nav.signup')}
+                {getNavTranslation('Sign Up')}
               </AuthButton>
             </AuthButtons>
           )}
@@ -896,56 +1148,52 @@ const Navbar = () => {
             >
               {/* Main Navigation */}
               <MobileNavSection>
-                <h4>Main Menu</h4>
+                <h4>{getNavTranslation('Main Menu')}</h4>
                 <MobileNavLink to="/" onClick={() => setShowMobileMenu(false)}>
                   <FiHome />
-                  Home
+                  {getNavTranslation('Home')}
                 </MobileNavLink>
                 <MobileNavLink to="/dashboard" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.dashboard')}
+                  {getNavTranslation('Dashboard')}
                 </MobileNavLink>
                 <MobileNavLink to="/compliance" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.compliance')}
+                  {getNavTranslation('Compliance')}
                 </MobileNavLink>
                 <MobileNavLink to="/learning" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.learning')}
+                  {getNavTranslation('Learning')}
                 </MobileNavLink>
                 <MobileNavLink to="/risk-assessment" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.riskAssessment')}
+                  {getNavTranslation('Risk Assessment')}
                 </MobileNavLink>
                 <MobileNavLink to="/raise-alert" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.raiseAlert')}
+                  {getNavTranslation('Raise an Alert')}
                 </MobileNavLink>
                 <MobileNavLink to="/farm-management" onClick={() => setShowMobileMenu(false)}>
-                  Farm Management
+                  {getNavTranslation('Farm Management')}
                 </MobileNavLink>
                 <MobileNavLink to="/weather" onClick={() => setShowMobileMenu(false)}>
                   <FiCloud style={{ marginRight: '8px' }} />
-                  Weather Dashboard
-                </MobileNavLink>
-                <MobileNavLink to="/notifications" onClick={() => setShowMobileMenu(false)}>
-                  <FiBell style={{ marginRight: '8px' }} />
-                  {t('nav.notifications')} {notificationCount > 0 && `(${notificationCount})`}
+                  {getNavTranslation('Weather Dashboard')}
                 </MobileNavLink>
               </MobileNavSection>
 
               {/* Other Links */}
               <MobileNavSection>
-                <h4>Other</h4>
+                <h4>{getNavTranslation('Others')}</h4>
                 <MobileNavLink to="/faq" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.faq')}
+                  {getNavTranslation('FAQ')}
                 </MobileNavLink>
                 <MobileNavLink to="/privacy" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.privacy')}
+                  {getNavTranslation('Privacy')}
                 </MobileNavLink>
                 <MobileNavLink to="/feedback" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.feedback')}
+                  {getNavTranslation('Feedback')}
                 </MobileNavLink>
                 <MobileNavLink to="/contact-vet" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.contactVet')}
+                  {getNavTranslation('Contact Vet')}
                 </MobileNavLink>
                 <MobileNavLink to="/contact-us" onClick={() => setShowMobileMenu(false)}>
-                  {t('nav.contactUs')}
+                  {getNavTranslation('Contact Us')}
                 </MobileNavLink>
               </MobileNavSection>
 
@@ -972,10 +1220,10 @@ const Navbar = () => {
               {/* User Section */}
               {isAuthenticated ? (
                 <MobileUserSection>
-                  <h4>{user?.name || 'User'}</h4>
+                  <h4>{user?.name || getNavTranslation('User')}</h4>
                   <MobileNavLink to="/profile" onClick={() => setShowMobileMenu(false)}>
                     <FiUser style={{ marginRight: '8px' }} />
-                    {t('nav.profile')}
+                    {getNavTranslation('Profile')}
                   </MobileNavLink>
                   <MobileNavButton
                     onClick={() => {
@@ -984,17 +1232,17 @@ const Navbar = () => {
                     }}
                   >
                     <FiLogOut style={{ marginRight: '8px' }} />
-                    {t('nav.logout')}
+                    {getNavTranslation('Logout')}
                   </MobileNavButton>
                 </MobileUserSection>
               ) : (
                 <MobileUserSection>
-                  <h4>Account</h4>
+                  <h4>{getNavTranslation('Account')}</h4>
                   <MobileNavLink to="/auth" onClick={() => setShowMobileMenu(false)}>
-                    {t('nav.login')}
+                    {getNavTranslation('Login')}
                   </MobileNavLink>
                   <MobileNavLink to="/auth" onClick={() => setShowMobileMenu(false)}>
-                    {t('nav.signup')}
+                    {getNavTranslation('Sign Up')}
                   </MobileNavLink>
                 </MobileUserSection>
               )}
@@ -1021,14 +1269,14 @@ const Navbar = () => {
               padding: '8px 0',
               zIndex: 1001
             }}>
-          <Link to="/learning" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Learning</Link>
-          <Link to="/farm-management" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Farm Management</Link>
-          <Link to="/weather" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Weather Dashboard</Link>
-          <Link to="/faq" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>FAQ</Link>
-          <Link to="/privacy" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Privacy</Link>
-          <Link to="/feedback" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Feedback</Link>
-          <Link to="/contact-vet" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Contact Vet</Link>
-          <Link to="/contact-us" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>Contact Us</Link>
+          <Link to="/learning" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>{getNavTranslation('Learning')}</Link>
+          <Link to="/farm-management" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>{getNavTranslation('Farm Management')}</Link>
+          <Link to="/weather" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>{getNavTranslation('Weather Dashboard')}</Link>
+          <Link to="/faq" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>{getNavTranslation('FAQ')}</Link>
+          <Link to="/privacy" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>{getNavTranslation('Privacy')}</Link>
+          <Link to="/feedback" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>{getNavTranslation('Feedback')}</Link>
+          <Link to="/contact-vet" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>{getNavTranslation('Contact Vet')}</Link>
+          <Link to="/contact-us" onClick={() => setShowOthersDropdown(false)} style={{display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#333', fontSize: '14px', transition: 'all 0.2s ease'}} onMouseEnter={(e) => { e.target.style.backgroundColor = '#f8f9fa'; e.target.style.color = 'var(--primary-coral)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#333'; }}>{getNavTranslation('Contact Us')}</Link>
           </div>
         );
       })()}

@@ -354,7 +354,16 @@ const EnhancedAuth = () => {
         toast.success(isLogin ? 'Login successful!' : 'Registration successful!');
         
         const searchParams = new URLSearchParams(location.search);
-        const redirectTo = searchParams.get('redirect') || '/';
+        let redirectTo;
+        
+        if (isLogin) {
+          // For existing users logging in, use redirect parameter or default to landing page
+          redirectTo = searchParams.get('redirect') || '/';
+        } else {
+          // For new user registration, always redirect to questionnaire page
+          // This helps onboard new users by collecting their information
+          redirectTo = '/questionnaire';
+        }
         
         setTimeout(() => {
           navigate(redirectTo);

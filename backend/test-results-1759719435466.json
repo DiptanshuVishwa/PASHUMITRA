@@ -1,0 +1,108 @@
+{
+  "timestamp": "2025-10-06T02:57:15.466Z",
+  "configuration": {
+    "emailFrom": "team.pashumitra@gmail.com",
+    "awsRegion": "ap-south-1",
+    "frontendUrl": "http://localhost:3000"
+  },
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "successRate": 100
+  },
+  "tests": [
+    {
+      "test": "Direct Email Send",
+      "success": true,
+      "message": "Email sent successfully",
+      "data": {
+        "messageId": "01090199b7738637-eb80ad07-364e-46b7-b31c-c3f0f0792925-000000"
+      },
+      "timestamp": "2025-10-06T02:57:04.058Z"
+    },
+    {
+      "test": "Email Verification Function",
+      "success": true,
+      "message": "Verification email sent",
+      "data": {
+        "messageId": "01090199b7738ac9-ecc979bb-9f45-44bb-b053-479c47cc60ad-000000",
+        "verificationUrl": "http://localhost:3000/verify-email?token=42ec64f9c7419258ea464f4ba436646eb9799fca"
+      },
+      "timestamp": "2025-10-06T02:57:05.224Z"
+    },
+    {
+      "test": "Email Template Rendering",
+      "success": true,
+      "message": "Template rendered and sent successfully",
+      "data": {
+        "messageId": "01090199b7738f35-a3821ed9-89aa-4e27-a63b-1b792cdcdf3d-000000"
+      },
+      "timestamp": "2025-10-06T02:57:06.359Z"
+    },
+    {
+      "test": "AWS SES Statistics",
+      "success": true,
+      "message": "SES statistics retrieved",
+      "data": {
+        "maxSend24h": 200,
+        "maxSendRate": 1,
+        "sentLast24h": 2
+      },
+      "timestamp": "2025-10-06T02:57:07.531Z"
+    },
+    {
+      "test": "User Registration",
+      "success": true,
+      "message": "User registered successfully",
+      "data": {
+        "userId": "68e3300475cefa8f0c6d7757",
+        "hasToken": true
+      },
+      "timestamp": "2025-10-06T02:57:09.124Z"
+    },
+    {
+      "test": "Email Verification Endpoint",
+      "success": true,
+      "message": "Email verified successfully",
+      "data": {
+        "userId": "68e33006325355ddf9218dfa",
+        "message": "Email verified successfully"
+      },
+      "timestamp": "2025-10-06T02:57:10.694Z"
+    },
+    {
+      "test": "Database Verification Update",
+      "success": true,
+      "message": "User verification status updated in database",
+      "data": {},
+      "timestamp": "2025-10-06T02:57:10.731Z"
+    },
+    {
+      "test": "Resend Verification Endpoint",
+      "success": true,
+      "message": "Verification email resent successfully",
+      "data": {
+        "message": "Verification email sent"
+      },
+      "timestamp": "2025-10-06T02:57:12.276Z"
+    },
+    {
+      "test": "Verification Token Generation",
+      "success": true,
+      "message": "New verification token generated",
+      "data": {},
+      "timestamp": "2025-10-06T02:57:12.325Z"
+    },
+    {
+      "test": "Email Verification Status Check",
+      "success": true,
+      "message": "Status endpoint accessible",
+      "data": {
+        "isVerified": false,
+        "email": "middleware_test_1759719433369@example.com"
+      },
+      "timestamp": "2025-10-06T02:57:14.407Z"
+    }
+  ]
+}

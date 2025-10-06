@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { getTranslation } from '../utils/translations';
 
 const LandingContainer = styled.div`
   min-height: 100vh;
@@ -400,8 +401,11 @@ const FeatureCard = styled(motion.div)`
 
 const LandingPage = () => {
   const { isAuthenticated } = useAuth();
-  const { supportedLanguages, currentLanguage, changeLanguage, t } = useLanguage();
+  const { supportedLanguages, currentLanguage, changeLanguage } = useLanguage();
   const navigate = useNavigate();
+  
+  // Create translation function using the same system as navbar
+  const getPageTranslation = (text) => getTranslation(text, currentLanguage);
   const [permissions, setPermissions] = useState({
     location: null,
     camera: null,
@@ -573,14 +577,14 @@ const LandingPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <span className="highlight">{t('landing.title')}</span>
+            <span className="highlight">{getPageTranslation('PashuMitra')}</span>
           </HeroTitle>
           <HeroSubtitle
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            {t('landing.tagline')}
+            {getPageTranslation('Your Partner in Farm Protection')}
           </HeroSubtitle>
 
           <HeroImages
@@ -1014,7 +1018,7 @@ const LandingPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              {t('landing.getStarted')}
+              {getPageTranslation('Get Started')}
             </GetStartedButton>
           )}
         </HeroContent>
@@ -1023,8 +1027,8 @@ const LandingPage = () => {
       {/* About Section */}
       <AboutSection>
         <AboutContent>
-          <h2>{t('landing.aboutTitle')}</h2>
-          <p>{t('landing.aboutDescription')}</p>
+          <h2>{getPageTranslation('Why Choose PashuMitra?')}</h2>
+          <p>{getPageTranslation('PashuMitra is a comprehensive digital platform designed to help farmers implement, monitor, and maintain robust biosecurity practices for their pig and poultry farms.')}</p>
 
           <FeaturesGrid>
             <FeatureCard
@@ -1032,8 +1036,8 @@ const LandingPage = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="icon"><FiShield /></div>
-              <h3>{t('landing.features.dashboard')}</h3>
-              <p>Monitor your farm's biosecurity status in real-time with comprehensive alerts and mapping.</p>
+              <h3>{getPageTranslation('Disease Prevention')}</h3>
+              <p>{getPageTranslation('Monitor your farm\'s biosecurity status in real-time with comprehensive alerts and mapping.')}</p>
             </FeatureCard>
 
             <FeatureCard
@@ -1041,8 +1045,8 @@ const LandingPage = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="icon"><FiTrendingUp /></div>
-              <h3>{t('landing.features.compliance')}</h3>
-              <p>Track certifications and ensure compliance with regulatory standards.</p>
+              <h3>{getPageTranslation('Analytics & Insights')}</h3>
+              <p>{getPageTranslation('Track certifications and ensure compliance with regulatory standards.')}</p>
             </FeatureCard>
 
             <FeatureCard
@@ -1050,8 +1054,8 @@ const LandingPage = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="icon"><FiUsers /></div>
-              <h3>{t('landing.features.learning')}</h3>
-              <p>Access comprehensive learning resources and best practices for biosecurity.</p>
+              <h3>{getPageTranslation('Expert Veterinarians')}</h3>
+              <p>{getPageTranslation('Access comprehensive learning resources and best practices for biosecurity.')}</p>
             </FeatureCard>
 
             <FeatureCard
@@ -1059,8 +1063,8 @@ const LandingPage = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="icon"><FiBell /></div>
-              <h3>{t('landing.features.alerts')}</h3>
-              <p>Instant alert system to notify nearby farmers of potential biosecurity threats.</p>
+              <h3>{getPageTranslation('Real-time Alerts')}</h3>
+              <p>{getPageTranslation('Instant alert system to notify nearby farmers of potential biosecurity threats.')}</p>
             </FeatureCard>
 
             <FeatureCard
@@ -1068,8 +1072,8 @@ const LandingPage = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="icon"><FiGlobe /></div>
-              <h3>{t('landing.features.multilingual')}</h3>
-              <p>Available in all major Indian languages for maximum accessibility.</p>
+              <h3>{getPageTranslation('Multilingual Support')}</h3>
+              <p>{getPageTranslation('Available in all major Indian languages for maximum accessibility.')}</p>
             </FeatureCard>
           </FeaturesGrid>
         </AboutContent>
@@ -1091,14 +1095,14 @@ const LandingPage = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <ModalHeader>
-                <h2>{t('landing.permissions.title')}</h2>
+                <h2>{getPageTranslation('Permissions Required')}</h2>
                 <CloseButton onClick={() => setShowPermissionsModal(false)}>
                   <FiX />
                 </CloseButton>
               </ModalHeader>
               
               <p style={{ marginBottom: '20px', color: '#666' }}>
-                PashuMitra needs these permissions to provide you with the best experience:
+                {getPageTranslation('PashuMitra needs these permissions to provide you with the best experience:')}
               </p>
               
               <PermissionsGrid>
@@ -1112,8 +1116,8 @@ const LandingPage = () => {
                     {getPermissionIcon('location', permissions.location)}
                   </PermissionIcon>
                   <PermissionContent>
-                    <h3>Location Access</h3>
-                    <p>{t('landing.permissions.location')}</p>
+                    <h3>{getPageTranslation('Location Access')}</h3>
+                    <p>{getPageTranslation('Find veterinarians and services near you')}</p>
                   </PermissionContent>
                   <StatusIcon>
                     {getStatusIcon(permissions.location)}
@@ -1130,8 +1134,8 @@ const LandingPage = () => {
                     {getPermissionIcon('camera', permissions.camera)}
                   </PermissionIcon>
                   <PermissionContent>
-                    <h3>Camera Access</h3>
-                    <p>{t('landing.permissions.camera')}</p>
+                    <h3>{getPageTranslation('Camera Access')}</h3>
+                    <p>{getPageTranslation('Take photos of animals for health monitoring')}</p>
                   </PermissionContent>
                   <StatusIcon>
                     {getStatusIcon(permissions.camera)}
@@ -1148,8 +1152,8 @@ const LandingPage = () => {
                     {getPermissionIcon('microphone', permissions.microphone)}
                   </PermissionIcon>
                   <PermissionContent>
-                    <h3>Microphone Access</h3>
-                    <p>{t('landing.permissions.microphone')}</p>
+                    <h3>{getPageTranslation('Microphone Access')}</h3>
+                    <p>{getPageTranslation('Voice recordings for veterinary consultations')}</p>
                   </PermissionContent>
                   <StatusIcon>
                     {getStatusIcon(permissions.microphone)}
@@ -1163,7 +1167,7 @@ const LandingPage = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Grant All Permissions
+                  {getPageTranslation('Grant All Permissions')}
                 </PermissionRequestButton>
                 <button 
                   onClick={() => setShowPermissionsModal(false)}
@@ -1176,7 +1180,7 @@ const LandingPage = () => {
                     margin: '20px 0 0 10px'
                   }}
                 >
-                  Skip for Now
+                  {getPageTranslation('Skip for Now')}
                 </button>
               </div>
             </ModalContent>
@@ -1200,14 +1204,14 @@ const LandingPage = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <ModalHeader>
-                <h2>{t('landing.selectLanguage')}</h2>
+                <h2>{getPageTranslation('Select Language')}</h2>
                 <CloseButton onClick={() => setShowLanguageModal(false)}>
                   <FiX />
                 </CloseButton>
               </ModalHeader>
               
               <p style={{ marginBottom: '20px', color: '#666' }}>
-                Choose your preferred language for the best experience:
+                {getPageTranslation('Choose your preferred language for the best experience:')}
               </p>
               
               <LanguageGrid>
@@ -1231,7 +1235,7 @@ const LandingPage = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Continue with {supportedLanguages.find(lang => lang.code === currentLanguage)?.nativeName || 'English'}
+                  {getPageTranslation('Continue with')} {supportedLanguages.find(lang => lang.code === currentLanguage)?.nativeName || 'English'}
                 </LanguageButton>
               </div>
             </ModalContent>

@@ -79,9 +79,15 @@ const GoogleAuthSuccess = () => {
           setStatus('success');
           console.log('Google Auth - Authentication successful, user:', result.user?.name);
           
-          // Redirect to dashboard after a short delay
+          // Check if this is a new user
+          const isNewUser = searchParams.get('newUser') === 'true';
+          const redirectPath = isNewUser ? '/questionnaire' : '/dashboard';
+          
+          console.log('Google Auth - New user:', isNewUser, 'Redirecting to:', redirectPath);
+          
+          // Redirect after a short delay
           setTimeout(() => {
-            navigate('/dashboard', { replace: true });
+            navigate(redirectPath, { replace: true });
           }, 1500);
         } else {
           throw new Error(result?.error || 'Failed to authenticate user');
@@ -120,13 +126,17 @@ const GoogleAuthSuccess = () => {
         );
       
       case 'success':
+        // Check if this is a new user for the message
+        const isNewUser = searchParams.get('newUser') === 'true';
+        const destinationText = isNewUser ? 'questionnaire' : 'dashboard';
+        
         return (
           <>
             <Icon>
               <FiCheckCircle />
             </Icon>
             <Title>Welcome to PashuMitra!</Title>
-            <Message>Google authentication successful. Redirecting you to dashboard...</Message>
+            <Message>Google authentication successful. Redirecting you to {destinationText}...</Message>
           </>
         );
       

@@ -7,6 +7,8 @@ import { uploadSingleFile } from '../services/fileUpload';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import AlertSubmissionModal from '../components/AlertSubmissionModal';
+import { useLanguage } from '../context/LanguageContext';
+import { getTranslation } from '../utils/translations';
 import {
   FiAlertTriangle,
   FiMapPin,
@@ -521,6 +523,10 @@ const LocationSection = styled.div`
 const RaiseAlertPage = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const { currentLanguage } = useLanguage();
+  
+  // Translation function
+  const t = (text) => getTranslation(text, currentLanguage);
   
   const [formData, setFormData] = useState({
     location: '',
@@ -566,11 +572,11 @@ const RaiseAlertPage = () => {
   // Check authentication and redirect if not logged in
   useEffect(() => {
     if (!isAuthenticated) {
-      toast.error('Please login to raise an alert. You will be redirected to the login page.');
+      toast.error(t('Please login to raise an alert. You will be redirected to the login page.'));
       navigate('/auth?redirect=/raise-alert');
       return;
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, t]);
   
   // Pre-populate contact information from user profile
   useEffect(() => {
@@ -586,7 +592,7 @@ const RaiseAlertPage = () => {
 
   // Move locations array up and wrap in useMemo to prevent re-creation
   const locations = React.useMemo(() => [
-    { value: '', label: 'Select State/Region' },
+    { value: '', label: t('Select State/Region') },
     { value: 'andhra-pradesh', label: 'Andhra Pradesh', subLocations: ['Visakhapatnam', 'Vijayawada', 'Guntur', 'Tirupati', 'Kakinada', 'Rajahmundry', 'Nellore', 'Kurnool', 'Kadapa', 'Anantapur'] },
     { value: 'arunachal-pradesh', label: 'Arunachal Pradesh', subLocations: ['Itanagar', 'Naharlagun', 'Pasighat', 'Tezu', 'Bomdila', 'Tawang', 'Ziro', 'Along'] },
     { value: 'assam', label: 'Assam', subLocations: ['Guwahati', 'Dibrugarh', 'Jorhat', 'Nagaon', 'Tinsukia', 'Silchar', 'Tezpur', 'Bongaigaon'] },
@@ -620,7 +626,7 @@ const RaiseAlertPage = () => {
     { value: 'puducherry', label: 'Puducherry', subLocations: ['Puducherry', 'Karaikal', 'Mahe', 'Yanam'] },
     { value: 'jammu-kashmir', label: 'Jammu and Kashmir', subLocations: ['Srinagar', 'Jammu', 'Anantnag', 'Baramulla', 'Udhampur', 'Kathua'] },
     { value: 'ladakh', label: 'Ladakh', subLocations: ['Leh', 'Kargil', 'Nubra', 'Zanskar'] }
-  ], []);
+  ], [t]);
 
   const handleInputChange = useCallback((field, value) => {
     setFormData(prev => ({
@@ -716,16 +722,16 @@ const RaiseAlertPage = () => {
   }, [getCurrentLocation, getLocationByIP]);
 
   const issueTypes = [
-    { value: '', label: 'Select Issue Type' },
-    { value: 'disease-outbreak', label: 'Disease Outbreak' },
-    { value: 'animal-death', label: 'Sudden Animal Deaths' },
-    { value: 'feed-contamination', label: 'Feed Contamination' },
-    { value: 'water-issues', label: 'Water Quality Issues' },
-    { value: 'biosecurity-breach', label: 'Biosecurity Breach' },
-    { value: 'pest-infestation', label: 'Pest Infestation' },
-    { value: 'equipment-failure', label: 'Equipment Failure' },
-    { value: 'weather-damage', label: 'Weather Related Damage' },
-    { value: 'other', label: 'Other (Please specify)' }
+    { value: '', label: t('Select Issue Type') },
+    { value: 'disease-outbreak', label: t('Disease Outbreak') },
+    { value: 'animal-death', label: t('Sudden Animal Deaths') },
+    { value: 'feed-contamination', label: t('Feed Contamination') },
+    { value: 'water-issues', label: t('Water Quality Issues') },
+    { value: 'biosecurity-breach', label: t('Biosecurity Breach') },
+    { value: 'pest-infestation', label: t('Pest Infestation') },
+    { value: 'equipment-failure', label: t('Equipment Failure') },
+    { value: 'weather-damage', label: t('Weather Related Damage') },
+    { value: 'other', label: t('Other (Please specify)') }
   ];
 
   const getSubLocations = () => {
@@ -782,7 +788,7 @@ const RaiseAlertPage = () => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
     } catch (error) {
-      alert('Error accessing microphone. Please check your permissions.');
+      alert(t('Error accessing microphone. Please check your permissions.'));
     }
   };
 
@@ -844,18 +850,18 @@ const RaiseAlertPage = () => {
 
   const handleSubmit = async () => {
     if (!isFormValid()) {
-      toast.error('Please fill in all required fields.');
+      toast.error(t('Please fill in all required fields.'));
       return;
     }
 
     setIsSubmitting(true);
-    const uploadToast = toast.loading('Creating alert and uploading files...');
+    const uploadToast = toast.loading(t('Creating alert and uploading files...'));
 
     try {
       // Step 1: Upload images to S3
       const uploadedImages = [];
       if (images.length > 0) {
-        toast.loading('Uploading images...', { id: uploadToast });
+        toast.loading(t('Uploading images...'), { id: uploadToast });
         
         for (let i = 0; i < images.length; i++) {
           const image = images[i];
@@ -882,13 +888,13 @@ const RaiseAlertPage = () => {
             
             // Check if it's an authentication error
             if (uploadError.response?.status === 401) {
-              toast.error('Authentication expired. Please login again.');
+              toast.error(t('Authentication expired. Please login again.'));
               navigate('/auth?redirect=/raise-alert');
               return;
             }
             
-            const errorMessage = uploadError.response?.data?.message || uploadError.message || 'Upload failed';
-            toast.error(`Failed to upload image "${image.name}": ${errorMessage}`);
+            const errorMessage = uploadError.response?.data?.message || uploadError.message || t('Upload failed');
+            toast.error(`${t('Failed to upload image')} "${image.name}": ${errorMessage}`);
           }
         }
       }
@@ -897,7 +903,7 @@ const RaiseAlertPage = () => {
       let uploadedAudio = null;
       if (audioRecording) {
         try {
-          toast.loading('Uploading voice message...', { id: uploadToast });
+          toast.loading(t('Uploading voice message...'), { id: uploadToast });
           
           // Create a File object from the audio blob
           const audioFile = new File([audioRecording.blob], `voice-message-${Date.now()}.wav`, {
@@ -917,18 +923,18 @@ const RaiseAlertPage = () => {
           
           // Check if it's an authentication error
           if (uploadError.response?.status === 401) {
-            toast.error('Authentication expired. Please login again.');
+            toast.error(t('Authentication expired. Please login again.'));
             navigate('/auth?redirect=/raise-alert');
             return;
           }
           
-          const errorMessage = uploadError.response?.data?.message || uploadError.message || 'Upload failed';
-          toast.error(`Failed to upload voice message: ${errorMessage}`);
+          const errorMessage = uploadError.response?.data?.message || uploadError.message || t('Upload failed');
+          toast.error(`${t('Failed to upload voice message')}: ${errorMessage}`);
         }
       }
 
       // Step 3: Create the alert with uploaded file references
-      toast.loading('Creating alert...', { id: uploadToast });
+      toast.loading(t('Creating alert...'), { id: uploadToast });
       
       const alertData = {
         title: `${formData.issueType === 'other' ? formData.customIssue : issueTypes.find(t => t.value === formData.issueType)?.label || 'Farm Alert'} - ${formData.urgency.toUpperCase()} Priority`,
@@ -973,8 +979,8 @@ const RaiseAlertPage = () => {
       setModalState({
         isOpen: true,
         type: 'success',
-        title: 'Alert Submitted Successfully!',
-        message: `Your alert has been submitted successfully with ID: ${alertResponse.data._id}. Our expert team will respond shortly and you will receive updates via SMS and email.`,
+        title: t('Alert Submitted Successfully!'),
+        message: `${t('Your alert has been submitted successfully with ID')}: ${alertResponse.data._id}. ${t('Our expert team will respond shortly and you will receive updates via SMS and email.')}`,
         errors: [],
         showRetry: false,
         showViewAlert: true,
@@ -1010,7 +1016,7 @@ const RaiseAlertPage = () => {
       
       // Check if it's an authentication error
       if (error.response?.status === 401) {
-        toast.error('Authentication expired. Please login again.');
+        toast.error(t('Authentication expired. Please login again.'));
         navigate('/auth?redirect=/raise-alert');
         return;
       }
@@ -1019,7 +1025,7 @@ const RaiseAlertPage = () => {
       const errorMessage = error.response?.data?.message || 
                           error.response?.data?.error ||
                           error.message || 
-                          'Failed to submit alert. Please try again.';
+                          t('Failed to submit alert. Please try again.');
       
       const validationErrors = error.response?.data?.errors || [];
       
@@ -1027,7 +1033,7 @@ const RaiseAlertPage = () => {
       setModalState({
         isOpen: true,
         type: 'error',
-        title: 'Alert Submission Failed',
+        title: t('Alert Submission Failed'),
         message: errorMessage,
         errors: validationErrors,
         showRetry: true
@@ -1083,11 +1089,10 @@ const RaiseAlertPage = () => {
       <Header>
         <h1>
           <FiAlertTriangle className="alert-icon" />
-          Raise Alert
+          {t('Raise Alert')}
         </h1>
         <p>
-          Report urgent farm issues and receive immediate assistance from our expert team.
-          All alerts are monitored 24/7.
+          {t('Report urgent farm issues and receive immediate assistance from our expert team. All alerts are monitored 24/7.')}
         </p>
       </Header>
 
@@ -1102,7 +1107,7 @@ const RaiseAlertPage = () => {
             <div className="location-header">
               <div className="section-title">
                 <FiMapPin className="section-icon" />
-                Location Information
+                {t('Location Information')}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
@@ -1111,14 +1116,14 @@ const RaiseAlertPage = () => {
                   onClick={getCurrentLocation}
                   disabled={locationLoading}
                   loading={locationLoading}
-                  title="Use GPS for precise location"
+                  title={t('Use GPS for precise location')}
                 >
                   {locationLoading ? (
                     <FiRefreshCw className="refresh-icon" />
                   ) : (
                     <FiNavigation />
                   )}
-                  {locationLoading ? 'Detecting...' : 'GPS Location'}
+                  {locationLoading ? t('Detecting...') : t('GPS Location')}
                 </button>
                 
                 <button
@@ -1127,10 +1132,10 @@ const RaiseAlertPage = () => {
                   onClick={getLocationByIP}
                   disabled={locationLoading}
                   style={{ background: '#17a2b8' }}
-                  title="Use internet connection for approximate location"
+                  title={t('Use internet connection for approximate location')}
                 >
                   <FiMapPin />
-                  IP Location
+                  {t('IP Location')}
                 </button>
               </div>
             </div>
@@ -1138,7 +1143,7 @@ const RaiseAlertPage = () => {
             <FormRow columns="1fr 1fr">
               <FormGroup>
                 <label className="label">
-                  State/Region <span className="required">*</span>
+                  {t('State/Region')} <span className="required">*</span>
                 </label>
                 <Select
                   value={formData.location}
@@ -1152,13 +1157,13 @@ const RaiseAlertPage = () => {
                 </Select>
               </FormGroup>
               <FormGroup>
-                <label className="label">District/City</label>
+                <label className="label">{t('District/City')}</label>
                 <Select
                   value={formData.subLocation}
                   onChange={(e) => handleInputChange('subLocation', e.target.value)}
                   disabled={!formData.location}
                 >
-                  <option value="">Select District/City</option>
+                  <option value="">{t('Select District/City')}</option>
                   {getSubLocations().map(subLocation => (
                     <option key={subLocation} value={subLocation}>
                       {subLocation}
@@ -1172,14 +1177,14 @@ const RaiseAlertPage = () => {
               <FormGroup>
                 <label className="label">
                   <FiMapPin style={{ marginRight: '4px', fontSize: '14px' }} />
-                  Exact Location Address
+                  {t('Exact Location Address')}
                   <span style={{ color: '#666', fontWeight: 'normal', fontSize: '12px', marginLeft: '8px' }}>
-                    (Auto-filled by GPS or enter manually)
+                    {t('(Auto-filled by GPS or enter manually)')}
                   </span>
                 </label>
                 <Input
                   type="text"
-                  placeholder="Enter your exact location address (e.g., Village/Town, Landmark, Address)..."
+                  placeholder={t('Enter your exact location address (e.g., Village/Town, Landmark, Address)...')}
                   value={formData.manualLocation}
                   onChange={(e) => handleInputChange('manualLocation', e.target.value)}
                   style={{
@@ -1197,7 +1202,7 @@ const RaiseAlertPage = () => {
                   gap: '4px'
                 }}>
                   <FiInfo size={12} />
-                  This field helps us locate you precisely. Use GPS buttons above for automatic detection.
+                  {t('This field helps us locate you precisely. Use GPS buttons above for automatic detection.')}
                 </div>
               </FormGroup>
             </FormRow>
@@ -1206,7 +1211,7 @@ const RaiseAlertPage = () => {
             {locationLoading && (
               <div className="location-status loading">
                 <FiRefreshCw />
-                Detecting your location...
+                {t('Detecting your location...')}
               </div>
             )}
             
@@ -1214,12 +1219,12 @@ const RaiseAlertPage = () => {
               <div className="location-status success">
                 <FiMapPin />
                 <div>
-                  <strong>Location detected:</strong> {formData.detectedLocation}
+                  <strong>{t('Location detected')}:</strong> {formData.detectedLocation}
                   <div style={{ fontSize: '11px', marginTop: '2px', color: '#28a745' }}>
-                    ✓ Location automatically filled in address field below
+                    ✓ {t('Location automatically filled in address field below')}
                     {formData.coordinates && (
                       <span style={{ marginLeft: '8px', color: '#666' }}>
-                        • GPS Coordinates: ({formData.coordinates.latitude.toFixed(4)}, {formData.coordinates.longitude.toFixed(4)})
+                        • {t('GPS Coordinates')}: ({formData.coordinates.latitude.toFixed(4)}, {formData.coordinates.longitude.toFixed(4)})
                       </span>
                     )}
                   </div>
@@ -1234,12 +1239,12 @@ const RaiseAlertPage = () => {
         <FormSection>
           <div className="section-title">
             <FiAlertTriangle className="section-icon" />
-            Issue Details
+            {t('Issue Details')}
           </div>
           <FormRow>
             <FormGroup>
               <label className="label">
-                Issue Type <span className="required">*</span>
+                {t('Issue Type')} <span className="required">*</span>
               </label>
               <Select
                 value={formData.issueType}
@@ -1258,11 +1263,11 @@ const RaiseAlertPage = () => {
             <FormRow>
               <FormGroup>
                 <label className="label">
-                  Specify Issue <span className="required">*</span>
+                  {t('Specify Issue')} <span className="required">*</span>
                 </label>
                 <Input
                   type="text"
-                  placeholder="Please describe the specific issue"
+                  placeholder={t('Please describe the specific issue')}
                   value={formData.customIssue}
                   onChange={(e) => handleInputChange('customIssue', e.target.value)}
                 />
@@ -1273,7 +1278,7 @@ const RaiseAlertPage = () => {
           <FormRow>
             <FormGroup>
               <label className="label">
-                Urgency Level <span className="required">*</span>
+                {t('Urgency Level')} <span className="required">*</span>
               </label>
               <UrgencySelector>
                 <UrgencyButton
@@ -1281,24 +1286,24 @@ const RaiseAlertPage = () => {
                   selected={formData.urgency === 'low'}
                   onClick={() => handleInputChange('urgency', 'low')}
                 >
-                  <div className="urgency-text">Low</div>
-                  <div className="urgency-desc">Can wait 24-48 hrs</div>
+                  <div className="urgency-text">{t('Low')}</div>
+                  <div className="urgency-desc">{t('Can wait 24-48 hrs')}</div>
                 </UrgencyButton>
                 <UrgencyButton
                   level="medium"
                   selected={formData.urgency === 'medium'}
                   onClick={() => handleInputChange('urgency', 'medium')}
                 >
-                  <div className="urgency-text">Medium</div>
-                  <div className="urgency-desc">Within 12 hours</div>
+                  <div className="urgency-text">{t('Medium')}</div>
+                  <div className="urgency-desc">{t('Within 12 hours')}</div>
                 </UrgencyButton>
                 <UrgencyButton
                   level="high"
                   selected={formData.urgency === 'high'}
                   onClick={() => handleInputChange('urgency', 'high')}
                 >
-                  <div className="urgency-text">High</div>
-                  <div className="urgency-desc">Immediate attention</div>
+                  <div className="urgency-text">{t('High')}</div>
+                  <div className="urgency-desc">{t('Immediate attention')}</div>
                 </UrgencyButton>
               </UrgencySelector>
             </FormGroup>
@@ -1307,10 +1312,10 @@ const RaiseAlertPage = () => {
           <FormRow>
             <FormGroup>
               <label className="label">
-                Detailed Description (Optional)
+                {t('Detailed Description (Optional)')}
               </label>
               <TextArea
-                placeholder="Please provide detailed information about the issue, including symptoms, timeline, affected animals, and any actions you've already taken... (This field is optional but recommended for better assistance)"
+                placeholder={t('Please provide detailed information about the issue, including symptoms, timeline, affected animals, and any actions you\'ve already taken... (This field is optional but recommended for better assistance)')}
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
               />
@@ -1322,7 +1327,7 @@ const RaiseAlertPage = () => {
         <FormSection>
           <div className="section-title">
             <FiImage className="section-icon" />
-            Photo Evidence
+            {t('Photo Evidence')}
           </div>
           <ImageUploadSection>
             <div 
@@ -1334,10 +1339,10 @@ const RaiseAlertPage = () => {
             >
               <FiCamera className="upload-icon" />
               <div className="upload-text">
-                Upload photos of the affected area/animals
+                {t('Upload photos of the affected area/animals')}
               </div>
               <div className="upload-hint">
-                Drag & drop images or click to browse (JPG, PNG, Max 5MB per file)
+                {t('Drag & drop images or click to browse (JPG, PNG, Max 5MB per file)')}
               </div>
               <input
                 ref={fileInputRef}
@@ -1370,7 +1375,7 @@ const RaiseAlertPage = () => {
         <FormSection>
           <div className="section-title">
             <FiMic className="section-icon" />
-            Voice Message (Optional)
+            {t('Voice Message (Optional)')}
           </div>
           <VoiceRecordSection>
             <div className="voice-controls">
@@ -1380,13 +1385,13 @@ const RaiseAlertPage = () => {
                 disabled={audioRecording && !isRecording}
               >
                 {isRecording ? <FiX /> : <FiMic />}
-                {isRecording ? 'Stop Recording' : 'Start Recording'}
+                {isRecording ? t('Stop Recording') : t('Start Recording')}
               </button>
               
               {isRecording && (
                 <div className="recording-info">
                   <FiClock />
-                  Recording... {formatTime(recordingTime)}
+                  {t('Recording...')} {formatTime(recordingTime)}
                 </div>
               )}
             </div>
@@ -1396,17 +1401,17 @@ const RaiseAlertPage = () => {
                 <div className="audio-info">
                   <FiMic className="audio-icon" />
                   <div className="audio-details">
-                    <div className="audio-name">Voice Message</div>
+                    <div className="audio-name">{t('Voice Message')}</div>
                     <div className="audio-duration">
-                      Duration: {formatTime(audioRecording.duration)}
+                      {t('Duration')}: {formatTime(audioRecording.duration)}
                     </div>
                   </div>
                 </div>
                 <div className="audio-actions">
-                  <button className="play" onClick={playAudio} title="Play">
+                  <button className="play" onClick={playAudio} title={t('Play')}>
                     <FiPlay />
                   </button>
-                  <button className="remove" onClick={removeAudioRecording} title="Remove">
+                  <button className="remove" onClick={removeAudioRecording} title={t('Remove')}>
                     <FiX />
                   </button>
                 </div>
@@ -1419,36 +1424,36 @@ const RaiseAlertPage = () => {
         <FormSection>
           <div className="section-title">
             <FiUser className="section-icon" />
-            Contact Information
+            {t('Contact Information')}
           </div>
           <FormRow columns="1fr 1fr 1fr">
             <FormGroup>
               <label className="label">
-                Full Name <span className="required">*</span>
+                {t('Full Name')} <span className="required">*</span>
               </label>
               <Input
                 type="text"
-                placeholder="Your full name"
+                placeholder={t('Your full name')}
                 value={formData.contactName}
                 onChange={(e) => handleInputChange('contactName', e.target.value)}
               />
             </FormGroup>
             <FormGroup>
               <label className="label">
-                Phone Number <span className="required">*</span>
+                {t('Phone Number')} <span className="required">*</span>
               </label>
               <Input
                 type="tel"
-                placeholder="+91 XXXXX XXXXX"
+                placeholder={t('+91 XXXXX XXXXX')}
                 value={formData.contactPhone}
                 onChange={(e) => handleInputChange('contactPhone', e.target.value)}
               />
             </FormGroup>
             <FormGroup>
-              <label className="label">Email Address</label>
+              <label className="label">{t('Email Address')}</label>
               <Input
                 type="email"
-                placeholder="your@email.com"
+                placeholder={t('your@email.com')}
                 value={formData.contactEmail}
                 onChange={(e) => handleInputChange('contactEmail', e.target.value)}
               />
@@ -1459,8 +1464,7 @@ const RaiseAlertPage = () => {
         {/* Submit Section */}
         <SubmitSection>
           <div className="submit-info">
-            <strong>Emergency Contact:</strong> For critical situations requiring immediate veterinary assistance, 
-            please call our 24/7 hotline at <strong>1800-XXX-XXXX</strong>
+            <strong>{t('Emergency Contact')}:</strong> {t('For critical situations requiring immediate veterinary assistance, please call our 24/7 hotline at')} <strong>1800-XXX-XXXX</strong>
           </div>
           
           <SubmitButton
@@ -1470,7 +1474,7 @@ const RaiseAlertPage = () => {
             whileTap={{ scale: 0.98 }}
           >
             {isSubmitting ? <FiRefreshCw style={{ animation: 'spin 1s linear infinite' }} /> : <FiSend />}
-            {isSubmitting ? 'Submitting...' : 'Submit Alert'}
+            {isSubmitting ? t('Submitting...') : t('Submit Alert')}
           </SubmitButton>
         </SubmitSection>
       </AlertForm>
