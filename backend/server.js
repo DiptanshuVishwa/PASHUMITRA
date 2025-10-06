@@ -28,6 +28,9 @@ const translationRoutes = require('./routes/translation');
 
 const app = express();
 
+// Trust proxy for deployment platforms like Render
+app.set('trust proxy', true);
+
 // Connect to MongoDB
 connectDB();
 
