@@ -1,12 +1,13 @@
-const axios = require('axios');
+const { Resend } = require('resend');
 const logger = require('../utils/logger');
 
 class ResendEmailService {
   constructor() {
     this.apiKey = process.env.RESEND_API_KEY;
-    this.apiUrl = 'https://api.resend.com/emails';
-    this.fromEmail = process.env.EMAIL_FROM || 'team.pashumitra@outlook.com';
+    this.resend = this.apiKey ? new Resend(this.apiKey) : null;
+    this.fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
     this.fromName = process.env.EMAIL_FROM_NAME || 'PashuMitra Portal';
+    this.frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   }
 
   /**
@@ -14,58 +15,59 @@ class ResendEmailService {
    */
   async sendEmail(emailData) {
     try {
-      if (!this.apiKey) {
-        throw new Error('Resend API key not configured - check RESEND_API_KEY in .env');
+      if (!this.apiKey || !this.resend) {
+        throw new Error('RESEND_API_KEY not configured in environment variables');
       }
 
-      const { to, subject, htmlContent, textContent, replyTo } = emailData;
+      const { to, subject, htmlContent, textContent, html, text } = emailData;
+      const htmlToSend = html || htmlContent;
+      const textToSend = text || textContent;
 
-      if (!to || !subject || (!htmlContent && !textContent)) {
-        throw new Error('Missing required email parameters: to, subject, and content');
+      if (!to || !subject || !htmlToSend) {
+        throw new Error('Missing required email parameters: to, subject, html');
       }
 
-      const payload = {
+      const emailPayload = {
         from: `${this.fromName} <${this.fromEmail}>`,
         to: Array.isArray(to) ? to : [to],
         subject: subject,
-        ...(textContent && { text: textContent }),
-        ...(htmlContent && { html: htmlContent }),
-        ...(replyTo && { reply_to: replyTo })
+        html: htmlToSend,
+        ...(textToSend && { text: textToSend })
       };
 
-      const response = await axios.post(this.apiUrl, payload, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      logger.info(`Resend email sent successfully: ${response.data.id}`, {
+      logger.info('📧 Sending email via Resend SDK...', {
         to: Array.isArray(to) ? to.join(', ') : to,
         subject,
-        messageId: response.data.id
+        from: emailPayload.from
+      });
+
+      const data = await this.resend.emails.send(emailPayload);
+
+      logger.info('✅ Email sent successfully via Resend', {
+        messageId: data.id,
+        to: Array.isArray(to) ? to.join(', ') : to,
+        subject
       });
 
       return {
         success: true,
-        messageId: response.data.id,
+        messageId: data.id,
+        service: 'resend',
         timestamp: new Date().toISOString()
       };
 
     } catch (error) {
-      logger.error('Error sending Resend email:', {
+      logger.error('❌ Failed to send email via Resend:', {
         error: error.message,
         to: emailData.to,
         subject: emailData.subject,
-        status: error.response?.status,
-        data: error.response?.data
+        stack: error.stack
       });
 
       return {
         success: false,
         error: error.message,
-        status: error.response?.status,
-        details: error.response?.data
+        service: 'resend'
       };
     }
   }
@@ -143,7 +145,7 @@ class ResendEmailService {
    */
   async sendEmailVerification(userData, verificationToken) {
     const { email, name } = userData;
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${this.frontendUrl}/verify-email?token=${verificationToken}`;
 
     const subject = 'Verify Your Email - PashuMitra Portal';
     const htmlContent = `

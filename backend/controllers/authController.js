@@ -1,118 +1,37 @@
 const crypto = require('crypto');
 const User = require('../models/User');
 const logger = require('../utils/logger');
-const emailService = require('../services/emailService');
+const emailManager = require('../services/emailManager');
 
-// Send verification email function
+// Send verification email function using new email manager
 const sendVerificationEmail = async (user, verificationToken, req) => {
   try {
-    const resetUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+    logger.info(`📧 Attempting to send verification email to: ${user.email}`);
     
-    const message = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #27ae60; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
-          <h2 style="margin: 0;">🎉 Welcome to PashuMitra Portal!</h2>
-        </div>
-        
-        <div style="border: 1px solid #ddd; border-top: none; padding: 30px; border-radius: 0 0 8px 8px;">
-          <p>Dear ${user.name},</p>
-          
-          <p>Thank you for registering with PashuMitra Portal - Your Partner in Farm Protection! 🐄</p>
-          
-          <p>To complete your registration and access all features, please verify your email address by clicking the button below:</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" 
-               style="background-color: #27ae60; color: white; padding: 15px 35px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
-              ✅ Verify Email Address
-            </a>
-          </div>
-          
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #2c3e50; margin-top: 0;">What's waiting for you:</h3>
-            <ul style="color: #555; line-height: 1.6;">
-              <li>🚨 Report livestock health alerts instantly</li>
-              <li>🗺️ Access real-time disease outbreak maps</li>
-              <li>👨‍⚕️ Connect with verified veterinarians</li>
-              <li>📊 View personalized farm health dashboard</li>
-              <li>💬 Get expert support for your livestock</li>
-            </ul>
-          </div>
-          
-          <div style="border-left: 4px solid #3498db; padding: 15px; background-color: #f0f8ff; margin: 20px 0;">
-            <p style="margin: 0; color: #2c3e50;"><strong>Can't click the button?</strong></p>
-            <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Copy and paste this URL into your browser:</p>
-            <p style="word-break: break-all; color: #3498db; font-size: 14px; margin: 10px 0 0 0;">${resetUrl}</p>
-          </div>
-          
-          <div style="background-color: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #ffc107;">
-            <p style="margin: 0; color: #856404;"><strong>⏰ Important:</strong> This verification link will expire in 24 hours for security reasons.</p>
-          </div>
-          
-          <div style="border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px; color: #666; font-size: 14px;">
-            <p>If you didn't create an account with PashuMitra Portal, please ignore this email.</p>
-            <p>Need help? Contact our support team at <a href="mailto:team.pashumitra@gmail.com">team.pashumitra@gmail.com</a></p>
-            <p>Best regards,<br><strong>The PashuMitra Team</strong> 🌾</p>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // Use Gmail SMTP for verification email (temporary)
-    try {
-      const nodemailer = require('nodemailer');
-      
-      // Create Gmail transporter using env variables
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: process.env.SMTP_PORT || 587,
-        secure: false,
-        auth: {
-          user: process.env.SMTP_EMAIL || 'your-email@gmail.com',
-          pass: process.env.SMTP_PASSWORD || 'your-app-password'
-        }
+    const result = await emailManager.sendVerificationEmail(user, verificationToken);
+    
+    if (result.success) {
+      logger.info(`✅ Verification email sent successfully to: ${user.email}`, {
+        messageId: result.messageId,
+        service: result.service
       });
-      
-      const mailOptions = {
-        from: `PashuMitra Portal <${process.env.SMTP_EMAIL}>`,
-        to: user.email,
-        subject: 'Verify Your Email - PashuMitra Portal',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #FF7F50, #FF6A35); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-              <h2>🎉 Welcome to PashuMitra Portal!</h2>
-            </div>
-            <div style="background: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px;">
-              <p>Dear ${user.name},</p>
-              <p>Thank you for registering with PashuMitra Portal! Please verify your email address by clicking the button below:</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${process.env.FRONTEND_URL}/verify-email/${verificationToken}" 
-                   style="background-color: #FF7F50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
-                  ✅ Verify Email Address
-                </a>
-              </div>
-              <p style="color: #666; font-size: 14px;">This link will expire in 24 hours for security.</p>
-            </div>
-          </div>
-        `
-      };
-      
-      await transporter.sendMail(mailOptions);
-      logger.info(`Verification email sent successfully via Gmail to: ${user.email}`);
-    } catch (emailError) {
-      logger.error(`Failed to send verification email to ${user.email}:`, {
-        error: emailError.message,
-        code: emailError.code,
-        command: emailError.command,
-        response: emailError.response
+    } else {
+      logger.error(`❌ Failed to send verification email to: ${user.email}`, {
+        error: result.error,
+        service: result.service
       });
-      console.error('Full Gmail error details:', emailError);
-      // Don't fail registration if email fails
     }
     
-    logger.info(`Verification email sent to: ${user.email}`);
+    return result;
   } catch (error) {
-    logger.error(`Failed to send verification email to ${user.email}:`, error.message);
+    logger.error(`💥 Verification email error for ${user.email}:`, {
+      error: error.message,
+      stack: error.stack
+    });
+    return {
+      success: false,
+      error: error.message
+    };
   }
 };
 
