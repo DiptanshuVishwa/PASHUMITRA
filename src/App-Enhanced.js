@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
-import { LanguageProvider } from './context/LanguageContext';
+import { LanguageProvider } from './context/EnhancedLanguageContext'; // Use enhanced version
+import { Toaster } from 'react-hot-toast'; // Add this import
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import LanguageLoadingModal from './components/LanguageLoadingModal';
+import LanguageLoadingModal from './components/LanguageLoadingModal'; // Add this import
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
-import Auth from './components/EnhancedAuth';
+import Auth from './pages/Auth';
 import Questionnaire from './pages/Questionnaire';
 import WarningPage from './pages/WarningPage';
 import CompliancePage from './pages/CompliancePage';
@@ -21,8 +21,6 @@ import FarmManagementPage from './pages/FarmManagementPage';
 import WeatherDashboard from './pages/WeatherDashboard';
 import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 import GoogleAuthFailure from './pages/GoogleAuthFailure';
-import EmailVerification from './components/EmailVerification';
-import TestModal from './pages/TestModal';
 import {
   Learning,
   Privacy,
@@ -35,7 +33,7 @@ import './App.css';
 
 function App() {
   return (
-    <LanguageProvider>
+    <LanguageProvider> {/* Use Enhanced Language Provider */}
       <AuthProvider>
         <Router>
           <div className="App">
@@ -44,7 +42,6 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/verify-email/:token" element={<EmailVerification />} />
                 <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
                 <Route path="/auth/google/failure" element={<GoogleAuthFailure />} />
                 <Route path="/questionnaire" element={<Questionnaire />} />
@@ -64,7 +61,6 @@ function App() {
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/contact-vet" element={<ContactVet />} />
                 <Route path="/contact-us" element={<ContactUs />} />
-                <Route path="/test-modal" element={<TestModal />} />
               </Routes>
             </main>
             <Footer />

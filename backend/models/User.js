@@ -224,7 +224,12 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  lockUntil: Date
+  lockUntil: Date,
+  isNewGoogleUser: {
+    type: Boolean,
+    default: false,
+    select: false // Don't include in queries by default
+  }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

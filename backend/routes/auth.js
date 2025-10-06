@@ -13,6 +13,14 @@ const {
   logout
 } = require('../controllers/authController');
 
+const {
+  requireEmailVerification,
+  warnEmailVerification,
+  checkEmailVerificationStatus,
+  refreshVerificationStatus,
+  getVerificationStatistics
+} = require('../middleware/emailVerification');
+
 const { protect, authRateLimit, logActivity } = require('../middleware/auth');
 const {
   validateRegister,
@@ -450,6 +458,88 @@ router.post('/logout',
   logout
 );
 
+/**
+ * @swagger
+ * /api/auth/email-verification/status:
+ *   get:
+ *     summary: Check email verification status
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Email verification status retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                     isVerified:
+ *                       type: boolean
+ *                     hasPendingVerification:
+ *                       type: boolean
+ *                     verificationTokenExpiry:
+ *                       type: string
+ *                       format: date-time
+ *                     canResendVerification:
+ *                       type: boolean
+ *       401:
+ *         description: Authentication required
+ */
+router.get('/email-verification/status',
+  protect,
+  refreshVerificationStatus,
+  checkEmailVerificationStatus
+);
+
+/**
+ * @swagger
+ * /api/auth/email-verification/statistics:
+ *   get:
+ *     summary: Get email verification statistics (Admin only)
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Verification statistics retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalUsers:
+ *                       type: number
+ *                     verifiedUsers:
+ *                       type: number
+ *                     unverifiedUsers:
+ *                       type: number
+ *                     verificationRate:
+ *                       type: number
+ *                     pendingVerification:
+ *                       type: number
+ *                     expiredTokens:
+ *                       type: number
+ *       403:
+ *         description: Admin access required
+ */
+router.get('/email-verification/statistics',
+  protect,
+  getVerificationStatistics
+);
+
 // Google OAuth routes
 const passport = require('../config/passport');
 
@@ -517,15 +607,28 @@ router.get('/google/callback', (req, res, next) => {
     // Continue with success handling
     (async () => {
       try {
+        // Fetch user with isNewGoogleUser field
+        const userWithNewUserFlag = await require('../models/User').findById(req.user._id).select('+isNewGoogleUser');
+        
         // Generate JWT token for the user
         const token = req.user.getSignedJwtToken();
         
         // Update last login
         await req.user.updateLastLogin();
         
-        // Redirect to frontend with token
+        // Check if this is a new user via Google OAuth
+        const isNewUser = userWithNewUserFlag.isNewGoogleUser === true;
+        
+        // Clear the flag after first use
+        if (isNewUser) {
+          userWithNewUserFlag.isNewGoogleUser = false;
+          await userWithNewUserFlag.save();
+        }
+        
+        // Redirect to frontend with token and new user flag
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-        res.redirect(`${frontendUrl}/auth/google/success?token=${token}`);
+        const redirectUrl = `${frontendUrl}/auth/google/success?token=${token}${isNewUser ? '&newUser=true' : ''}`;
+        res.redirect(redirectUrl);
       } catch (error) {
         logger.error('Google callback error:', error);
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';

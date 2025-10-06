@@ -146,10 +146,9 @@ const initializeEnhancedI18n = () => {
     hi: { translation: hiTranslations }
   };
 
-  // Add proxy resources for other languages
+  // Add proxy resources for the 9 specified Indian languages
   const supportedLanguages = [
-    'bn', 'te', 'mr', 'ta', 'gu', 'kn', 'ml', 'pa', 'or', 'as', 'ur', 'ne',
-    'kok', 'mni', 'sd', 'mai', 'brx', 'sat', 'doi', 'ks', 'gom', 'san'
+    'bn', 'ta', 'te', 'mr', 'gu', 'kn', 'ml', 'pa'
   ];
 
   supportedLanguages.forEach(lang => {

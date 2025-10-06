@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import jsPDF from 'jspdf';
+import { useLanguage } from '../context/LanguageContext';
+import { getTranslation } from '../utils/translations';
 import {
   FiUpload,
   FiCheckCircle,
@@ -283,6 +285,11 @@ const ActionButton = styled(motion.button)`
 `;
 
 const CompliancePage = () => {
+  const { currentLanguage } = useLanguage();
+  
+  // Translation function
+  const t = (text) => getTranslation(text, currentLanguage);
+  
   const [questionnaireData, setQuestionnaireData] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -291,26 +298,26 @@ const CompliancePage = () => {
   const questions = [
     {
       id: 1,
-      question: "Do you have Disease-Free Compartment Recognition (DoAH&D)?",
+      question: t("Do you have Disease-Free Compartment Recognition (DoAH&D)?"),
       options: [
-        { value: "yes", text: "Yes", description: "I have valid DoAH&D recognition" },
-        { value: "no", text: "No", description: "I do not have DoAH&D recognition" }
+        { value: "yes", text: t("Yes"), description: t("I have valid DoAH&D recognition") },
+        { value: "no", text: t("No"), description: t("I do not have DoAH&D recognition") }
       ]
     },
     {
       id: 2,
-      question: "Do you have a valid FSSAI License (if your farm products enter the food chain)?",
+      question: t("Do you have a valid FSSAI License (if your farm products enter the food chain)?"),
       options: [
-        { value: "yes", text: "Yes", description: "I have a valid FSSAI License" },
-        { value: "no", text: "No", description: "I do not have FSSAI License" }
+        { value: "yes", text: t("Yes"), description: t("I have a valid FSSAI License") },
+        { value: "no", text: t("No"), description: t("I do not have FSSAI License") }
       ]
     },
     {
       id: 3,
-      question: "Are you compliant with NADCP (National Animal Disease Control Programme) vaccination requirements?",
+      question: t("Are you compliant with NADCP (National Animal Disease Control Programme) vaccination requirements?"),
       options: [
-        { value: "yes", text: "Yes", description: "I am compliant with NADCP vaccination requirements" },
-        { value: "no", text: "No", description: "I am not compliant with NADCP requirements" }
+        { value: "yes", text: t("Yes"), description: t("I am compliant with NADCP vaccination requirements") },
+        { value: "no", text: t("No"), description: t("I am not compliant with NADCP requirements") }
       ]
     }
   ];
@@ -478,29 +485,28 @@ const CompliancePage = () => {
   const handleSubmit = () => {
     const score = calculateComplianceScore();
     if (hasAtLeastOneYes() && uploadedFiles.length > 0) {
-      alert(`Compliance assessment submitted successfully! Your compliance score: ${score}%`);
+      alert(`${t('Compliance assessment submitted successfully! Your compliance score')}: ${score}%`);
       // Generate and download certificate
       generateCertificatePDF();
     } else if (!hasAtLeastOneYes()) {
-      alert('You need to have at least one "Yes" answer to proceed with document upload and certification.');
+      alert(t('You need to have at least one "Yes" answer to proceed with document upload and certification.'));
     } else {
-      alert('Please upload supporting documents before submitting.');
+      alert(t('Please upload supporting documents before submitting.'));
     }
     // Here you would typically send the data to your backend
   };
 
   const handleSaveDraft = () => {
-    alert('Progress saved as draft!');
+    alert(t('Progress saved as draft!'));
     // Save to localStorage or backend
   };
 
   return (
     <ComplianceContainer>
       <Header>
-        <h1>Compliance Certification</h1>
+        <h1>{t('Compliance Certification')}</h1>
         <p>
-          Complete your biosecurity compliance assessment and upload required documentation
-          to obtain your farm certification.
+          {t('Complete your biosecurity compliance assessment and upload required documentation to obtain your farm certification.')}
         </p>
       </Header>
 
@@ -512,9 +518,9 @@ const CompliancePage = () => {
       >
           <QuestionnaireSection>
             <div style={{ marginBottom: '30px', textAlign: 'center' }}>
-              <h3>Biosecurity Compliance Assessment</h3>
+              <h3>{t('Biosecurity Compliance Assessment')}</h3>
               <p style={{ color: '#666', marginBottom: '20px' }}>
-                Progress: {Object.keys(questionnaireData).length} / {questions.length} questions completed
+                {t('Progress')}: {Object.keys(questionnaireData).length} / {questions.length} {t('questions completed')}
               </p>
               <ProgressBar progress={(Object.keys(questionnaireData).length / questions.length) * 100}>
                 <div className="progress" />
@@ -553,13 +559,13 @@ const CompliancePage = () => {
               }}>
                 <FiCheckCircle style={{ fontSize: '32px', color: 'var(--primary-coral)', marginBottom: '12px' }} />
                 <h3 style={{ color: 'var(--dark-gray)', marginBottom: '8px' }}>
-                  Questionnaire Complete!
+                  {t('Questionnaire Complete!')}
                 </h3>
                 <p style={{ color: '#666' }}>
-                  Your estimated compliance score: <strong>{calculateComplianceScore()}%</strong>
+                  {t('Your estimated compliance score')}: <strong>{calculateComplianceScore()}%</strong>
                 </p>
                 <p style={{ color: 'var(--primary-coral)', fontWeight: '600', marginTop: '12px' }}>
-                  You can now proceed to upload supporting documents.
+                  {t('You can now proceed to upload supporting documents.')}
                 </p>
               </div>
             )}
@@ -574,13 +580,13 @@ const CompliancePage = () => {
               }}>
                 <FiAlertCircle style={{ fontSize: '32px', color: '#dc3545', marginBottom: '12px' }} />
                 <h3 style={{ color: 'var(--dark-gray)', marginBottom: '8px' }}>
-                  Questionnaire Complete
+                  {t('Questionnaire Complete')}
                 </h3>
                 <p style={{ color: '#666' }}>
-                  Your compliance score: <strong>{calculateComplianceScore()}%</strong>
+                  {t('Your compliance score')}: <strong>{calculateComplianceScore()}%</strong>
                 </p>
                 <p style={{ color: '#dc3545', fontWeight: '600', marginTop: '12px' }}>
-                  You need at least one "Yes" answer to proceed with document upload and certification.
+                  {t('You need at least one "Yes" answer to proceed with document upload and certification.')}
                 </p>
               </div>
             )}
@@ -607,16 +613,16 @@ const CompliancePage = () => {
                   gap: '12px'
                 }}>
                   <FiUpload style={{ color: 'var(--primary-coral)' }} />
-                  Document Upload Section
+                  {t('Document Upload Section')}
                 </h2>
                 <p style={{ color: '#666', fontSize: '1.1rem' }}>
-                  Upload your supporting documents to complete the compliance certification
+                  {t('Upload your supporting documents to complete the compliance certification')}
                 </p>
               </div>
           <DocumentUploadSection>
-            <h3 style={{ marginBottom: '20px', textAlign: 'center' }}>Upload Required Documents</h3>
+            <h3 style={{ marginBottom: '20px', textAlign: 'center' }}>{t('Upload Required Documents')}</h3>
             <p style={{ color: '#666', textAlign: 'center', marginBottom: '30px' }}>
-              Please upload the following documents for compliance verification:
+              {t('Please upload the following documents for compliance verification:')}
             </p>
 
             <div 
@@ -628,10 +634,10 @@ const CompliancePage = () => {
             >
               <FiUpload className="upload-icon" />
               <div className="upload-text">
-                Drag & drop files here or click to browse
+                {t('Drag & drop files here or click to browse')}
               </div>
               <div className="upload-hint">
-                Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB per file)
+                {t('Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB per file)')}
               </div>
               <input
                 id="file-input"
@@ -660,14 +666,14 @@ const CompliancePage = () => {
                   </div>
                   <div className="file-actions">
                     {file.uploaded && (
-                      <button className="download" title="Download">
+                      <button className="download" title={t('Download')}>
                         <FiDownload />
                       </button>
                     )}
                     <button 
                       className="remove" 
                       onClick={() => removeFile(file.id)}
-                      title="Remove"
+                      title={t('Remove')}
                     >
                       <FiX />
                     </button>
@@ -683,15 +689,15 @@ const CompliancePage = () => {
               marginTop: '30px'
             }}>
               <h4 style={{ color: 'var(--dark-gray)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FiAlertCircle /> Required Documents Checklist:
+                <FiAlertCircle /> {t('Required Documents Checklist:')}
               </h4>
               <ul style={{ color: '#666', lineHeight: '1.8', paddingLeft: '20px' }}>
-                {questionnaireData[1] === 'yes' && <li>Disease-Free Compartment Recognition Certificate (DoAH&D)</li>}
-                {questionnaireData[2] === 'yes' && <li>Valid FSSAI License Certificate</li>}
-                {questionnaireData[3] === 'yes' && <li>NADCP Vaccination Compliance Records</li>}
-                <li>Supporting documentation for checked compliance areas</li>
-                <li>Farm registration certificate</li>
-                <li>Any additional relevant certificates</li>
+                {questionnaireData[1] === 'yes' && <li>{t('Disease-Free Compartment Recognition Certificate (DoAH&D)')}</li>}
+                {questionnaireData[2] === 'yes' && <li>{t('Valid FSSAI License Certificate')}</li>}
+                {questionnaireData[3] === 'yes' && <li>{t('NADCP Vaccination Compliance Records')}</li>}
+                <li>{t('Supporting documentation for checked compliance areas')}</li>
+                <li>{t('Farm registration certificate')}</li>
+                <li>{t('Any additional relevant certificates')}</li>
               </ul>
             </div>
           </DocumentUploadSection>
@@ -706,7 +712,7 @@ const CompliancePage = () => {
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
         >
-          <FiSave /> Save Draft
+          <FiSave /> {t('Save Draft')}
         </ActionButton>
         
         {hasAtLeastOneYes() && isQuestionnaireComplete() && (
@@ -716,7 +722,7 @@ const CompliancePage = () => {
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            <FiUpload /> Upload Documents
+            <FiUpload /> {t('Upload Documents')}
           </ActionButton>
         )}
         
@@ -727,7 +733,7 @@ const CompliancePage = () => {
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            <FiAward /> Generate Certificate
+            <FiAward /> {t('Generate Certificate')}
           </ActionButton>
         )}
         
@@ -740,10 +746,10 @@ const CompliancePage = () => {
         >
           <FiSend /> 
           {!hasAtLeastOneYes() 
-            ? 'Complete Questionnaire' 
+            ? t('Complete Questionnaire') 
             : uploadedFiles.length === 0 
-            ? 'Upload Documents First'
-            : 'Submit for Certification'
+            ? t('Upload Documents First')
+            : t('Submit for Certification')
           }
         </ActionButton>
       </ActionButtons>

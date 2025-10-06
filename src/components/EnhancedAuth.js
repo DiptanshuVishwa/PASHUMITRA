@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { FiGlobe, FiLoader } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import VerificationModal from './VerificationModal';
 import FormInput from './form/FormInput';
 import {
   validateEmail,
@@ -194,14 +193,12 @@ const ForgotPasswordLink = styled.button`
 `;
 
 const EnhancedAuth = () => {
-  const { login, register, forgotPassword, resendVerification, isAuthenticated } = useAuth();
+  const { login, register, forgotPassword, isAuthenticated } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState('');
 
   // Form validation setup
   const initialData = {
@@ -288,54 +285,26 @@ const EnhancedAuth = () => {
   const validateAllFields = () => {
     const fields = isLogin ? ['email', 'password'] : ['email', 'password', 'confirmPassword', 'firstName', 'lastName', 'phone', 'farmLocation'];
     let isValid = true;
-    const errors = {};
     
     fields.forEach(field => {
       validateField(field, formData[field]);
+      if (validationErrors[field]?.errors?.length > 0) {
+        isValid = false;
+      }
     });
     
-    // Check validation errors after validation is done
-    setTimeout(() => {
-      fields.forEach(field => {
-        if (validationErrors[field]?.errors?.length > 0) {
-          console.log(`❌ Field ${field} has errors:`, validationErrors[field].errors);
-          isValid = false;
-        }
-      });
-    }, 100);
-    
-    // For now, let's do a simple validation check
-    if (!isLogin) {
-      if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword || !formData.phone || !formData.farmLocation) {
-        console.log('❌ Required fields missing');
-        return false;
-      }
-      if (formData.password !== formData.confirmPassword) {
-        console.log('❌ Passwords do not match');
-        return false;
-      }
-    } else {
-      if (!formData.email || !formData.password) {
-        console.log('❌ Login fields missing');
-        return false;
-      }
-    }
-    
-    return true;
+    return isValid;
   };
 
   // Get password strength for display
   const passwordValidation = validatePassword(formData.password, !isLogin);
 
   useEffect(() => {
-    console.log('🔍 useEffect triggered - isAuthenticated:', isAuthenticated);
     if (isAuthenticated) {
       const searchParams = new URLSearchParams(location.search);
       const redirectTo = searchParams.get('redirect') || '/';
       console.log('🔄 Already authenticated, redirecting to:', redirectTo);
       navigate(redirectTo);
-    } else {
-      console.log('🔍 User not authenticated, staying on auth page');
     }
   }, [isAuthenticated, navigate, location]);
 
@@ -357,21 +326,11 @@ const EnhancedAuth = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    console.log('🔍 Form submitted:', { formData, isLogin });
-    
     // Validate entire form
-    const isValid = validateAllFields();
-    console.log('🔍 Form validation result:', isValid);
-    console.log('🔍 Validation errors:', validationErrors);
-    
-    if (!isValid) {
-      console.log('❌ Form validation failed');
+    if (!validateAllFields()) {
       toast.error('Please fix the errors below');
       return;
     }
-    
-    console.log('✅ Form validation passed, proceeding with auth...');
-    
 
     setIsSubmitting(true);
 
@@ -387,70 +346,29 @@ const EnhancedAuth = () => {
         })
       };
 
-      console.log('🗘️ About to call auth function:', { isLogin, userData: {...userData, password: '***'} });
-
       const result = isLogin 
         ? await login(userData)
         : await register(userData);
-        
-      console.log('🔍 Raw auth result in component:', result);
 
-      console.log('🔍 Auth result:', result);
-      
       if (result.success) {
+        toast.success(isLogin ? 'Login successful!' : 'Registration successful!');
+        
+        const searchParams = new URLSearchParams(location.search);
+        let redirectTo;
+        
         if (isLogin) {
-          console.log('✅ Login successful');
-          toast.success('Login successful!');
-          
-          const searchParams = new URLSearchParams(location.search);
-          const redirectTo = searchParams.get('redirect') || '/';
-          
-          setTimeout(() => {
-            navigate(redirectTo);
-          }, 1500);
+          // For existing users logging in, use redirect parameter or default to landing page
+          redirectTo = searchParams.get('redirect') || '/';
         } else {
-          // Registration flow
-          if (result.requiresVerification) {
-            console.log('✅ Registration successful, requires verification - showing modal');
-            console.log('📧 Registered email:', formData.email);
-            console.log('🔍 Current modal state before change:', showVerificationModal);
-            
-            // Show verification modal
-            setRegisteredEmail(formData.email);
-            console.log('🔍 Setting registered email to:', formData.email);
-            
-            setShowVerificationModal(true);
-            console.log('🔍 Setting modal state to: true');
-            
-            // Double-check state after a brief delay
-            setTimeout(() => {
-              console.log('🔍 Modal state after timeout:', showVerificationModal);
-              console.log('🔍 Registered email after timeout:', registeredEmail);
-            }, 100);
-            
-            // Show success toast
-            toast.success('Registration successful! Please verify your email.', {
-              duration: 5000,
-              position: 'top-center'
-            });
-            
-            // IMPORTANT: Return early to prevent any further execution
-            return;
-          } else {
-            // Registration with immediate login (shouldn't happen now)
-            console.log('✅ Registration successful with auto-login');
-            toast.success('Registration successful!');
-            
-            const searchParams = new URLSearchParams(location.search);
-            const redirectTo = searchParams.get('redirect') || '/';
-            
-            setTimeout(() => {
-              navigate(redirectTo);
-            }, 1500);
-          }
+          // For new user registration, always redirect to questionnaire page
+          // This helps onboard new users by collecting their information
+          redirectTo = '/questionnaire';
         }
+        
+        setTimeout(() => {
+          navigate(redirectTo);
+        }, 1500);
       } else {
-        console.log('❌ Auth failed:', result.error);
         toast.error(result.error || 'Authentication failed');
       }
     } catch (error) {
@@ -487,27 +405,6 @@ const EnhancedAuth = () => {
     }
   };
 
-  const handleResendVerification = async () => {
-    setIsSubmitting(true);
-
-    try {
-      const result = await resendVerification(registeredEmail);
-      
-      if (result.success) {
-        toast.success('Verification email sent! Please check your inbox.', {
-          duration: 5000,
-          position: 'top-center',
-        });
-      } else {
-        toast.error(result.error || 'Failed to send verification email');
-      }
-    } catch (error) {
-      toast.error('Failed to send verification email. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const stateOptions = [
     { value: 'Andhra Pradesh', label: 'Andhra Pradesh' },
     { value: 'Karnataka', label: 'Karnataka' },
@@ -515,7 +412,6 @@ const EnhancedAuth = () => {
     { value: 'Tamil Nadu', label: 'Tamil Nadu' },
     { value: 'Telangana', label: 'Telangana' }
   ];
-
 
   if (showForgotPassword) {
     return (
@@ -536,11 +432,11 @@ const EnhancedAuth = () => {
               label="Email Address"
               name="email"
               value={formData.email}
-              onChange={handleInputChange}
-              onBlur={handleInputBlur}
+              onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Enter your email"
               required
-              error={validationErrors.email?.errors}
+              error={errors.email?.errors}
               disabled={isSubmitting}
             />
 
@@ -638,11 +534,11 @@ const EnhancedAuth = () => {
                 label="Password"
                 name="password"
                 value={formData.password}
-                onChange={handleInputChange}
+onChange={handleInputChange}
                 onBlur={handleInputBlur}
                 placeholder="Enter your password"
                 required
-                error={validationErrors.password?.errors}
+                error={errors.password?.errors}
                 disabled={isSubmitting}
               />
 
@@ -661,11 +557,11 @@ const EnhancedAuth = () => {
                 label="First Name"
                 name="firstName"
                 value={formData.firstName}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="First name"
                 required
-                error={validationErrors.firstName?.errors}
+                error={errors.firstName?.errors}
                 disabled={isSubmitting}
                 maxLength={50}
               />
@@ -675,11 +571,11 @@ const EnhancedAuth = () => {
                 label="Last Name"
                 name="lastName"
                 value={formData.lastName}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Last name"
                 required
-                error={validationErrors.lastName?.errors}
+                error={errors.lastName?.errors}
                 disabled={isSubmitting}
                 maxLength={50}
               />
@@ -689,11 +585,11 @@ const EnhancedAuth = () => {
                 label="Email Address"
                 name="email"
                 value={formData.email}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Enter your email"
                 required
-                error={validationErrors.email?.errors}
+                error={errors.email?.errors}
                 disabled={isSubmitting}
                 className="full-width"
               />
@@ -703,11 +599,11 @@ const EnhancedAuth = () => {
                 label="Phone Number"
                 name="phone"
                 value={formData.phone}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="+91 98765 43210"
                 required
-                error={validationErrors.phone?.errors}
+                error={errors.phone?.errors}
                 disabled={isSubmitting}
                 className="full-width"
               />
@@ -717,11 +613,11 @@ const EnhancedAuth = () => {
                 label="Farm Location"
                 name="farmLocation"
                 value={formData.farmLocation}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Enter your farm location"
                 required
-                error={validationErrors.farmLocation?.errors}
+                error={errors.farmLocation?.errors}
                 disabled={isSubmitting}
                 className="full-width"
                 maxLength={100}
@@ -732,11 +628,11 @@ const EnhancedAuth = () => {
                 label="Password"
                 name="password"
                 value={formData.password}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Create a strong password"
                 required
-                error={validationErrors.password?.errors}
+                error={errors.password?.errors}
                 warning={passwordValidation.warnings}
                 showPasswordStrength={true}
                 passwordStrength={passwordValidation}
@@ -749,11 +645,11 @@ const EnhancedAuth = () => {
                 label="Confirm Password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Confirm your password"
                 required
-                error={validationErrors.confirmPassword?.errors}
+                error={errors.confirmPassword?.errors}
                 success={formData.confirmPassword && formData.password === formData.confirmPassword ? 'Passwords match' : null}
                 disabled={isSubmitting}
                 className="full-width"
@@ -788,16 +684,6 @@ const EnhancedAuth = () => {
           </SwitchText>
         </form>
       </AuthCard>
-      
-      {/* Verification Modal */}
-      <VerificationModal 
-        isOpen={showVerificationModal}
-        userEmail={registeredEmail}
-        onClose={() => {
-          console.log('🔍 Closing verification modal');
-          setShowVerificationModal(false);
-        }}
-      />
     </AuthContainer>
   );
 };

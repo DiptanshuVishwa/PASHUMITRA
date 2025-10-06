@@ -68,25 +68,21 @@ export const LanguageProvider = ({ children }) => {
       setLoadingMessage(`Warming up ${SUPPORTED_LANGUAGES.find(l => l.code === languageCode)?.name} translation models...`);
       setLoadingProgress(30);
 
-      // Preload essential UI texts (smaller batch for better reliability)
+      // Preload common UI texts
       const commonTexts = [
+        "Welcome to PashuMitra Portal",
         "Dashboard", 
+        "Alerts",
         "Profile",
         "Settings",
         "Loading...",
-        "Save"
+        "Save",
+        "Cancel",
+        "Submit"
       ];
 
       setLoadingProgress(60);
-      // Use individual translations instead of batch to avoid timeout
-      for (const text of commonTexts) {
-        try {
-          await aiTranslationService.translateText(text, languageCode);
-        } catch (error) {
-          console.warn(`Failed to preload "${text}":`, error);
-          // Continue with other texts even if one fails
-        }
-      }
+      await aiTranslationService.translateBatch(commonTexts, languageCode);
       
       setLoadingProgress(90);
       
@@ -98,9 +94,7 @@ export const LanguageProvider = ({ children }) => {
       
     } catch (error) {
       console.warn(`⚠️ Failed to preload ${languageCode}:`, error);
-      // Mark language as warm anyway so it doesn't keep trying
-      setWarmLanguages(prev => new Set([...prev, languageCode]));
-      showError(`Translation models loaded but some features may take longer. ${languageCode} is ready to use.`);
+      showError(`Failed to prepare ${languageCode} translation. Using fallback.`);
     }
   }, [warmLanguages]);
 

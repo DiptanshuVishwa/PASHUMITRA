@@ -44,6 +44,7 @@ if (process.env.GOOGLE_CLIENT_ID &&
 
             // Check if user already exists with this Google ID
             let user = await User.findOne({ googleId: profile.id });
+            let isNewUser = false;
             
             if (user) {
               logger.info('Existing Google user found:', user.email);
@@ -76,7 +77,8 @@ if (process.env.GOOGLE_CLIENT_ID &&
               role: 'user',
               provider: 'google',
               farmLocation: '', // Will be filled later by user
-              phone: '' // Will be filled later by user
+              phone: '', // Will be filled later by user
+              isNewGoogleUser: true // Flag to indicate this is a new user via Google
             });
 
             logger.info('New Google user created:', newUser.email);
