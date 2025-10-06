@@ -144,6 +144,18 @@ export const authAPI = {
       confirmPassword: newPassword 
     });
     return response.data;
+  },
+  
+  // Verify email
+  verifyEmail: async (token) => {
+    const response = await api.post('/auth/verify-email', { token });
+    return response.data;
+  },
+  
+  // Resend verification email
+  resendVerification: async (email) => {
+    const response = await api.post('/auth/resend-verification', { email });
+    return response.data;
   }
 };
 

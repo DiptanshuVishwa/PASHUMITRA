@@ -6,7 +6,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
-import Auth from './pages/Auth';
+import Auth from './components/EnhancedAuth';
 import Questionnaire from './pages/Questionnaire';
 import WarningPage from './pages/WarningPage';
 import CompliancePage from './pages/CompliancePage';
@@ -19,6 +19,8 @@ import FarmManagementPage from './pages/FarmManagementPage';
 import WeatherDashboard from './pages/WeatherDashboard';
 import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 import GoogleAuthFailure from './pages/GoogleAuthFailure';
+import EmailVerification from './components/EmailVerification';
+import TestModal from './pages/TestModal';
 import {
   Learning,
   Privacy,
@@ -40,6 +42,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/verify-email/:token" element={<EmailVerification />} />
                 <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
                 <Route path="/auth/google/failure" element={<GoogleAuthFailure />} />
                 <Route path="/questionnaire" element={<Questionnaire />} />
@@ -59,6 +62,7 @@ function App() {
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/contact-vet" element={<ContactVet />} />
                 <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/test-modal" element={<TestModal />} />
               </Routes>
             </main>
             <Footer />

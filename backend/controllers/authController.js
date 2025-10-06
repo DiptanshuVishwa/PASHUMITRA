@@ -58,15 +58,55 @@ const sendVerificationEmail = async (user, verificationToken, req) => {
       </div>
     `;
 
-    // Use AWS SES email service for verification email
+    // Use Gmail SMTP for verification email (temporary)
     try {
-      await emailService.sendEmailVerification(
-        { email: user.email, name: user.name },
-        verificationToken
-      );
-      logger.info(`Verification email sent successfully to: ${user.email}`);
+      const nodemailer = require('nodemailer');
+      
+      // Create Gmail transporter using env variables
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: process.env.SMTP_PORT || 587,
+        secure: false,
+        auth: {
+          user: process.env.SMTP_EMAIL || 'your-email@gmail.com',
+          pass: process.env.SMTP_PASSWORD || 'your-app-password'
+        }
+      });
+      
+      const mailOptions = {
+        from: `PashuMitra Portal <${process.env.SMTP_EMAIL}>`,
+        to: user.email,
+        subject: 'Verify Your Email - PashuMitra Portal',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #FF7F50, #FF6A35); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+              <h2>🎉 Welcome to PashuMitra Portal!</h2>
+            </div>
+            <div style="background: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px;">
+              <p>Dear ${user.name},</p>
+              <p>Thank you for registering with PashuMitra Portal! Please verify your email address by clicking the button below:</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${process.env.FRONTEND_URL}/verify-email/${verificationToken}" 
+                   style="background-color: #FF7F50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+                  ✅ Verify Email Address
+                </a>
+              </div>
+              <p style="color: #666; font-size: 14px;">This link will expire in 24 hours for security.</p>
+            </div>
+          </div>
+        `
+      };
+      
+      await transporter.sendMail(mailOptions);
+      logger.info(`Verification email sent successfully via Gmail to: ${user.email}`);
     } catch (emailError) {
-      logger.error(`Failed to send verification email to ${user.email}:`, emailError.message);
+      logger.error(`Failed to send verification email to ${user.email}:`, {
+        error: emailError.message,
+        code: emailError.code,
+        command: emailError.command,
+        response: emailError.response
+      });
+      console.error('Full Gmail error details:', emailError);
       // Don't fail registration if email fails
     }
     
@@ -81,11 +121,22 @@ const sendVerificationEmail = async (user, verificationToken, req) => {
 // @access  Public
 const register = async (req, res) => {
   try {
+    console.log('🔍 Registration attempt:', { body: req.body });
     const { name, email, password, phone, role, location } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      console.log('❌ Missing required fields:', { name: !!name, email: !!email, password: !!password });
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email, and password are required'
+      });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('❌ User already exists:', email);
       return res.status(400).json({
         success: false,
         message: 'User with this email already exists'
@@ -117,28 +168,33 @@ const register = async (req, res) => {
       logger.error('Failed to send verification email:', error.message);
     });
 
-    // Create token
-    const token = user.getSignedJwtToken();
-
-    // Remove password from response
+    // Remove password and sensitive data from response
     const userResponse = { ...user.toObject() };
     delete userResponse.password;
     delete userResponse.emailVerificationToken;
     delete userResponse.resetPasswordToken;
 
+    // DON'T return a token until email is verified
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. Please check your email to verify your account.',
-      token,
+      message: 'Registration successful! Please check your email to verify your account before logging in.',
+      requiresVerification: true,
       data: {
-        user: userResponse
+        user: {
+          id: userResponse._id,
+          name: userResponse.name,
+          email: userResponse.email,
+          emailVerified: userResponse.emailVerified
+        }
       }
     });
   } catch (error) {
+    console.error('❌ Registration error details:', error);
     logger.error('Registration failed:', {
       error: error.message,
       email: req.body.email,
-      ip: req.ip
+      ip: req.ip,
+      stack: error.stack
     });
 
     res.status(500).json({
@@ -495,6 +551,30 @@ const verifyEmail = async (req, res) => {
       .update(token)
       .digest('hex');
 
+    // First, check if there's a user with this token regardless of expiration
+    const userWithToken = await User.findOne({ emailVerificationToken });
+    
+    if (!userWithToken) {
+      // Check if there's an already verified user to provide better error message
+      const existingUser = await User.findOne({ emailVerified: true });
+      if (existingUser) {
+        logger.info(`Verification attempt on already-verified or invalid token`, {
+          ip: req.ip,
+          token: token.slice(0, 8) + '...' // Log partial token for debugging
+        });
+        return res.status(400).json({
+          success: false,
+          message: 'This verification link has already been used or is invalid'
+        });
+      }
+      
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verification token'
+      });
+    }
+    
+    // Check if token is expired
     const user = await User.findOne({
       emailVerificationToken,
       emailVerificationExpire: { $gt: Date.now() }
@@ -503,7 +583,19 @@ const verifyEmail = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired verification token'
+        message: 'Verification token has expired'
+      });
+    }
+    
+    // Check if email is already verified
+    if (user.emailVerified) {
+      logger.info(`Attempt to verify already-verified email: ${user.email}`, {
+        userId: user._id,
+        ip: req.ip
+      });
+      return res.status(400).json({
+        success: false,
+        message: 'Your email has already been verified'
       });
     }
 
@@ -518,9 +610,25 @@ const verifyEmail = async (req, res) => {
       ip: req.ip
     });
 
+    // Generate JWT token to automatically log user in after verification
+    const jwtToken = user.getSignedJwtToken();
+
     res.status(200).json({
       success: true,
-      message: 'Email verified successfully'
+      message: 'Email verified successfully',
+      token: jwtToken,
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          emailVerified: user.emailVerified,
+          farmLocation: user.farmLocation,
+          createdAt: user.createdAt
+        }
+      }
     });
   } catch (error) {
     logger.error('Email verification failed:', {

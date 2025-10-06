@@ -79,9 +79,14 @@ class EmailService {
     } catch (error) {
       logger.error('Error sending email:', {
         error: error.message,
+        errorCode: error.Code,
+        errorType: error.name,
         to: emailData.to,
-        subject: emailData.subject
+        subject: emailData.subject,
+        fromEmail: this.fromEmail
       });
+      
+      console.error('Full email error details:', error);
 
       return {
         success: false,
@@ -189,7 +194,7 @@ Made with ❤️ for Indian farmers and livestock owners`;
    */
   async sendEmailVerification(userData, verificationToken) {
     const { email, name } = userData;
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
     const subject = 'Verify Your Email - PashuMitra Portal';
     const htmlContent = `
