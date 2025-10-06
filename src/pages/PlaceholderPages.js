@@ -143,13 +143,25 @@ const VideoThumbnail = styled.div`
   position: relative;
   width: 100%;
   height: 200px;
-  background: ${props => `linear-gradient(45deg, var(--primary-coral), #FF6A35), url(${props.thumbnail})`};
+  background: linear-gradient(135deg, var(--primary-coral) 0%, #FF6A35 100%);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  overflow: hidden;
+  
+  .thumbnail-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
   
   .play-button {
     width: 60px;
@@ -162,6 +174,8 @@ const VideoThumbnail = styled.div`
     font-size: 24px;
     color: var(--primary-coral);
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
   }
   
   &:hover .play-button {
@@ -179,6 +193,7 @@ const VideoThumbnail = styled.div`
     border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
+    z-index: 10;
   }
 `;
 
@@ -319,6 +334,74 @@ const ResourceCard = styled(motion.div)`
   }
 `;
 
+// Utility function to generate YouTube thumbnail URLs with fallbacks
+const getYouTubeThumbnail = (videoId, quality = 'maxresdefault') => {
+  // YouTube thumbnail quality options:
+  // maxresdefault (1280x720) - Highest quality, may not exist for all videos
+  // hqdefault (480x360) - High quality, more reliable
+  // mqdefault (320x180) - Medium quality
+  // default (120x90) - Default quality
+  
+  const qualities = {
+    max: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+    high: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+    medium: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+    default: `https://img.youtube.com/vi/${videoId}/default.jpg`
+  };
+  
+  // Return high quality with fallback
+  return qualities.max;
+};
+
+// Simple and reliable thumbnail component
+const ThumbnailImage = ({ youtubeId, alt }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`);
+  
+  const handleImageError = (e) => {
+    console.log(`Thumbnail error for ${youtubeId}:`, currentSrc);
+    // Fallback to high quality if max resolution fails
+    if (currentSrc.includes('maxresdefault')) {
+      const fallbackSrc = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+      console.log(`Falling back to: ${fallbackSrc}`);
+      setCurrentSrc(fallbackSrc);
+    } else if (currentSrc.includes('hqdefault')) {
+      const fallbackSrc = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
+      console.log(`Falling back to: ${fallbackSrc}`);
+      setCurrentSrc(fallbackSrc);
+    } else {
+      // All fallbacks failed, show error
+      console.log(`All thumbnail fallbacks failed for ${youtubeId}`);
+      setImageError(true);
+    }
+  };
+  
+  const handleImageLoad = () => {
+    console.log(`Thumbnail loaded successfully for ${youtubeId}:`, currentSrc);
+    setImageLoaded(true);
+    setImageError(false);
+  };
+  
+  if (imageError) {
+    return null; // Show gradient background
+  }
+  
+  return (
+    <img 
+      className="thumbnail-image"
+      src={currentSrc}
+      alt={alt}
+      onLoad={handleImageLoad}
+      onError={handleImageError}
+      style={{
+        opacity: imageLoaded ? 1 : 0,
+        transition: 'opacity 0.3s ease'
+      }}
+    />
+  );
+};
+
 // Learning page
 export const Learning = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -336,96 +419,90 @@ export const Learning = () => {
   const videos = [
     {
       id: 1,
-      title: "Biosecurity Fundamentals for Pig Farms",
-      description: "Learn the essential biosecurity measures every pig farmer should implement to prevent disease outbreaks.",
-      category: "biosecurity",
-      duration: "15:30",
+      title: "Modern Livestock Management Techniques",
+      description: "Comprehensive guide to modern livestock management practices including feeding, housing, and health monitoring for optimal farm productivity.",
+      category: "management",
+      duration: "12:30",
       rating: 4.8,
-      views: "12.5K",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-      youtubeId: "dQw4w9WgXcQ"
+      views: "15.2K",
+      youtubeId: "rGbC0jAP6Mg"
     },
     {
       id: 2,
-      title: "Poultry Farm Disinfection Procedures",
-      description: "Step-by-step guide on proper disinfection techniques for poultry farms to maintain optimal health.",
-      category: "poultry",
-      duration: "12:45",
-      rating: 4.6,
-      views: "8.3K",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-      youtubeId: "dQw4w9WgXcQ"
+      title: "Advanced Livestock Health Management",
+      description: "Professional guide to livestock health management covering disease prevention, treatment protocols, and maintaining optimal animal welfare standards.",
+      category: "biosecurity",
+      duration: "15:20",
+      rating: 4.8,
+      views: "26.3K",
+      youtubeId: "MBIRHQZ2E2k"
     },
     {
       id: 3,
-      title: "African Swine Fever Prevention",
-      description: "Critical information about preventing African Swine Fever and protecting your pig farm.",
-      category: "diseases",
-      duration: "18:20",
-      rating: 4.9,
-      views: "25.1K",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-      youtubeId: "dQw4w9WgXcQ"
+      title: "Pig Farming: Disease Prevention Strategies",
+      description: "Learn effective disease prevention methods specifically designed for pig farms, including vaccination schedules and sanitation protocols.",
+      category: "pig",
+      duration: "16:20",
+      rating: 4.7,
+      views: "18.5K",
+      youtubeId: "cc9_SDSgSvY"
     },
     {
       id: 4,
-      title: "Feed Safety and Storage Best Practices",
-      description: "How to ensure feed quality and safety through proper storage and handling procedures.",
-      category: "management",
-      duration: "10:15",
-      rating: 4.7,
-      views: "6.8K",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-      youtubeId: "dQw4w9WgXcQ"
+      title: "Poultry Health Management & Disease Control",
+      description: "Complete guide to maintaining poultry health, recognizing common diseases, and implementing effective treatment and prevention measures.",
+      category: "poultry",
+      duration: "13:15",
+      rating: 4.6,
+      views: "11.8K",
+      youtubeId: "rYCL5eQ6dqI"
     },
     {
       id: 5,
-      title: "Avian Influenza: Signs and Prevention",
-      description: "Recognize early signs of avian influenza and implement effective prevention strategies.",
-      category: "diseases",
-      duration: "14:30",
-      rating: 4.8,
-      views: "18.9K",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-      youtubeId: "dQw4w9WgXcQ"
+      title: "Professional Cattle Management Systems",
+      description: "Comprehensive guide to professional cattle management systems covering breeding programs, nutrition planning, and modern farming technologies for enhanced productivity.",
+      category: "management",
+      duration: "18:45",
+      rating: 4.7,
+      views: "32.8K",
+      youtubeId: "R38LsUMusMA"
     },
     {
       id: 6,
-      title: "Worker Hygiene and Training",
-      description: "Train your farm workers on proper hygiene practices and biosecurity protocols.",
+      title: "Complete Livestock Farm Management Guide",
+      description: "Comprehensive livestock farm management guide covering animal care, feeding protocols, health monitoring, and maximizing farm productivity.",
       category: "management",
-      duration: "11:45",
-      rating: 4.5,
-      views: "5.2K",
-      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-      youtubeId: "dQw4w9WgXcQ"
+      duration: "19:30",
+      rating: 4.8,
+      views: "35.6K",
+      youtubeId: "H1x2RQv3XPc"
     }
   ];
 
   const resources = [
     {
-      title: "Biosecurity Manual",
-      description: "Comprehensive guide covering all aspects of farm biosecurity.",
-      link: "#",
-      type: "PDF Guide"
+      title: "Livestock Biosecurity & Animal Health Policies",
+      description: "FAO Biosecurity Principles and Policy Frameworks (Comprehensive global perspective on biosecurity strategies and guidelines)",
+      link: "https://www.fao.org/4/a1140e/a1140e01.pdf",
+      type: "FAO Biosecurity Toolkit PDF"
     },
     {
-      title: "Disease Prevention Checklist",
-      description: "Daily and weekly checkpoints for disease prevention.",
-      link: "#",
-      type: "Checklist"
+      title: "Biosecurity & Biosafety Manual for Bovines in India",
+      description: "Practical guidelines and checklists tailored for Indian farms",
+      link: "https://epashuhaat.com/India/e-pashudhan/documents/Biosecurity%20and%20Biosafety%20Manual.pdf",
+      type: "Biosecurity & Biosafety Manual PDF"
     },
     {
-      title: "Emergency Response Plan",
-      description: "What to do when disease outbreak is suspected.",
-      link: "#",
-      type: "Action Plan"
+      title: "Livestock Emergency Response & Operational Guidelines",
+      description: "Operational Guidelines for Livestock Health & Disease Control in India",
+      link: "https://megahvt.gov.in/miscellaneous/LH_DC_Operational_Guidelines.pdf",
+      type: "Operational Guidelines Livestock Health PDF"
     },
     {
-      title: "Government Guidelines",
-      description: "Official biosecurity guidelines from DAHD.",
-      link: "#",
-      type: "Official Document"
+      title: "Livestock Emergency Response Plan Template",
+      description: "Stepwise plan for managing livestock emergencies",
+      link: "https://flsart.org/resource/TLAER/Livestock.pdf",
+      type: "Livestock Emergency Response Plan PDF"
     }
   ];
 
@@ -438,6 +515,26 @@ export const Learning = () => {
 
   const openYouTubeVideo = (youtubeId) => {
     window.open(`https://www.youtube.com/watch?v=${youtubeId}`, '_blank');
+  };
+
+  const downloadResource = async (url, filename) => {
+    try {
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'document.pdf';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback: open in new tab
+      window.open(url, '_blank');
+    }
   };
 
   return (
@@ -481,9 +578,12 @@ export const Learning = () => {
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <VideoThumbnail 
-              thumbnail={video.thumbnail}
               onClick={() => openYouTubeVideo(video.youtubeId)}
             >
+              <ThumbnailImage 
+                youtubeId={video.youtubeId}
+                alt={video.title}
+              />
               <div className="play-button">
                 <FiPlay />
               </div>
@@ -536,10 +636,35 @@ export const Learning = () => {
             >
               <h4>{resource.title}</h4>
               <p>{resource.description}</p>
-              <a href={resource.link}>
-                <FiDownload />
+              <span 
+                onClick={() => downloadResource(resource.link, `${resource.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  color: '#FF7F50',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '3px',
+                  transition: 'all 0.3s ease',
+                  marginTop: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = '#FF6A35';
+                  e.target.style.textDecorationThickness = '2px';
+                  e.target.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = '#FF7F50';
+                  e.target.style.textDecorationThickness = '1px';
+                  e.target.style.transform = 'translateY(0px)';
+                }}
+              >
+                <FiDownload size={14} />
                 Download {resource.type}
-              </a>
+              </span>
             </ResourceCard>
           ))}
         </ResourceGrid>
