@@ -432,11 +432,11 @@ const EnhancedAuth = () => {
               label="Email Address"
               name="email"
               value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
               placeholder="Enter your email"
               required
-              error={errors.email?.errors}
+              error={validationErrors.email?.errors}
               disabled={isSubmitting}
             />
 
@@ -538,7 +538,7 @@ onChange={handleInputChange}
                 onBlur={handleInputBlur}
                 placeholder="Enter your password"
                 required
-                error={errors.password?.errors}
+                error={validationErrors.password?.errors}
                 disabled={isSubmitting}
               />
 
@@ -557,11 +557,11 @@ onChange={handleInputChange}
                 label="First Name"
                 name="firstName"
                 value={formData.firstName}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="First name"
                 required
-                error={errors.firstName?.errors}
+                error={validationErrors.firstName?.errors}
                 disabled={isSubmitting}
                 maxLength={50}
               />
@@ -571,11 +571,11 @@ onChange={handleInputChange}
                 label="Last Name"
                 name="lastName"
                 value={formData.lastName}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Last name"
                 required
-                error={errors.lastName?.errors}
+                error={validationErrors.lastName?.errors}
                 disabled={isSubmitting}
                 maxLength={50}
               />
@@ -585,11 +585,11 @@ onChange={handleInputChange}
                 label="Email Address"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Enter your email"
                 required
-                error={errors.email?.errors}
+                error={validationErrors.email?.errors}
                 disabled={isSubmitting}
                 className="full-width"
               />
@@ -599,11 +599,11 @@ onChange={handleInputChange}
                 label="Phone Number"
                 name="phone"
                 value={formData.phone}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="+91 98765 43210"
                 required
-                error={errors.phone?.errors}
+                error={validationErrors.phone?.errors}
                 disabled={isSubmitting}
                 className="full-width"
               />
@@ -613,11 +613,11 @@ onChange={handleInputChange}
                 label="Farm Location"
                 name="farmLocation"
                 value={formData.farmLocation}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Enter your farm location"
                 required
-                error={errors.farmLocation?.errors}
+                error={validationErrors.farmLocation?.errors}
                 disabled={isSubmitting}
                 className="full-width"
                 maxLength={100}
@@ -628,11 +628,11 @@ onChange={handleInputChange}
                 label="Password"
                 name="password"
                 value={formData.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Create a strong password"
                 required
-                error={errors.password?.errors}
+                error={validationErrors.password?.errors}
                 warning={passwordValidation.warnings}
                 showPasswordStrength={true}
                 passwordStrength={passwordValidation}
@@ -645,11 +645,11 @@ onChange={handleInputChange}
                 label="Confirm Password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Confirm your password"
                 required
-                error={errors.confirmPassword?.errors}
+                error={validationErrors.confirmPassword?.errors}
                 success={formData.confirmPassword && formData.password === formData.confirmPassword ? 'Passwords match' : null}
                 disabled={isSubmitting}
                 className="full-width"
