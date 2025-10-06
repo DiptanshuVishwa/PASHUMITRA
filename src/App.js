@@ -27,7 +27,6 @@ import {
   ContactVet,
   ContactUs
 } from './pages/PlaceholderPages';
-import AIBot from './components/AIBot';
 import './App.css';
 
 function App() {
@@ -63,7 +62,6 @@ function App() {
               </Routes>
             </main>
             <Footer />
-            <AIBot />
           </div>
         </Router>
       </AuthProvider>
