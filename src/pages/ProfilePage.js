@@ -618,11 +618,19 @@ const ProfilePage = () => {
     farmName: '',
     farmType: 'poultry',
     farmSize: '',
+    areaUnit: 'acres',
     farmAddress: '',
     city: '',
     state: '',
     pincode: '',
     established: '',
+    pigCount: 0,
+    poultryCount: 0,
+    totalStaff: 1,
+    hasVeterinarian: false,
+    farmingPurpose: 'mixed',
+    waterSource: 'borewell',
+    hasInternet: false,
     
     // Livestock Details
     totalAnimals: '',
@@ -646,18 +654,45 @@ const ProfilePage = () => {
   // Load user data when component mounts or user changes
   useEffect(() => {
     if (user) {
+      console.log('Loading profile data from user:', user);
+      console.log('User farm details:', user.farmDetails);
+      
       const nameParts = user.name ? user.name.split(' ') : ['', ''];
+      const farmDetails = user.farmDetails || {};
+      
       setProfileData(prev => ({
         ...prev,
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
         email: user.email || '',
         phone: user.phone || '',
-        farmName: user.farmLocation || '',
+        
+        // Farm details from questionnaire
+        farmName: farmDetails.name || user.farmLocation || '',
+        farmType: farmDetails.type || 'poultry',
+        farmSize: farmDetails.totalArea || '',
+        areaUnit: farmDetails.areaUnit || 'acres',
+        established: farmDetails.establishedYear || '',
+        pigCount: farmDetails.animalCount?.pigs || 0,
+        poultryCount: farmDetails.animalCount?.poultry || 0,
+        totalStaff: farmDetails.totalStaff || 1,
+        hasVeterinarian: farmDetails.hasVeterinarian || false,
+        farmingPurpose: farmDetails.farmingPurpose || 'mixed',
+        waterSource: farmDetails.waterSource || 'borewell',
+        hasInternet: farmDetails.hasInternet || false,
+        totalAnimals: (farmDetails.animalCount?.pigs || 0) + (farmDetails.animalCount?.poultry || 0) + (farmDetails.animalCount?.cattle || 0) + (farmDetails.animalCount?.others || 0),
+        animalTypes: [
+          farmDetails.animalCount?.pigs > 0 ? `${farmDetails.animalCount.pigs} Pigs` : '',
+          farmDetails.animalCount?.poultry > 0 ? `${farmDetails.animalCount.poultry} Poultry` : '',
+          farmDetails.animalCount?.cattle > 0 ? `${farmDetails.animalCount.cattle} Cattle` : '',
+          farmDetails.animalCount?.others > 0 ? `${farmDetails.animalCount.others} Others` : ''
+        ].filter(Boolean).join(', ') || '',
+        
         // Use preferences if available
         emailNotifications: user.preferences?.notifications?.email ?? true,
         smsNotifications: user.preferences?.notifications?.sms ?? false,
         alertNotifications: user.preferences?.notifications?.push ?? true,
+        
         // Set other fields from user data if available
         ...user.profile // This would contain additional profile fields if stored
       }));
@@ -724,6 +759,24 @@ const ProfilePage = () => {
             push: profileData.alertNotifications
           }
         },
+        farmDetails: {
+          name: profileData.farmName,
+          type: profileData.farmType,
+          totalArea: profileData.farmSize,
+          areaUnit: profileData.areaUnit,
+          establishedYear: profileData.established,
+          animalCount: {
+            pigs: parseInt(profileData.pigCount) || 0,
+            poultry: parseInt(profileData.poultryCount) || 0,
+            cattle: 0,
+            others: 0
+          },
+          totalStaff: parseInt(profileData.totalStaff) || 1,
+          hasVeterinarian: profileData.hasVeterinarian,
+          farmingPurpose: profileData.farmingPurpose,
+          waterSource: profileData.waterSource,
+          hasInternet: profileData.hasInternet
+        },
         profile: {
           dateOfBirth: profileData.dateOfBirth,
           farmType: profileData.farmType,
@@ -757,13 +810,29 @@ const ProfilePage = () => {
     // Reset to user data
     if (user) {
       const nameParts = user.name ? user.name.split(' ') : ['', ''];
+      const farmDetails = user.farmDetails || {};
+      
       setProfileData(prev => ({
         ...prev,
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
         email: user.email || '',
         phone: user.phone || '',
-        farmName: user.farmLocation || '',
+        
+        // Reset farm details to original values
+        farmName: farmDetails.name || user.farmLocation || '',
+        farmType: farmDetails.type || 'poultry',
+        farmSize: farmDetails.totalArea || '',
+        areaUnit: farmDetails.areaUnit || 'acres',
+        established: farmDetails.establishedYear || '',
+        pigCount: farmDetails.animalCount?.pigs || 0,
+        poultryCount: farmDetails.animalCount?.poultry || 0,
+        totalStaff: farmDetails.totalStaff || 1,
+        hasVeterinarian: farmDetails.hasVeterinarian || false,
+        farmingPurpose: farmDetails.farmingPurpose || 'mixed',
+        waterSource: farmDetails.waterSource || 'borewell',
+        hasInternet: farmDetails.hasInternet || false,
+        
         emailNotifications: user.preferences?.notifications?.email ?? true,
         smsNotifications: user.preferences?.notifications?.sms ?? false,
         alertNotifications: user.preferences?.notifications?.push ?? true
@@ -953,38 +1022,50 @@ const ProfilePage = () => {
 
       <FormGrid>
         <FormGroup>
-          <label className="label">Farm Name <span className="required">*</span></label>
+          <label className="label">Farm Name</label>
           <Input
             type="text"
             value={profileData.farmName}
             onChange={(e) => handleInputChange('farmName', e.target.value)}
             disabled={!isEditing}
+            placeholder="Enter your farm name"
           />
         </FormGroup>
         
         <FormGroup>
-          <label className="label">Farm Type <span className="required">*</span></label>
+          <label className="label">Farm Type</label>
           <Select
             value={profileData.farmType}
             onChange={(e) => handleInputChange('farmType', e.target.value)}
             disabled={!isEditing}
           >
-            <option value="poultry">Poultry</option>
-            <option value="pig">Pig</option>
-            <option value="cattle">Cattle</option>
-            <option value="goat">Goat</option>
-            <option value="mixed">Mixed</option>
+            <option value="pig">Pig Farm</option>
+            <option value="poultry">Poultry Farm</option>
+            <option value="both">Both Pig and Poultry</option>
           </Select>
         </FormGroup>
         
         <FormGroup>
-          <label className="label">Farm Size (Acres)</label>
+          <label className="label">Farm Size</label>
           <Input
             type="number"
             value={profileData.farmSize}
             onChange={(e) => handleInputChange('farmSize', e.target.value)}
             disabled={!isEditing}
+            placeholder="Enter farm area"
           />
+        </FormGroup>
+        
+        <FormGroup>
+          <label className="label">Area Unit</label>
+          <Select
+            value={profileData.areaUnit || 'acres'}
+            onChange={(e) => handleInputChange('areaUnit', e.target.value)}
+            disabled={!isEditing}
+          >
+            <option value="acres">Acres</option>
+            <option value="hectares">Hectares</option>
+          </Select>
         </FormGroup>
         
         <FormGroup>
@@ -994,78 +1075,163 @@ const ProfilePage = () => {
             value={profileData.established}
             onChange={(e) => handleInputChange('established', e.target.value)}
             disabled={!isEditing}
-            min="1950"
+            min="1900"
             max={new Date().getFullYear()}
-          />
-        </FormGroup>
-        
-        <FormGroup className="full-width">
-          <label className="label">Farm Address <span className="required">*</span></label>
-          <TextArea
-            value={profileData.farmAddress}
-            onChange={(e) => handleInputChange('farmAddress', e.target.value)}
-            disabled={!isEditing}
-            placeholder="Enter complete farm address"
+            placeholder="e.g., 2015"
           />
         </FormGroup>
         
         <FormGroup>
-          <label className="label">City <span className="required">*</span></label>
+          <label className="label">Number of Pigs</label>
           <Input
-            type="text"
-            value={profileData.city}
-            onChange={(e) => handleInputChange('city', e.target.value)}
+            type="number"
+            value={profileData.pigCount || 0}
+            onChange={(e) => handleInputChange('pigCount', e.target.value)}
             disabled={!isEditing}
+            min="0"
+            placeholder="0"
           />
         </FormGroup>
         
         <FormGroup>
-          <label className="label">State <span className="required">*</span></label>
+          <label className="label">Number of Poultry</label>
+          <Input
+            type="number"
+            value={profileData.poultryCount || 0}
+            onChange={(e) => handleInputChange('poultryCount', e.target.value)}
+            disabled={!isEditing}
+            min="0"
+            placeholder="0"
+          />
+        </FormGroup>
+        
+        <FormGroup>
+          <label className="label">Total Staff</label>
+          <Input
+            type="number"
+            value={profileData.totalStaff || 1}
+            onChange={(e) => handleInputChange('totalStaff', e.target.value)}
+            disabled={!isEditing}
+            min="1"
+            placeholder="1"
+          />
+        </FormGroup>
+        
+        <FormGroup>
+          <label className="label">Has Veterinarian Access</label>
           <Select
-            value={profileData.state}
-            onChange={(e) => handleInputChange('state', e.target.value)}
+            value={profileData.hasVeterinarian ? 'yes' : 'no'}
+            onChange={(e) => handleInputChange('hasVeterinarian', e.target.value === 'yes')}
             disabled={!isEditing}
           >
-            <option value="Andhra Pradesh">Andhra Pradesh</option>
-            <option value="Telangana">Telangana</option>
-            <option value="Karnataka">Karnataka</option>
-            <option value="Tamil Nadu">Tamil Nadu</option>
-            <option value="Kerala">Kerala</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
           </Select>
         </FormGroup>
         
         <FormGroup>
-          <label className="label">PIN Code <span className="required">*</span></label>
-          <Input
-            type="text"
-            value={profileData.pincode}
-            onChange={(e) => handleInputChange('pincode', e.target.value)}
+          <label className="label">Farming Purpose</label>
+          <Select
+            value={profileData.farmingPurpose || 'mixed'}
+            onChange={(e) => handleInputChange('farmingPurpose', e.target.value)}
             disabled={!isEditing}
-            maxLength="6"
-          />
+          >
+            <option value="commercial">Commercial (for selling)</option>
+            <option value="subsistence">Subsistence (for own use)</option>
+            <option value="mixed">Both commercial and subsistence</option>
+          </Select>
         </FormGroup>
         
         <FormGroup>
-          <label className="label">Total Animals</label>
-          <Input
-            type="number"
-            value={profileData.totalAnimals}
-            onChange={(e) => handleInputChange('totalAnimals', e.target.value)}
+          <label className="label">Water Source</label>
+          <Select
+            value={profileData.waterSource || 'borewell'}
+            onChange={(e) => handleInputChange('waterSource', e.target.value)}
             disabled={!isEditing}
-          />
+          >
+            <option value="municipal">Municipal water supply</option>
+            <option value="borewell">Borewell</option>
+            <option value="well">Open well</option>
+            <option value="river">River/stream</option>
+            <option value="other">Other</option>
+          </Select>
         </FormGroup>
         
-        <FormGroup className="full-width">
-          <label className="label">Animal Types</label>
-          <Input
-            type="text"
-            value={profileData.animalTypes}
-            onChange={(e) => handleInputChange('animalTypes', e.target.value)}
+        <FormGroup>
+          <label className="label">Internet Connectivity</label>
+          <Select
+            value={profileData.hasInternet ? 'yes' : 'no'}
+            onChange={(e) => handleInputChange('hasInternet', e.target.value === 'yes')}
             disabled={!isEditing}
-            placeholder="e.g., Broiler Chickens, Layer Hens"
-          />
+          >
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </Select>
         </FormGroup>
       </FormGrid>
+      
+      {/* Biosecurity Score Section or Questionnaire Prompt */}
+      {user?.farmDetails?.biosecurityScore ? (
+        <div style={{ marginTop: '30px', padding: '20px', background: '#f8f9fa', borderRadius: '8px' }}>
+          <h4 style={{ marginBottom: '16px', color: '#333' }}>Biosecurity Assessment</h4>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: user.farmDetails.biosecurityScore.percentage >= 70 ? '#28a745' : user.farmDetails.biosecurityScore.percentage >= 50 ? '#ffc107' : '#dc3545' }}>
+                {Math.round(user.farmDetails.biosecurityScore.percentage)}%
+              </div>
+              <div style={{ fontSize: '14px', color: '#666' }}>Biosecurity Score</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                {user.farmDetails.biosecurityScore.total}/9
+              </div>
+              <div style={{ fontSize: '14px', color: '#666' }}>Points Scored</div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Assessment Level:</div>
+              <div style={{ 
+                padding: '4px 12px', 
+                borderRadius: '16px', 
+                fontSize: '12px', 
+                fontWeight: 'bold',
+                background: user.farmDetails.biosecurityScore.percentage >= 70 ? 'rgba(40, 167, 69, 0.1)' : user.farmDetails.biosecurityScore.percentage >= 50 ? 'rgba(255, 193, 7, 0.1)' : 'rgba(220, 53, 69, 0.1)',
+                color: user.farmDetails.biosecurityScore.percentage >= 70 ? '#28a745' : user.farmDetails.biosecurityScore.percentage >= 50 ? '#856404' : '#dc3545',
+                display: 'inline-block'
+              }}>
+                {user.farmDetails.biosecurityScore.percentage >= 70 ? 'EXCELLENT' : user.farmDetails.biosecurityScore.percentage >= 50 ? 'GOOD' : 'NEEDS IMPROVEMENT'}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ marginTop: '30px', padding: '20px', background: 'linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%)', borderRadius: '8px', border: '1px solid #feb2b2' }}>
+          <h4 style={{ marginBottom: '16px', color: '#c53030', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '20px' }}>⚠️</span>
+            Farm Details Incomplete
+          </h4>
+          <p style={{ color: '#744210', marginBottom: '16px' }}>
+            Complete our farm questionnaire to set up your profile with farm details and biosecurity assessment.
+          </p>
+          <button
+            onClick={() => window.location.href = '/questionnaire'}
+            style={{
+              background: 'var(--primary-coral)',
+              color: 'white',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              fontSize: '14px',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseOver={(e) => e.target.style.background = '#FF6A35'}
+            onMouseOut={(e) => e.target.style.background = 'var(--primary-coral)'}
+          >
+            Complete Farm Questionnaire
+          </button>
+        </div>
+      )}
 
       {isEditing && (
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>

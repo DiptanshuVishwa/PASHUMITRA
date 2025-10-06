@@ -125,6 +125,108 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  farmDetails: {
+    // Basic Farm Information
+    name: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Farm name cannot be more than 100 characters']
+    },
+    type: {
+      type: String,
+      enum: ['pig', 'poultry', 'both']
+    },
+    establishedYear: {
+      type: Number,
+      min: [1900, 'Establishment year cannot be before 1900'],
+      max: [new Date().getFullYear(), 'Establishment year cannot be in the future']
+    },
+    
+    // Farm Size
+    totalArea: {
+      type: Number,
+      min: [0, 'Area cannot be negative']
+    },
+    areaUnit: {
+      type: String,
+      enum: ['acres', 'hectares'],
+      default: 'acres'
+    },
+    
+    // Animal Count
+    animalCount: {
+      pigs: {
+        type: Number,
+        min: [0, 'Pig count cannot be negative'],
+        default: 0
+      },
+      poultry: {
+        type: Number,
+        min: [0, 'Poultry count cannot be negative'],
+        default: 0
+      },
+      cattle: {
+        type: Number,
+        min: [0, 'Cattle count cannot be negative'],
+        default: 0
+      },
+      others: {
+        type: Number,
+        min: [0, 'Other animals count cannot be negative'],
+        default: 0
+      }
+    },
+    
+    // Staff Information
+    totalStaff: {
+      type: Number,
+      min: [0, 'Staff count cannot be negative'],
+      default: 1
+    },
+    hasVeterinarian: {
+      type: Boolean,
+      default: false
+    },
+    
+    // Basic Infrastructure
+    hasElectricity: {
+      type: Boolean,
+      default: true
+    },
+    waterSource: {
+      type: String,
+      enum: ['municipal', 'borewell', 'well', 'river', 'other'],
+      default: 'borewell'
+    },
+    hasInternet: {
+      type: Boolean,
+      default: false
+    },
+    
+    // Business Type
+    farmingPurpose: {
+      type: String,
+      enum: ['commercial', 'subsistence', 'mixed'],
+      default: 'mixed'
+    },
+    
+    // Biosecurity Assessment (from questionnaire)
+    biosecurityScore: {
+      total: {
+        type: Number,
+        min: 0,
+        max: 10,
+        default: 0
+      },
+      percentage: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 0
+      }
+    }
+  },
+
   role: {
     type: String,
     enum: ['user', 'admin', 'veterinarian'],

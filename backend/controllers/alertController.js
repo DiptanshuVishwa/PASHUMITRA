@@ -496,6 +496,212 @@ const getNearbyAlerts = async (req, res) => {
   }
 };
 
+// @desc    Get alerts for heatmap visualization
+// @route   GET /api/alerts/heatmap
+// @access  Public
+const getAlertHeatmapData = async (req, res) => {
+  try {
+    const {
+      bounds, // "north,south,east,west" format
+      zoom = 10,
+      clusterRadius = 50000, // 50km default clustering radius
+      minZoom = 1
+    } = req.query;
+
+    let filters = {
+      status: { $in: ['active', 'investigating'] }, // Only show active alerts
+      'location.coordinates.lat': { $exists: true },
+      'location.coordinates.lng': { $exists: true }
+    };
+
+    // Apply geographic bounds if provided
+    if (bounds) {
+      const [north, south, east, west] = bounds.split(',').map(parseFloat);
+      filters['location.coordinates.lat'] = { $gte: south, $lte: north };
+      filters['location.coordinates.lng'] = { $gte: west, $lte: east };
+    }
+
+    // Aggregate alerts by location with clustering based on zoom level
+    const zoomLevel = parseInt(zoom);
+    const precision = Math.max(1, Math.min(6, Math.floor(zoomLevel / 2))); // Adjust precision based on zoom
+
+    const pipeline = [
+      { $match: filters },
+      {
+        $addFields: {
+          // Create location clusters based on coordinate precision
+          clusterLat: {
+            $round: [{
+              $multiply: ['$location.coordinates.lat', Math.pow(10, precision)]
+            }, 0]
+          },
+          clusterLng: {
+            $round: [{
+              $multiply: ['$location.coordinates.lng', Math.pow(10, precision)]
+            }, 0]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            lat: '$clusterLat',
+            lng: '$clusterLng'
+          },
+          alerts: {
+            $push: {
+              id: '$_id',
+              title: '$title',
+              severity: '$severity',
+              category: '$category',
+              status: '$status',
+              createdAt: '$createdAt',
+              location: '$location',
+              affectedAnimals: '$affectedAnimals'
+            }
+          },
+          count: { $sum: 1 },
+          avgLat: { $avg: '$location.coordinates.lat' },
+          avgLng: { $avg: '$location.coordinates.lng' },
+          maxSeverity: {
+            $max: {
+              $switch: {
+                branches: [
+                  { case: { $eq: ['$severity', 'critical'] }, then: 4 },
+                  { case: { $eq: ['$severity', 'high'] }, then: 3 },
+                  { case: { $eq: ['$severity', 'medium'] }, then: 2 },
+                  { case: { $eq: ['$severity', 'low'] }, then: 1 }
+                ],
+                default: 1
+              }
+            }
+          },
+          severityDistribution: {
+            $push: '$severity'
+          },
+          categories: {
+            $addToSet: '$category'
+          },
+          totalAffectedAnimals: {
+            $sum: '$affectedAnimals.count'
+          }
+        }
+      },
+      {
+        $addFields: {
+          maxSeverityName: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$maxSeverity', 4] }, then: 'critical' },
+                { case: { $eq: ['$maxSeverity', 3] }, then: 'high' },
+                { case: { $eq: ['$maxSeverity', 2] }, then: 'medium' },
+                { case: { $eq: ['$maxSeverity', 1] }, then: 'low' }
+              ],
+              default: 'low'
+            }
+          },
+          riskScore: {
+            $add: [
+              '$maxSeverity',
+              { $multiply: [{ $log: '$count' }, 0.5] }, // Logarithmic scaling for count
+              { $divide: ['$totalAffectedAnimals', 100] } // Animal impact factor
+            ]
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          coordinates: {
+            lat: '$avgLat',
+            lng: '$avgLng'
+          },
+          count: 1,
+          maxSeverity: '$maxSeverityName',
+          riskScore: { $round: ['$riskScore', 2] },
+          categories: 1,
+          totalAffectedAnimals: 1,
+          alerts: {
+            $cond: {
+              if: { $lte: ['$count', 10] }, // Only include individual alerts for small clusters
+              then: '$alerts',
+              else: { $slice: ['$alerts', 5] } // Limit to 5 sample alerts for large clusters
+            }
+          },
+          severityCount: {
+            critical: {
+              $size: {
+                $filter: {
+                  input: '$severityDistribution',
+                  cond: { $eq: ['$$this', 'critical'] }
+                }
+              }
+            },
+            high: {
+              $size: {
+                $filter: {
+                  input: '$severityDistribution',
+                  cond: { $eq: ['$$this', 'high'] }
+                }
+              }
+            },
+            medium: {
+              $size: {
+                $filter: {
+                  input: '$severityDistribution',
+                  cond: { $eq: ['$$this', 'medium'] }
+                }
+              }
+            },
+            low: {
+              $size: {
+                $filter: {
+                  input: '$severityDistribution',
+                  cond: { $eq: ['$$this', 'low'] }
+                }
+              }
+            }
+          }
+        }
+      },
+      { $sort: { riskScore: -1 } },
+      { $limit: 500 } // Limit results to prevent overwhelming the map
+    ];
+
+    const heatmapData = await Alert.aggregate(pipeline);
+
+    logger.info('Heatmap data retrieved', {
+      count: heatmapData.length,
+      bounds,
+      zoom: zoomLevel,
+      precision
+    });
+
+    res.status(200).json({
+      success: true,
+      count: heatmapData.length,
+      data: heatmapData,
+      metadata: {
+        zoom: zoomLevel,
+        precision,
+        clusterRadius: parseInt(clusterRadius),
+        bounds: bounds || 'global'
+      }
+    });
+  } catch (error) {
+    logger.error('Get heatmap data failed:', {
+      error: error.message,
+      query: req.query
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve heatmap data',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 // @desc    Get alert statistics
 // @route   GET /api/alerts/statistics
 // @access  Public
@@ -596,5 +802,6 @@ module.exports = {
   addComment,
   addAction,
   getNearbyAlerts,
+  getAlertHeatmapData,
   getAlertStatistics
 };

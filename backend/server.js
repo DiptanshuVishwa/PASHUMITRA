@@ -222,7 +222,7 @@ const HOST = process.env.HOST || '0.0.0.0'; // Bind to all interfaces for networ
 
 const server = app.listen(PORT, HOST, () => {
   logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on ${HOST}:${PORT}`);
-  logger.info(`Network access available at: http://192.168.0.194:${PORT}`);
+  logger.info(`Network access available at: http://10.117.158.60:${PORT}`);
   
   // Start performance monitoring
   const performanceMonitor = trackPerformance();

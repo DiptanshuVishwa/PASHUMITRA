@@ -8,6 +8,7 @@ const {
   addComment,
   addAction,
   getNearbyAlerts,
+  getAlertHeatmapData,
   getAlertStatistics
 } = require('../controllers/alertController');
 
@@ -173,6 +174,67 @@ const router = express.Router();
  *                     $ref: '#/components/schemas/Alert'
  */
 router.get('/nearby', getNearbyAlerts);
+
+/**
+ * @swagger
+ * /api/alerts/heatmap:
+ *   get:
+ *     summary: Get clustered alert data for heatmap visualization
+ *     tags: [Alerts]
+ *     parameters:
+ *       - in: query
+ *         name: bounds
+ *         schema:
+ *           type: string
+ *         description: Map bounds in format "north,south,east,west"
+ *       - in: query
+ *         name: zoom
+ *         schema:
+ *           type: number
+ *           default: 10
+ *         description: Map zoom level for clustering precision
+ *       - in: query
+ *         name: clusterRadius
+ *         schema:
+ *           type: number
+ *           default: 50000
+ *         description: Clustering radius in meters
+ *     responses:
+ *       200:
+ *         description: Heatmap data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: number
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       coordinates:
+ *                         type: object
+ *                         properties:
+ *                           lat:
+ *                             type: number
+ *                           lng:
+ *                             type: number
+ *                       count:
+ *                         type: number
+ *                       maxSeverity:
+ *                         type: string
+ *                       riskScore:
+ *                         type: number
+ *                       categories:
+ *                         type: array
+ *                       alerts:
+ *                         type: array
+ */
+router.get('/heatmap', getAlertHeatmapData);
 
 /**
  * @swagger

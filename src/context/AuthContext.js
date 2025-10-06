@@ -171,9 +171,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const completeQuestionnaire = (questionnaireData) => {
+  const completeQuestionnaire = async (questionnaireData) => {
     const userId = user?.id || user?._id || 'anonymous';
+    
+    // Save to localStorage as backup
     localStorage.setItem(`pashumitra_questionnaire_${userId}`, JSON.stringify(questionnaireData));
+    
+    // Save farm details to backend if user is authenticated and farm details exist
+    if (isAuthenticated && user && questionnaireData.farmDetails) {
+      try {
+        const response = await authAPI.updateProfile({
+          farmDetails: questionnaireData.farmDetails
+        });
+        
+        if (response.success) {
+          console.log('Farm details saved to backend successfully');
+          // Update user in state with new farm details
+          setUser(response.data.user);
+          localStorage.setItem('pashumitra_user', JSON.stringify(response.data.user));
+        }
+      } catch (error) {
+        console.error('Failed to save farm details to backend:', error);
+        // Continue anyway - questionnaire data is still saved in localStorage
+      }
+    }
+    
     setHasCompletedQuestionnaire(true);
   };
 
