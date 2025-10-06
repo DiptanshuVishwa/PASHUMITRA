@@ -63,17 +63,32 @@ export const AuthProvider = ({ children }) => {
         ? await authAPI.register(credentials)
         : await authAPI.login(credentials);
       
-      if (response.success && response.data?.user) {
-        setUser(response.data.user);
-        setIsAuthenticated(true);
-        localStorage.setItem('pashumitra_user', JSON.stringify(response.data.user));
+      if (response.success) {
+        // Handle registration that requires email verification
+        if (isRegistration && response.requiresVerification) {
+          return {
+            success: true,
+            requiresVerification: true,
+            user: response.data.user,
+            message: response.message
+          };
+        }
         
-        // Check if user has completed questionnaire
-        const userId = response.data.user.id || response.data.user._id;
-        const questionnaire = localStorage.getItem(`pashumitra_questionnaire_${userId}`);
-        setHasCompletedQuestionnaire(!!questionnaire);
+        // Handle successful login or verified registration
+        if (response.data?.user && response.token) {
+          setUser(response.data.user);
+          setIsAuthenticated(true);
+          localStorage.setItem('pashumitra_user', JSON.stringify(response.data.user));
+          
+          // Check if user has completed questionnaire
+          const userId = response.data.user.id || response.data.user._id;
+          const questionnaire = localStorage.getItem(`pashumitra_questionnaire_${userId}`);
+          setHasCompletedQuestionnaire(!!questionnaire);
+          
+          return { success: true, user: response.data.user };
+        }
         
-        return { success: true, user: response.data.user };
+        throw new Error(response.message || 'Authentication failed');
       } else {
         throw new Error(response.message || 'Authentication failed');
       }
@@ -105,7 +120,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (userData) => {
-    return await login(userData, true);
+    console.log('🔍 AuthContext register called with:', userData);
+    const result = await login(userData, true);
+    console.log('🔍 AuthContext register result:', result);
+    return result;
   };
 
   const forgotPassword = async (email) => {
@@ -199,6 +217,57 @@ export const AuthProvider = ({ children }) => {
     setHasCompletedQuestionnaire(true);
   };
 
+  const verifyEmail = async (token) => {
+    try {
+      setLoading(true);
+      const response = await authAPI.verifyEmail(token);
+      
+      // If verification is successful and we received a token, return it for auto-login
+      if (response.success) {
+        // If we have a token, this is the new format with auto-login capability
+        if (response.token) {
+          console.log('AuthContext - verifyEmail received token for auto-login');
+          return { 
+            success: true, 
+            message: response.message,
+            token: response.token,
+            data: response.data 
+          };
+        } else {
+          // Old format - just update user data if available
+          if (user) {
+            const updatedUser = { ...user, emailVerified: true };
+            setUser(updatedUser);
+            localStorage.setItem('pashumitra_user', JSON.stringify(updatedUser));
+          }
+          return { success: true, message: response.message };
+        }
+      }
+      
+      return { success: false, error: response.message || 'Verification failed' };
+    } catch (error) {
+      console.error('Email verification error:', error);
+      const errorMessage = handleApiError(error, 'Email verification failed');
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const resendVerification = async (email) => {
+    try {
+      setLoading(true);
+      const response = await authAPI.resendVerification(email);
+      return { success: true, message: response.message };
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      const errorMessage = handleApiError(error, 'Failed to send verification email');
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const setAuthData = async ({ token }) => {
     // Prevent concurrent calls
     if (isSettingAuthData) {
@@ -264,7 +333,9 @@ export const AuthProvider = ({ children }) => {
     changePassword,
     updateProfile,
     completeQuestionnaire,
-    setAuthData
+    setAuthData,
+    verifyEmail,
+    resendVerification
   };
 
   return (

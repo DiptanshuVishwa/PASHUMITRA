@@ -127,7 +127,7 @@ const Footer = () => {
             <h3>{t('Contact Information')}</h3>
             <ContactInfo>
               <FiMail />
-              <span>pashumitra@gmail.com</span>
+              <span>pashumitra.team@gmail.com</span>
             </ContactInfo>
             <ContactInfo>
               <FiPhone />

@@ -639,6 +639,15 @@ const LanguageSelector = styled.div`
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { currentLanguage, supportedLanguages, changeLanguage, t } = useLanguage();
+  
+  // Debug auth state changes
+  React.useEffect(() => {
+    console.log('🔍 Navbar - Auth state changed:', {
+      isAuthenticated,
+      userName: user?.name,
+      userEmail: user?.email
+    });
+  }, [isAuthenticated, user]);
   const navigate = useNavigate();
   
   // Navigation translations for all supported languages

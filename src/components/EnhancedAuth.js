@@ -16,6 +16,7 @@ import {
   useFormValidation
 } from '../utils/validation';
 import toast from 'react-hot-toast';
+import VerificationModal from './VerificationModal';
 
 const AuthContainer = styled.div`
   min-height: 100vh;
@@ -199,6 +200,17 @@ const EnhancedAuth = () => {
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  
+  // Email verification modal state
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState('');
+  
+  console.log('🔍 EnhancedAuth render state:', {
+    isLogin,
+    showVerificationModal,
+    verificationEmail,
+    isAuthenticated
+  });
 
   // Form validation setup
   const initialData = {
@@ -351,23 +363,33 @@ const EnhancedAuth = () => {
         : await register(userData);
 
       if (result.success) {
-        toast.success(isLogin ? 'Login successful!' : 'Registration successful!');
-        
-        const searchParams = new URLSearchParams(location.search);
-        let redirectTo;
-        
         if (isLogin) {
-          // For existing users logging in, use redirect parameter or default to landing page
-          redirectTo = searchParams.get('redirect') || '/';
+          // Login successful - proceed normally
+          toast.success('Login successful!');
+          const searchParams = new URLSearchParams(location.search);
+          const redirectTo = searchParams.get('redirect') || '/';
+          
+          setTimeout(() => {
+            navigate(redirectTo);
+          }, 1500);
         } else {
-          // For new user registration, always redirect to questionnaire page
-          // This helps onboard new users by collecting their information
-          redirectTo = '/questionnaire';
+          // Registration - check if user has token (verified) or not
+          console.log('🔍 Registration result:', result);
+          
+          if (result.token && result.data?.user) {
+            // User is verified and has token - proceed to questionnaire
+            toast.success('Registration successful! Email already verified.');
+            setTimeout(() => {
+              navigate('/questionnaire');
+            }, 1500);
+          } else {
+            // User registered but not verified - show verification modal
+            console.log('🔍 Registration successful, showing verification modal');
+            setVerificationEmail(userData.email);
+            setShowVerificationModal(true);
+            // Don't show success toast here, let the modal handle the flow
+          }
         }
-        
-        setTimeout(() => {
-          navigate(redirectTo);
-        }, 1500);
       } else {
         toast.error(result.error || 'Authentication failed');
       }
@@ -432,11 +454,11 @@ const EnhancedAuth = () => {
               label="Email Address"
               name="email"
               value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
               placeholder="Enter your email"
               required
-              error={errors.email?.errors}
+              error={validationErrors.email?.errors}
               disabled={isSubmitting}
             />
 
@@ -538,7 +560,7 @@ onChange={handleInputChange}
                 onBlur={handleInputBlur}
                 placeholder="Enter your password"
                 required
-                error={errors.password?.errors}
+                error={validationErrors.password?.errors}
                 disabled={isSubmitting}
               />
 
@@ -557,11 +579,11 @@ onChange={handleInputChange}
                 label="First Name"
                 name="firstName"
                 value={formData.firstName}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="First name"
                 required
-                error={errors.firstName?.errors}
+                error={validationErrors.firstName?.errors}
                 disabled={isSubmitting}
                 maxLength={50}
               />
@@ -571,11 +593,11 @@ onChange={handleInputChange}
                 label="Last Name"
                 name="lastName"
                 value={formData.lastName}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Last name"
                 required
-                error={errors.lastName?.errors}
+                error={validationErrors.lastName?.errors}
                 disabled={isSubmitting}
                 maxLength={50}
               />
@@ -585,11 +607,11 @@ onChange={handleInputChange}
                 label="Email Address"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Enter your email"
                 required
-                error={errors.email?.errors}
+                error={validationErrors.email?.errors}
                 disabled={isSubmitting}
                 className="full-width"
               />
@@ -599,11 +621,11 @@ onChange={handleInputChange}
                 label="Phone Number"
                 name="phone"
                 value={formData.phone}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="+91 98765 43210"
                 required
-                error={errors.phone?.errors}
+                error={validationErrors.phone?.errors}
                 disabled={isSubmitting}
                 className="full-width"
               />
@@ -613,11 +635,11 @@ onChange={handleInputChange}
                 label="Farm Location"
                 name="farmLocation"
                 value={formData.farmLocation}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Enter your farm location"
                 required
-                error={errors.farmLocation?.errors}
+                error={validationErrors.farmLocation?.errors}
                 disabled={isSubmitting}
                 className="full-width"
                 maxLength={100}
@@ -628,11 +650,11 @@ onChange={handleInputChange}
                 label="Password"
                 name="password"
                 value={formData.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Create a strong password"
                 required
-                error={errors.password?.errors}
+                error={validationErrors.password?.errors}
                 warning={passwordValidation.warnings}
                 showPasswordStrength={true}
                 passwordStrength={passwordValidation}
@@ -645,11 +667,11 @@ onChange={handleInputChange}
                 label="Confirm Password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="Confirm your password"
                 required
-                error={errors.confirmPassword?.errors}
+                error={validationErrors.confirmPassword?.errors}
                 success={formData.confirmPassword && formData.password === formData.confirmPassword ? 'Passwords match' : null}
                 disabled={isSubmitting}
                 className="full-width"
@@ -684,6 +706,17 @@ onChange={handleInputChange}
           </SwitchText>
         </form>
       </AuthCard>
+      
+      {/* Email Verification Modal */}
+      <VerificationModal 
+        isOpen={showVerificationModal}
+        userEmail={verificationEmail}
+        onClose={() => {
+          console.log('🔍 Verification modal closed');
+          setShowVerificationModal(false);
+          setVerificationEmail('');
+        }}
+      />
     </AuthContainer>
   );
 };

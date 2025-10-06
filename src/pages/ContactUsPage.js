@@ -679,7 +679,7 @@ const ContactUsPage = () => {
               <FiMail className="contact-icon" />
               <div className="contact-details">
                 <div className="contact-label">Email Support</div>
-                <div className="contact-value">support@pashumitra.gov.in<br/>Response within 24 hours</div>
+                <div className="contact-value">pashumitra.team@gmail.com<br/>Response within 24 hours</div>
               </div>
             </ContactItem>
 

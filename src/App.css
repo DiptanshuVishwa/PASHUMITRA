@@ -159,6 +159,14 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+.rotating {
+  animation: spin 1s linear infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .container {

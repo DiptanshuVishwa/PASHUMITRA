@@ -184,7 +184,7 @@ Made with ❤️ for Indian farmers and livestock owners`;
    */
   async sendEmailVerification(userData, verificationToken) {
     const { email, name } = userData;
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
     const subject = 'Verify Your Email - PashuMitra Portal';
     const htmlContent = `
